@@ -30,47 +30,8 @@ export default function ProfileScreen() {
     );
   };
 
-  const actionItems = [
-    {
-      id: 'professional-profile',
-      title: 'Προφίλ Επαγγελματία',
-      icon: '👨‍🔧',
-      onPress: () => navigation.navigate('ProfessionalProfile')
-    },
-    {
-      id: 'professional-notifications',
-      title: 'Ειδοποιήσεις Επαγγελματία',
-      icon: '🔔',
-      onPress: () => navigation.navigate('ProfessionalNotifications')
-    },
-    {
-      id: 'rate-professional',
-      title: 'Αξιολόγηση Επαγγελματία',
-      icon: '⭐',
-      onPress: () => navigation.navigate('RateProfessional', { 
-        professional: { name: 'Γιάννης Παπαδόπουλος', profession: 'Ηλεκτρολόγος' },
-        appointment: { date: '15 Ιανουαρίου 2024' }
-      })
-    },
-    {
-      id: 'update-service',
-      title: 'Ενημέρωση Υπηρεσίας',
-      icon: '🔧',
-      onPress: () => navigation.navigate('UpdateServiceDetails', {
-        appointment: { 
-          date: '15 Ιανουαρίου 2024', 
-          time: '10:00',
-          service: 'Επισκευή Ηλεκτρικών',
-          repair: 'Επισκευή φωτισμού'
-        }
-      })
-    },
-    {
-      id: 'admin-dashboard',
-      title: 'Διαχείριση Συστήματος',
-      icon: '👨‍💼',
-      onPress: () => navigation.navigate('AdminDashboard')
-    },
+  // Base action items for all users
+  const baseActionItems = [
     {
       id: 'settings',
       title: 'Ρυθμίσεις',
@@ -91,6 +52,75 @@ export default function ProfileScreen() {
     }
   ];
 
+  // Professional-specific action items
+  const professionalActionItems = [
+    {
+      id: 'professional-profile',
+      title: 'Προφίλ Επαγγελματία',
+      icon: '👨‍🔧',
+      onPress: () => navigation.navigate('ProfessionalProfile')
+    },
+    {
+      id: 'professional-notifications',
+      title: 'Ειδοποιήσεις Επαγγελματία',
+      icon: '🔔',
+      onPress: () => navigation.navigate('ProfessionalNotifications')
+    },
+    {
+      id: 'update-service',
+      title: 'Ενημέρωση Υπηρεσίας',
+      icon: '🔧',
+      onPress: () => navigation.navigate('UpdateServiceDetails', {
+        appointment: { 
+          date: '15 Ιανουαρίου 2024', 
+          time: '10:00',
+          service: 'Επισκευή Ηλεκτρικών',
+          repair: 'Επισκευή φωτισμού'
+        }
+      })
+    }
+  ];
+
+  // User-specific action items
+  const userActionItems = [
+    {
+      id: 'rate-professional',
+      title: 'Αξιολόγηση Επαγγελματία',
+      icon: '⭐',
+      onPress: () => navigation.navigate('RateProfessional', { 
+        professional: { name: 'Γιάννης Παπαδόπουλος', profession: 'Ηλεκτρολόγος' },
+        appointment: { date: '15 Ιανουαρίου 2024' }
+      })
+    }
+  ];
+
+  // Admin-specific action items
+  const adminActionItems = [
+    {
+      id: 'admin-dashboard',
+      title: 'Διαχείριση Συστήματος',
+      icon: '👨‍💼',
+      onPress: () => navigation.navigate('AdminDashboard')
+    }
+  ];
+
+  // Combine action items based on user role
+  const getActionItems = () => {
+    let items = [...baseActionItems];
+    
+    if (user?.role === 'professional') {
+      items = [...professionalActionItems, ...items];
+    } else if (user?.role === 'user') {
+      items = [...userActionItems, ...items];
+    } else if (user?.role === 'admin') {
+      items = [...adminActionItems, ...items];
+    }
+    
+    return items;
+  };
+
+  const actionItems = getActionItems();
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
@@ -104,7 +134,10 @@ export default function ProfileScreen() {
           <Text style={styles.userName}>{user?.name || 'John Doe'}</Text>
           <Text style={styles.userEmail}>{user?.email || 'user@demo.com'}</Text>
           <View style={styles.roleBadge}>
-            <Text style={styles.roleText}>ΧΡΗΣΤΗΣ</Text>
+            <Text style={styles.roleText}>
+              {user?.role === 'professional' ? 'ΕΠΑΓΓΕΛΜΑΤΙΑΣ' : 
+               user?.role === 'admin' ? 'ΔΙΑΧΕΙΡΙΣΤΗΣ' : 'ΧΡΗΣΤΗΣ'}
+            </Text>
           </View>
         </View>
 
