@@ -573,6 +573,15 @@ export default function FindProfessionalsScreen() {
           />
         </View>
       </ScrollView>
+      
+      {/* Floating Action Button for Adding Professional */}
+      <TouchableOpacity 
+        style={styles.fab}
+        onPress={() => navigation.navigate('ProfessionalRegistration')}
+      >
+        <Text style={styles.fabIcon}>+</Text>
+        <Text style={styles.fabText}>Επαγγελματίας</Text>
+      </TouchableOpacity>
     </SafeAreaView>
   );
 }
@@ -967,5 +976,32 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#6b7280',
     textAlign: 'center',
+  },
+  fab: {
+    position: 'absolute',
+    bottom: 20,
+    right: 20,
+    backgroundColor: '#007AFF',
+    borderRadius: 25,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  fabIcon: {
+    color: '#ffffff',
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginRight: 8,
+  },
+  fabText: {
+    color: '#ffffff',
+    fontSize: 14,
+    fontWeight: '600',
   },
 });
