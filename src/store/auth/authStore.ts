@@ -127,5 +127,14 @@ export const useAuthStore = create<AuthState & AuthActions>((set, get) => ({
 
   clearError: () => {
     set({ error: null });
+  },
+
+  logout: () => {
+    set({ 
+      user: null, 
+      token: null, 
+      isAuthenticated: false, 
+      error: null 
+    });
   }
 }));

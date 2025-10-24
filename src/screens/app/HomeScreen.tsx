@@ -9,10 +9,11 @@ import {
   StatusBar 
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { useAuthStore } from '../../store/auth/authStore';
 
 export default function HomeScreen() {
   const navigation = useNavigation();
-  const [user, setUser] = useState(null);
+  const { user, logout } = useAuthStore();
 
   const actionCards = [
     {
@@ -53,8 +54,9 @@ export default function HomeScreen() {
   ];
 
   const handleLogout = () => {
-    // Logout logic here
-    console.log('Logging out...');
+    logout();
+    // Navigation will be handled automatically by the RootNavigator
+    // when isAuthenticated becomes false
   };
 
   return (
