@@ -90,7 +90,10 @@ export default function FriendsScreen() {
           <Text style={styles.friendStatus}>Φίλος</Text>
         </View>
       </View>
-      <TouchableOpacity style={styles.messageButton}>
+      <TouchableOpacity 
+        style={styles.messageButton}
+        onPress={() => navigation.navigate('Chat', { senderId: item.id })}
+      >
         <Text style={styles.messageIcon}>💬</Text>
       </TouchableOpacity>
     </View>
