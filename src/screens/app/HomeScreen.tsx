@@ -35,7 +35,7 @@ export default function HomeScreen() {
       title: 'Βρείτε Επαγγελματίες',
       description: 'Αναζητήστε τις υπηρεσίες που χρειάζεστε',
       icon: '🔍',
-      screen: 'Search'
+      screen: 'FindProfessionals'
     },
     {
       id: 'friends',

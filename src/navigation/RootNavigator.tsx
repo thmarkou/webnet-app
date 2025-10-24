@@ -27,6 +27,7 @@ import RateProfessionalScreen from '../screens/app/RateProfessionalScreen';
 import UpdateServiceDetailsScreen from '../screens/app/UpdateServiceDetailsScreen';
 import DatabaseManagementScreen from '../screens/app/DatabaseManagementScreen';
 import AdminDashboardScreen from '../screens/app/AdminDashboardScreen';
+import FindProfessionalsScreen from '../screens/app/FindProfessionalsScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -185,6 +186,11 @@ export default function RootNavigator() {
           <Stack.Screen 
             name="AdminDashboard" 
             component={AdminDashboardScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen 
+            name="FindProfessionals" 
+            component={FindProfessionalsScreen}
             options={{ headerShown: false }}
           />
         </>
