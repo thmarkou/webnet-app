@@ -109,23 +109,23 @@ export default function ProfessionalRegistrationForm() {
 
   const renderStep1 = () => (
     <View style={styles.stepContainer}>
-      <Text style={styles.stepTitle}>Personal Information</Text>
+      <Text style={styles.stepTitle}>Προσωπικές Πληροφορίες</Text>
       
       <View style={styles.inputGroup}>
-        <Text style={styles.label}>First Name *</Text>
+        <Text style={styles.label}>Όνομα *</Text>
         <TextInput
           style={styles.input}
-          placeholder="Enter your first name"
+          placeholder="Εισάγετε το όνομά σας"
           value={formData.firstName}
           onChangeText={(value) => handleInputChange('firstName', value)}
         />
       </View>
 
       <View style={styles.inputGroup}>
-        <Text style={styles.label}>Last Name *</Text>
+        <Text style={styles.label}>Επώνυμο *</Text>
         <TextInput
           style={styles.input}
-          placeholder="Enter your last name"
+          placeholder="Εισάγετε το επώνυμό σας"
           value={formData.lastName}
           onChangeText={(value) => handleInputChange('lastName', value)}
         />
@@ -142,15 +142,15 @@ export default function ProfessionalRegistrationForm() {
           autoCapitalize="none"
         />
         <Text style={styles.helpText}>
-          Email is optional. If not provided, we'll use your phone number for account management.
+          Το email είναι προαιρετικό. Αν δεν δοθεί, θα χρησιμοποιήσουμε το τηλέφωνό σας για τη διαχείριση του λογαριασμού.
         </Text>
       </View>
 
       <View style={styles.inputGroup}>
-        <Text style={styles.label}>Phone Number *</Text>
+        <Text style={styles.label}>Τηλέφωνο *</Text>
         <TextInput
           style={styles.input}
-          placeholder="Enter your phone number"
+          placeholder="Εισάγετε τον αριθμό τηλεφώνου"
           value={formData.phone}
           onChangeText={(value) => handleInputChange('phone', value)}
           keyboardType="phone-pad"
@@ -158,10 +158,10 @@ export default function ProfessionalRegistrationForm() {
       </View>
 
       <View style={styles.inputGroup}>
-        <Text style={styles.label}>Password *</Text>
+        <Text style={styles.label}>Κωδικός *</Text>
         <TextInput
           style={styles.input}
-          placeholder="Enter your password"
+          placeholder="Εισάγετε τον κωδικό σας"
           value={formData.password}
           onChangeText={(value) => handleInputChange('password', value)}
           secureTextEntry
@@ -172,20 +172,20 @@ export default function ProfessionalRegistrationForm() {
 
   const renderStep2 = () => (
     <View style={styles.stepContainer}>
-      <Text style={styles.stepTitle}>Business Information</Text>
+      <Text style={styles.stepTitle}>Επιχειρηματικές Πληροφορίες</Text>
       
       <View style={styles.inputGroup}>
-        <Text style={styles.label}>Business Name *</Text>
+        <Text style={styles.label}>Όνομα Επιχείρησης *</Text>
         <TextInput
           style={styles.input}
-          placeholder="Enter your business name"
+          placeholder="Εισάγετε το όνομα της επιχείρησης"
           value={formData.businessName}
           onChangeText={(value) => handleInputChange('businessName', value)}
         />
       </View>
 
       <View style={styles.inputGroup}>
-        <Text style={styles.label}>Profession *</Text>
+        <Text style={styles.label}>Επάγγελμα *</Text>
         <TouchableOpacity 
           style={styles.dropdown}
           onPress={() => setShowProfessionDropdown(!showProfessionDropdown)}
@@ -224,10 +224,10 @@ export default function ProfessionalRegistrationForm() {
       </View>
 
       <View style={styles.inputGroup}>
-        <Text style={styles.label}>VAT number *</Text>
+        <Text style={styles.label}>ΑΦΜ *</Text>
         <TextInput
           style={styles.input}
-          placeholder="Enter your VAT number"
+          placeholder="Εισάγετε τον ΑΦΜ"
           value={formData.vatNumber}
           onChangeText={(value) => handleInputChange('vatNumber', value)}
           keyboardType="numeric"
@@ -235,7 +235,7 @@ export default function ProfessionalRegistrationForm() {
       </View>
 
       <View style={styles.inputGroup}>
-        <Text style={styles.label}>Website (Optional)</Text>
+        <Text style={styles.label}>Ιστοσελίδα (Προαιρετικό)</Text>
         <TextInput
           style={styles.input}
           placeholder="Enter your website URL (optional)"
@@ -245,12 +245,12 @@ export default function ProfessionalRegistrationForm() {
           autoCapitalize="none"
         />
         <Text style={styles.helpText}>
-          Add your website to help customers learn more about your services
+          Προσθέστε την ιστοσελίδα σας για να βοηθήσετε τους πελάτες να μάθουν περισσότερα για τις υπηρεσίες σας
         </Text>
       </View>
 
       <View style={styles.inputGroup}>
-        <Text style={styles.label}>About (Optional)</Text>
+        <Text style={styles.label}>Σχετικά (Προαιρετικό)</Text>
         <TextInput
           style={[styles.input, styles.textArea]}
           placeholder="Describe your experience and services"
@@ -265,10 +265,10 @@ export default function ProfessionalRegistrationForm() {
 
   const renderStep3 = () => (
     <View style={styles.stepContainer}>
-      <Text style={styles.stepTitle}>Address Information</Text>
+      <Text style={styles.stepTitle}>Πληροφορίες Διεύθυνσης</Text>
       
       <View style={styles.inputGroup}>
-        <Text style={styles.label}>Number *</Text>
+        <Text style={styles.label}>Αριθμός *</Text>
         <TextInput
           style={styles.input}
           placeholder="Enter street number"
@@ -278,7 +278,7 @@ export default function ProfessionalRegistrationForm() {
       </View>
 
       <View style={styles.inputGroup}>
-        <Text style={styles.label}>Area *</Text>
+        <Text style={styles.label}>Περιοχή *</Text>
         <TextInput
           style={styles.input}
           placeholder="Enter area"
@@ -288,7 +288,7 @@ export default function ProfessionalRegistrationForm() {
       </View>
 
       <View style={styles.inputGroup}>
-        <Text style={styles.label}>Postal Code *</Text>
+        <Text style={styles.label}>Ταχυδρομικός Κώδικας *</Text>
         <TextInput
           style={styles.input}
           placeholder="Enter postal code"
@@ -377,13 +377,13 @@ export default function ProfessionalRegistrationForm() {
 
   const renderStep4 = () => (
     <View style={styles.stepContainer}>
-      <Text style={styles.stepTitle}>Service Information</Text>
+      <Text style={styles.stepTitle}>Πληροφορίες Υπηρεσιών</Text>
       <Text style={styles.helpText}>
-        Add the services you provide. Duration and pricing can be set later.
+        Προσθέστε τις υπηρεσίες που παρέχετε. Η διάρκεια και οι τιμές μπορούν να οριστούν αργότερα.
       </Text>
       
       <View style={styles.inputGroup}>
-        <Text style={styles.label}>Service Name *</Text>
+        <Text style={styles.label}>Όνομα Υπηρεσίας *</Text>
         <TextInput
           style={styles.input}
           placeholder="e.g., Plumbing Repair, Electrical Installation"
@@ -405,7 +405,7 @@ export default function ProfessionalRegistrationForm() {
       </View>
 
       <View style={styles.inputGroup}>
-        <Text style={styles.label}>Duration (minutes) - Optional</Text>
+        <Text style={styles.label}>Διάρκεια (λεπτά) - Προαιρετικό</Text>
         <TextInput
           style={styles.input}
           placeholder="0"
@@ -498,9 +498,9 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   title: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#1f2937',
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#333',
     flex: 1,
     textAlign: 'center',
   },
