@@ -18,8 +18,8 @@ import {
   subscribeToMessages, 
   markMessagesAsRead,
   getOrCreateChatRoom 
-} from '../../services/firebase/messaging';
-import { triggerMessageNotification } from '../../services/firebase/notifications';
+} from '../../services/messaging/mockMessaging';
+import { triggerMessageNotification } from '../../services/notifications/mockNotifications';
 
 export default function ChatScreen() {
   const navigation = useNavigation();

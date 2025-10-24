@@ -16,7 +16,7 @@ import {
   markNotificationAsRead, 
   markAllNotificationsAsRead,
   subscribeToUserNotifications 
-} from '../../services/firebase/notifications';
+} from '../../services/notifications/mockNotifications';
 
 export default function UserNotificationsScreen() {
   const navigation = useNavigation();

@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { NotificationData } from '../../services/firebase/notifications';
+import { NotificationData } from '../../services/notifications/mockNotifications';
 
 interface Notification {
   id: string;
