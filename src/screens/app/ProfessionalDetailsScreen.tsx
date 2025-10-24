@@ -1,153 +1,168 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, StyleSheet, SafeAreaView, Image } from 'react-native';
+import React, { useState } from 'react';
+import { 
+  View, 
+  Text, 
+  TouchableOpacity, 
+  StyleSheet, 
+  SafeAreaView, 
+  StatusBar,
+  ScrollView 
+} from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 
 export default function ProfessionalDetailsScreen() {
   const navigation = useNavigation();
   const route = useRoute();
   const { professional } = route.params || {};
-  const [reviews, setReviews] = useState([]);
+
+  const mockProfessional = {
+    name: 'Jane Smith',
+    profession: 'Electrician',
+    rating: 5.0,
+    reviews: 36,
+    location: 'Athens, Greece',
+    phone: '+30 6923456789',
+    email: 'jane.smith@example.com',
+    about: 'Certified electrician specializing in home electrical systems and smart home installations.',
+    verified: true
+  };
 
   const mockReviews = [
     {
       id: '1',
-      user: 'Μαρία Κ.',
+      reviewer: 'George Dimitriou',
       rating: 5,
-      comment: 'Εξαιρετική εργασία! Πολύ επαγγελματικός και γρήγορος.',
-      date: '15 Οκτωβρίου 2024'
+      comment: 'Jane did an amazing job installing our new lighting system. Very professional and knowledgeable.',
+      date: '5.7.2023',
+      type: 'positive'
     },
     {
       id: '2',
-      user: 'Γιάννης Π.',
-      rating: 4,
-      comment: 'Καλή εργασία, λίγο αργός αλλά ικανοποιημένος.',
-      date: '10 Οκτωβρίου 2024'
+      reviewer: 'Maria Papadopoulou',
+      rating: 5,
+      comment: 'Excellent service and very reliable. Highly recommended!',
+      date: '3.7.2023',
+      type: 'positive'
     }
   ];
 
-  useEffect(() => {
-    setReviews(mockReviews);
-  }, []);
-
   const renderStars = (rating) => {
     const stars = [];
-    for (let i = 1; i <= 5; i++) {
+    for (let i = 0; i < 5; i++) {
       stars.push(
         <Text key={i} style={styles.star}>
-          {i <= rating ? '⭐' : '☆'}
+          {i < rating ? '★' : '☆'}
         </Text>
       );
     }
     return stars;
   };
 
-  const renderReview = (review) => (
-    <View key={review.id} style={styles.reviewCard}>
-      <View style={styles.reviewHeader}>
-        <Text style={styles.reviewUser}>{review.user}</Text>
-        <View style={styles.reviewRating}>
-          {renderStars(review.rating)}
-        </View>
-      </View>
-      <Text style={styles.reviewComment}>{review.comment}</Text>
-      <Text style={styles.reviewDate}>{review.date}</Text>
-    </View>
-  );
+  const handleAddReview = () => {
+    navigation.navigate('AddReview', { professional: mockProfessional });
+  };
+
+  const handleBookAppointment = () => {
+    navigation.navigate('BookAppointment', { professional: mockProfessional });
+  };
 
   return (
     <SafeAreaView style={styles.container}>
+      <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
+      
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Text style={styles.backButtonText}>← Πίσω</Text>
+          <Text style={styles.backButtonText}>←</Text>
         </TouchableOpacity>
-        <Text style={styles.title}>Λεπτομέρειες Επαγγελματία</Text>
+        <Text style={styles.title}>Find Professionals</Text>
       </View>
 
-      <ScrollView style={styles.content}>
-        <View style={styles.professionalCard}>
-          <View style={styles.professionalHeader}>
-            <View style={styles.professionalInfo}>
-              <Text style={styles.professionalName}>
-                {professional?.name || 'Γιάννης Παπαδόπουλος'}
-              </Text>
-              <Text style={styles.profession}>
-                {professional?.profession || 'Ηλεκτρολόγος'}
-              </Text>
-              <View style={styles.ratingContainer}>
-                <View style={styles.stars}>
-                  {renderStars(professional?.rating || 4.8)}
-                </View>
-                <Text style={styles.ratingText}>
-                  {professional?.rating || 4.8} ({professional?.reviews || 24} αξιολογήσεις)
-                </Text>
-              </View>
-            </View>
+      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+        {/* Professional Profile */}
+        <View style={styles.profileSection}>
+          <View style={styles.profileImage}>
+            <Text style={styles.profileImageText}>👩‍🔧</Text>
           </View>
-
-          <View style={styles.contactInfo}>
-            <View style={styles.contactRow}>
-              <Text style={styles.contactLabel}>📍 Τοποθεσία:</Text>
-              <Text style={styles.contactValue}>
-                {professional?.city || 'Αθήνα'}, Ελλάδα
-              </Text>
-            </View>
-            <View style={styles.contactRow}>
-              <Text style={styles.contactLabel}>📞 Τηλέφωνο:</Text>
-              <Text style={styles.contactValue}>+30 210 1234567</Text>
-            </View>
-            <View style={styles.contactRow}>
-              <Text style={styles.contactLabel}>🌐 Website:</Text>
-              <Text style={styles.contactValue}>www.electrician.gr</Text>
-            </View>
-          </View>
-
-          <View style={styles.aboutSection}>
-            <Text style={styles.sectionTitle}>Σχετικά</Text>
-            <Text style={styles.aboutText}>
-              Ειδικευμένος ηλεκτρολόγος με 15+ χρόνια εμπειρίας. 
-              Εξειδικεύομαι σε ηλεκτρικές εγκαταστάσεις, συντήρηση 
-              και επισκευές. Πιστοποιημένος με όλα τα απαραίτητα 
-              δικαιολογητικά.
-            </Text>
-          </View>
-
-          <View style={styles.servicesSection}>
-            <Text style={styles.sectionTitle}>Υπηρεσίες</Text>
-            <View style={styles.serviceItem}>
-              <Text style={styles.serviceText}>• Ηλεκτρικές εγκαταστάσεις</Text>
-            </View>
-            <View style={styles.serviceItem}>
-              <Text style={styles.serviceText}>• Συντήρηση ηλεκτρικών συστημάτων</Text>
-            </View>
-            <View style={styles.serviceItem}>
-              <Text style={styles.serviceText}>• Επισκευή ηλεκτρικών συσκευών</Text>
-            </View>
-            <View style={styles.serviceItem}>
-              <Text style={styles.serviceText}>• Αντικατάσταση πρίζων και διακόπτων</Text>
-            </View>
-          </View>
-
-          <View style={styles.reviewsSection}>
-            <Text style={styles.sectionTitle}>Αξιολογήσεις</Text>
-            {reviews.map(renderReview)}
-          </View>
-
-          <View style={styles.actionButtons}>
-            <TouchableOpacity 
-              style={styles.bookButton}
-              onPress={() => navigation.navigate('BookAppointment', { professional })}
-            >
-              <Text style={styles.bookButtonText}>Κλείσε Ραντεβού</Text>
-            </TouchableOpacity>
+          
+          <View style={styles.profileInfo}>
+            <Text style={styles.professionalName}>{mockProfessional.name}</Text>
+            <Text style={styles.professionalProfession}>{mockProfessional.profession}</Text>
             
-            <TouchableOpacity 
-              style={styles.reviewButton}
-              onPress={() => navigation.navigate('AddReview', { professional })}
-            >
-              <Text style={styles.reviewButtonText}>Αξιολόγηση</Text>
-            </TouchableOpacity>
+            <View style={styles.ratingContainer}>
+              {renderStars(mockProfessional.rating)}
+              <Text style={styles.ratingText}>{mockProfessional.rating}</Text>
+              <Text style={styles.reviewsText}>({mockProfessional.reviews})</Text>
+            </View>
           </View>
         </View>
+
+        {/* Contact Information */}
+        <View style={styles.contactSection}>
+          <View style={styles.contactItem}>
+            <Text style={styles.contactIcon}>📍</Text>
+            <Text style={styles.contactText}>{mockProfessional.location}</Text>
+          </View>
+          
+          <View style={styles.contactItem}>
+            <Text style={styles.contactIcon}>📞</Text>
+            <Text style={styles.contactText}>{mockProfessional.phone}</Text>
+          </View>
+          
+          <View style={styles.contactItem}>
+            <Text style={styles.contactIcon}>✉️</Text>
+            <Text style={styles.contactText}>{mockProfessional.email}</Text>
+          </View>
+        </View>
+
+        {/* About Section */}
+        <View style={styles.aboutSection}>
+          <Text style={styles.sectionTitle}>About</Text>
+          <Text style={styles.aboutText}>{mockProfessional.about}</Text>
+        </View>
+
+        {/* Reviews Section */}
+        <View style={styles.reviewsSection}>
+          <View style={styles.reviewsHeader}>
+            <Text style={styles.sectionTitle}>Reviews</Text>
+            <TouchableOpacity style={styles.addReviewButton} onPress={handleAddReview}>
+              <Text style={styles.addReviewIcon}>+</Text>
+              <Text style={styles.addReviewText}>Add Review</Text>
+            </TouchableOpacity>
+          </View>
+
+          {mockReviews.map((review) => (
+            <View key={review.id} style={styles.reviewCard}>
+              <View style={styles.reviewHeader}>
+                <View style={styles.reviewerAvatar}>
+                  <Text style={styles.reviewerAvatarText}>
+                    {review.reviewer.charAt(0)}
+                  </Text>
+                </View>
+                <View style={styles.reviewerInfo}>
+                  <Text style={styles.reviewerName}>{review.reviewer}</Text>
+                  <View style={styles.reviewRating}>
+                    {renderStars(review.rating)}
+                  </View>
+                </View>
+              </View>
+              
+              <Text style={styles.reviewComment}>{review.comment}</Text>
+              
+              <View style={styles.reviewFooter}>
+                <TouchableOpacity style={styles.positiveButton}>
+                  <Text style={styles.positiveIcon}>👍</Text>
+                  <Text style={styles.positiveText}>Positive</Text>
+                </TouchableOpacity>
+                <Text style={styles.reviewDate}>{review.date}</Text>
+              </View>
+            </View>
+          ))}
+        </View>
+
+        {/* Book Appointment Button */}
+        <TouchableOpacity style={styles.bookButton} onPress={handleBookAppointment}>
+          <Text style={styles.bookButtonText}>Book Appointment</Text>
+        </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
   );
@@ -156,184 +171,248 @@ export default function ProfessionalDetailsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#ffffff',
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 15,
-    backgroundColor: '#fff',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: '#ffffff',
     borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+    borderBottomColor: '#f1f3f4',
   },
   backButton: {
-    marginRight: 15,
+    padding: 8,
+    marginRight: 8,
   },
   backButtonText: {
-    fontSize: 16,
-    color: '#007bff',
+    fontSize: 20,
+    color: '#1f2937',
+    fontWeight: '600',
   },
   title: {
     fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
+    fontWeight: '600',
+    color: '#1f2937',
+    flex: 1,
+    textAlign: 'center',
   },
   content: {
     flex: 1,
-    padding: 15,
+    padding: 16,
   },
-  professionalCard: {
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    padding: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+  profileSection: {
+    alignItems: 'center',
+    marginBottom: 24,
   },
-  professionalHeader: {
-    marginBottom: 20,
+  profileImage: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: '#f3f4f6',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 16,
   },
-  professionalInfo: {
+  profileImageText: {
+    fontSize: 48,
+  },
+  profileInfo: {
     alignItems: 'center',
   },
   professionalName: {
     fontSize: 24,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 5,
-    textAlign: 'center',
+    fontWeight: '700',
+    color: '#1f2937',
+    marginBottom: 4,
   },
-  profession: {
-    fontSize: 18,
-    color: '#007bff',
-    fontWeight: '600',
-    marginBottom: 10,
-    textAlign: 'center',
+  professionalProfession: {
+    fontSize: 16,
+    color: '#6b7280',
+    marginBottom: 8,
   },
   ratingContainer: {
-    alignItems: 'center',
-  },
-  stars: {
     flexDirection: 'row',
-    marginBottom: 5,
+    alignItems: 'center',
   },
   star: {
     fontSize: 20,
-    marginHorizontal: 2,
+    color: '#fbbf24',
+    marginRight: 2,
   },
   ratingText: {
-    fontSize: 16,
-    color: '#666',
-    fontWeight: '500',
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#1f2937',
+    marginLeft: 8,
   },
-  contactInfo: {
-    marginBottom: 20,
+  reviewsText: {
+    fontSize: 14,
+    color: '#6b7280',
+    marginLeft: 4,
   },
-  contactRow: {
+  contactSection: {
+    backgroundColor: '#ffffff',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+    borderWidth: 1,
+    borderColor: '#f1f3f4',
+  },
+  contactItem: {
     flexDirection: 'row',
-    marginBottom: 10,
+    alignItems: 'center',
+    marginBottom: 12,
   },
-  contactLabel: {
+  contactIcon: {
     fontSize: 16,
-    color: '#666',
-    fontWeight: '500',
-    width: 120,
+    marginRight: 12,
+    width: 20,
   },
-  contactValue: {
-    fontSize: 16,
-    color: '#333',
+  contactText: {
+    fontSize: 14,
+    color: '#1f2937',
     flex: 1,
   },
   aboutSection: {
-    marginBottom: 20,
+    marginBottom: 24,
   },
   sectionTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 10,
+    fontWeight: '600',
+    color: '#1f2937',
+    marginBottom: 12,
   },
   aboutText: {
-    fontSize: 16,
-    color: '#666',
-    lineHeight: 24,
-  },
-  servicesSection: {
-    marginBottom: 20,
-  },
-  serviceItem: {
-    marginBottom: 8,
-  },
-  serviceText: {
-    fontSize: 16,
-    color: '#666',
+    fontSize: 14,
+    color: '#6b7280',
+    lineHeight: 20,
   },
   reviewsSection: {
-    marginBottom: 20,
+    marginBottom: 24,
   },
-  reviewCard: {
-    backgroundColor: '#f9f9f9',
-    padding: 15,
-    borderRadius: 8,
-    marginBottom: 10,
-  },
-  reviewHeader: {
+  reviewsHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: 16,
   },
-  reviewUser: {
+  addReviewButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#3b82f6',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
+  },
+  addReviewIcon: {
+    color: '#ffffff',
     fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333',
+    fontWeight: '600',
+    marginRight: 4,
+  },
+  addReviewText: {
+    color: '#ffffff',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  reviewCard: {
+    backgroundColor: '#ffffff',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+    borderWidth: 1,
+    borderColor: '#f1f3f4',
+  },
+  reviewHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  reviewerAvatar: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#3b82f6',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  reviewerAvatarText: {
+    color: '#ffffff',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  reviewerInfo: {
+    flex: 1,
+  },
+  reviewerName: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#1f2937',
+    marginBottom: 4,
   },
   reviewRating: {
     flexDirection: 'row',
   },
   reviewComment: {
     fontSize: 14,
-    color: '#666',
-    marginBottom: 5,
+    color: '#1f2937',
     lineHeight: 20,
+    marginBottom: 12,
+  },
+  reviewFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  positiveButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#10b981',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  positiveIcon: {
+    fontSize: 12,
+    marginRight: 4,
+  },
+  positiveText: {
+    color: '#ffffff',
+    fontSize: 12,
+    fontWeight: '600',
   },
   reviewDate: {
     fontSize: 12,
-    color: '#999',
-  },
-  actionButtons: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 20,
+    color: '#6b7280',
   },
   bookButton: {
-    backgroundColor: '#007bff',
-    paddingVertical: 15,
-    paddingHorizontal: 30,
-    borderRadius: 25,
-    flex: 1,
-    marginRight: 10,
+    backgroundColor: '#3b82f6',
+    borderRadius: 12,
+    paddingVertical: 16,
     alignItems: 'center',
+    marginBottom: 32,
+    shadowColor: '#3b82f6',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
   },
   bookButtonText: {
-    color: '#fff',
+    color: '#ffffff',
     fontSize: 16,
-    fontWeight: 'bold',
-  },
-  reviewButton: {
-    backgroundColor: '#28a745',
-    paddingVertical: 15,
-    paddingHorizontal: 30,
-    borderRadius: 25,
-    flex: 1,
-    marginLeft: 10,
-    alignItems: 'center',
-  },
-  reviewButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: '600',
   },
 });

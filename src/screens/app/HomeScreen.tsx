@@ -1,69 +1,111 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, StyleSheet, SafeAreaView } from 'react-native';
+import { 
+  View, 
+  Text, 
+  TouchableOpacity, 
+  ScrollView, 
+  StyleSheet, 
+  SafeAreaView, 
+  StatusBar 
+} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
 export default function HomeScreen() {
   const navigation = useNavigation();
   const [user, setUser] = useState(null);
 
-  const quickActions = [
+  const actionCards = [
     {
-      id: 'book',
-      title: 'Κλείσε Ραντεβού',
+      id: 'appointments',
+      title: 'My Appointments',
+      description: 'View your upcoming and past appointments',
       icon: '📅',
-      screen: 'BookAppointment'
+      screen: 'AppointmentsList'
+    },
+    {
+      id: 'notifications',
+      title: 'Notifications',
+      description: 'View appointment updates and confirmations',
+      icon: '🔔',
+      screen: 'UserNotifications'
     },
     {
       id: 'find',
-      title: 'Βρες Επαγγελματίες',
+      title: 'Find Professionals',
+      description: 'Search for services you need',
       icon: '🔍',
       screen: 'Search'
     },
     {
-      id: 'appointments',
-      title: 'Τα Ραντεβού Μου',
-      icon: '📋',
-      screen: 'AppointmentsList'
-    },
-    {
       id: 'friends',
-      title: 'Φίλοι',
+      title: 'Friends',
+      description: 'Connect with other users',
       icon: '👥',
       screen: 'Friends'
     }
   ];
 
+  const overviewMetrics = [
+    { label: 'Booked Services', value: '12', color: '#3b82f6' },
+    { label: 'This Month', value: '8', color: '#3b82f6' },
+    { label: 'Avg. Rating', value: '4.8', color: '#3b82f6' },
+    { label: 'Spent', value: '€1,200', color: '#3b82f6' }
+  ];
+
+  const handleLogout = () => {
+    // Logout logic here
+    console.log('Logging out...');
+  };
+
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView style={styles.scrollView}>
-        <View style={styles.header}>
-          <Text style={styles.welcomeText}>Καλώς ήρθες!</Text>
-          <Text style={styles.subtitle}>Τι θα θέλατε να κάνετε σήμερα;</Text>
+      <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
+      
+      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+        {/* Action Cards */}
+        <View style={styles.actionCardsContainer}>
+          {actionCards.map((card) => (
+            <TouchableOpacity
+              key={card.id}
+              style={styles.actionCard}
+              onPress={() => navigation.navigate(card.screen)}
+              activeOpacity={0.8}
+            >
+              <View style={styles.actionCardContent}>
+                <View style={styles.actionIcon}>
+                  <Text style={styles.actionIconText}>{card.icon}</Text>
+                </View>
+                <View style={styles.actionText}>
+                  <Text style={styles.actionTitle}>{card.title}</Text>
+                  <Text style={styles.actionDescription}>{card.description}</Text>
+                </View>
+                <Text style={styles.actionArrow}>→</Text>
+              </View>
+            </TouchableOpacity>
+          ))}
         </View>
 
-        <View style={styles.quickActionsContainer}>
-          <Text style={styles.sectionTitle}>Γρήγορες Ενέργειες</Text>
-          <View style={styles.quickActionsGrid}>
-            {quickActions.map((action) => (
-              <TouchableOpacity
-                key={action.id}
-                style={styles.quickActionButton}
-                onPress={() => navigation.navigate(action.screen)}
-              >
-                <Text style={styles.quickActionIcon}>{action.icon}</Text>
-                <Text style={styles.quickActionText}>{action.title}</Text>
-              </TouchableOpacity>
+        {/* Overview Section */}
+        <View style={styles.overviewContainer}>
+          <Text style={styles.overviewTitle}>Overview</Text>
+          <View style={styles.overviewGrid}>
+            {overviewMetrics.map((metric, index) => (
+              <View key={index} style={styles.overviewCard}>
+                <Text style={[styles.overviewValue, { color: metric.color }]}>
+                  {metric.value}
+                </Text>
+                <Text style={styles.overviewLabel}>{metric.label}</Text>
+              </View>
             ))}
           </View>
         </View>
 
-        <View style={styles.overviewContainer}>
-          <Text style={styles.sectionTitle}>Επισκόπηση</Text>
-          <View style={styles.overviewCard}>
-            <Text style={styles.overviewText}>Επόμενο Ραντεβού: Δεν υπάρχει</Text>
-            <Text style={styles.overviewText}>Ενεργά Ραντεβού: 0</Text>
-            <Text style={styles.overviewText}>Συνολικές Αξιολογήσεις: 0</Text>
-          </View>
+        {/* Logout Button */}
+        <View style={styles.logoutContainer}>
+          <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+            <Text style={styles.logoutIcon}>🚪</Text>
+            <Text style={styles.logoutText}>Logout</Text>
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -73,80 +115,125 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#ffffff',
   },
   scrollView: {
     flex: 1,
   },
-  header: {
-    padding: 20,
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+  actionCardsContainer: {
+    padding: 16,
   },
-  welcomeText: {
+  actionCard: {
+    backgroundColor: '#ffffff',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+    borderWidth: 1,
+    borderColor: '#f1f3f4',
+  },
+  actionCardContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  actionIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#f3f4f6',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 16,
+  },
+  actionIconText: {
     fontSize: 24,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 5,
   },
-  subtitle: {
+  actionText: {
+    flex: 1,
+  },
+  actionTitle: {
     fontSize: 16,
-    color: '#666',
+    fontWeight: '600',
+    color: '#1f2937',
+    marginBottom: 4,
   },
-  quickActionsContainer: {
-    padding: 20,
+  actionDescription: {
+    fontSize: 14,
+    color: '#6b7280',
+    lineHeight: 20,
   },
-  sectionTitle: {
+  actionArrow: {
+    fontSize: 20,
+    color: '#3b82f6',
+    fontWeight: '600',
+  },
+  overviewContainer: {
+    padding: 16,
+  },
+  overviewTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 15,
+    fontWeight: '600',
+    color: '#1f2937',
+    marginBottom: 16,
   },
-  quickActionsGrid: {
+  overviewGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
   },
-  quickActionButton: {
+  overviewCard: {
     width: '48%',
-    backgroundColor: '#fff',
-    padding: 20,
-    borderRadius: 10,
+    backgroundColor: '#ffffff',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
     alignItems: 'center',
-    marginBottom: 15,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    shadowRadius: 8,
+    elevation: 4,
+    borderWidth: 1,
+    borderColor: '#f1f3f4',
   },
-  quickActionIcon: {
-    fontSize: 30,
-    marginBottom: 10,
+  overviewValue: {
+    fontSize: 24,
+    fontWeight: '700',
+    marginBottom: 4,
   },
-  quickActionText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#333',
+  overviewLabel: {
+    fontSize: 12,
+    color: '#6b7280',
     textAlign: 'center',
   },
-  overviewContainer: {
-    padding: 20,
+  logoutContainer: {
+    padding: 16,
+    paddingBottom: 32,
   },
-  overviewCard: {
-    backgroundColor: '#fff',
-    padding: 20,
-    borderRadius: 10,
+  logoutButton: {
+    backgroundColor: '#ef4444',
+    borderRadius: 12,
+    padding: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    shadowRadius: 8,
+    elevation: 4,
   },
-  overviewText: {
+  logoutIcon: {
+    fontSize: 20,
+    marginRight: 8,
+  },
+  logoutText: {
+    color: '#ffffff',
     fontSize: 16,
-    color: '#666',
-    marginBottom: 10,
+    fontWeight: '600',
   },
 });

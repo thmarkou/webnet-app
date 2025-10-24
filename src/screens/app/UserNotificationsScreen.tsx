@@ -1,5 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, FlatList, StyleSheet, SafeAreaView } from 'react-native';
+import { 
+  View, 
+  Text, 
+  TouchableOpacity, 
+  FlatList, 
+  StyleSheet, 
+  SafeAreaView, 
+  StatusBar 
+} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
 export default function UserNotificationsScreen() {
@@ -10,39 +18,43 @@ export default function UserNotificationsScreen() {
   const mockNotifications = [
     {
       id: '1',
-      type: 'appointment_confirmed',
-      title: 'Ραντεβού Επιβεβαιώθηκε',
-      message: 'Το ραντεβού σας με τον Γιάννη Παπαδόπουλο έχει επιβεβαιωθεί για Δευτέρα 10:00',
-      timestamp: '2 ώρες πριν',
+      type: 'appointment_request',
+      title: 'New Appointment Request',
+      message: 'John Smith has requested a plumbing repair appointment for January 15, 2024 at 10:00 AM',
+      timestamp: '651d ago',
       isRead: false,
-      icon: '✅'
+      icon: '📅',
+      iconColor: '#6b7280'
     },
     {
       id: '2',
-      type: 'friend_request',
-      title: 'Νέα Αίτηση Φιλίας',
-      message: 'Ο Νίκος Αντωνίου σας έστειλε αίτηση φιλίας',
-      timestamp: '1 ημέρα πριν',
+      type: 'appointment_confirmed',
+      title: 'Appointment Confirmed',
+      message: 'Your appointment with George Papadopoulos has been confirmed for January 15, 2024 at 10:00 AM',
+      timestamp: '651d ago',
       isRead: false,
-      icon: '👥'
+      icon: '✅',
+      iconColor: '#10b981'
     },
     {
       id: '3',
-      type: 'appointment_reminder',
-      title: 'Υπενθύμιση Ραντεβού',
-      message: 'Έχετε ραντεβού αύριο με την Μαρία Κωνσταντίνου στις 14:00',
-      timestamp: '2 ημέρες πριν',
+      type: 'appointment_rejected',
+      title: 'Appointment Rejected',
+      message: 'Your appointment request with Maria Konstantinou has been rejected. Please try booking with another professional.',
+      timestamp: '652d ago',
       isRead: true,
-      icon: '⏰'
+      icon: '❌',
+      iconColor: '#ef4444'
     },
     {
       id: '4',
-      type: 'review_request',
-      title: 'Αξιολόγηση Υπηρεσίας',
-      message: 'Παρακαλώ αξιολογήστε την υπηρεσία του Γιάννη Παπαδόπουλου',
-      timestamp: '3 ημέρες πριν',
+      type: 'payment_received',
+      title: 'Payment Received',
+      message: 'You received €150 for the emergency repair service completed yesterday',
+      timestamp: '653d ago',
       isRead: true,
-      icon: '⭐'
+      icon: '💳',
+      iconColor: '#3b82f6'
     }
   ];
 
@@ -51,10 +63,9 @@ export default function UserNotificationsScreen() {
   }, []);
 
   const filters = [
-    { id: 'all', title: 'Όλες' },
-    { id: 'unread', title: 'Αδιάβαστες' },
-    { id: 'appointments', title: 'Ραντεβού' },
-    { id: 'friends', title: 'Φίλοι' }
+    { id: 'confirmed', title: 'Confirmed', icon: '✅', color: '#10b981' },
+    { id: 'rejected', title: 'Rejected', icon: '❌', color: '#ef4444' },
+    { id: 'new_request', title: 'New Request', icon: '➕', color: '#3b82f6' }
   ];
 
   const getFilteredNotifications = () => {
@@ -63,27 +74,12 @@ export default function UserNotificationsScreen() {
         return notifications.filter(notif => !notif.isRead);
       case 'appointments':
         return notifications.filter(notif => 
-          notif.type.includes('appointment') || notif.type.includes('review')
+          notif.type.includes('appointment') || notif.type.includes('payment')
         );
       case 'friends':
         return notifications.filter(notif => notif.type.includes('friend'));
       default:
         return notifications;
-    }
-  };
-
-  const getNotificationColor = (type) => {
-    switch (type) {
-      case 'appointment_confirmed':
-        return '#28a745';
-      case 'friend_request':
-        return '#007bff';
-      case 'appointment_reminder':
-        return '#ffc107';
-      case 'review_request':
-        return '#17a2b8';
-      default:
-        return '#6c757d';
     }
   };
 
@@ -121,16 +117,19 @@ export default function UserNotificationsScreen() {
         !item.isRead && styles.unreadNotification
       ]}
       onPress={() => handleNotificationPress(item)}
+      activeOpacity={0.8}
     >
-      <View style={styles.notificationHeader}>
-        <Text style={styles.notificationIcon}>{item.icon}</Text>
-        <View style={styles.notificationContent}>
+      <View style={styles.notificationContent}>
+        <View style={[styles.notificationIcon, { backgroundColor: item.iconColor + '20' }]}>
+          <Text style={styles.notificationIconText}>{item.icon}</Text>
+        </View>
+        <View style={styles.notificationText}>
           <Text style={styles.notificationTitle}>{item.title}</Text>
+          <Text style={styles.notificationMessage}>{item.message}</Text>
           <Text style={styles.notificationTimestamp}>{item.timestamp}</Text>
         </View>
         {!item.isRead && <View style={styles.unreadDot} />}
       </View>
-      <Text style={styles.notificationMessage}>{item.message}</Text>
     </TouchableOpacity>
   );
 
@@ -138,11 +137,13 @@ export default function UserNotificationsScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
+      <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
+      
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Text style={styles.backButtonText}>← Πίσω</Text>
+          <Text style={styles.backButtonText}>←</Text>
         </TouchableOpacity>
-        <Text style={styles.title}>Ειδοποιήσεις</Text>
+        <Text style={styles.title}>Notifications</Text>
         {unreadCount > 0 && (
           <View style={styles.badge}>
             <Text style={styles.badgeText}>{unreadCount}</Text>
@@ -150,24 +151,43 @@ export default function UserNotificationsScreen() {
         )}
       </View>
 
-      <View style={styles.filterContainer}>
+      {/* Filter Pills */}
+      <View style={styles.filterPillsContainer}>
         {filters.map((filter) => (
           <TouchableOpacity
             key={filter.id}
-            style={[
-              styles.filterButton,
-              activeFilter === filter.id && styles.activeFilterButton
-            ]}
+            style={[styles.filterPill, { backgroundColor: filter.color + '20' }]}
             onPress={() => setActiveFilter(filter.id)}
           >
-            <Text style={[
-              styles.filterText,
-              activeFilter === filter.id && styles.activeFilterText
-            ]}>
-              {filter.title}
+            <Text style={[styles.filterPillText, { color: filter.color }]}>
+              {filter.icon} {filter.title}
             </Text>
           </TouchableOpacity>
         ))}
+      </View>
+
+      {/* Filter Buttons */}
+      <View style={styles.filterContainer}>
+        <TouchableOpacity
+          style={[styles.filterButton, activeFilter === 'all' && styles.activeFilterButton]}
+          onPress={() => setActiveFilter('all')}
+        >
+          <Text style={[styles.filterText, activeFilter === 'all' && styles.activeFilterText]}>
+            All
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.filterButton, activeFilter === 'unread' && styles.activeFilterButton]}
+          onPress={() => setActiveFilter('unread')}
+        >
+          <Text style={[styles.filterText, activeFilter === 'unread' && styles.activeFilterText]}>
+            Unread ({unreadCount})
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.markAllButton}>
+          <Text style={styles.markAllText}>Mark all as read</Text>
+          <Text style={styles.markAllIcon}>✓</Text>
+        </TouchableOpacity>
       </View>
 
       <FlatList
@@ -177,7 +197,7 @@ export default function UserNotificationsScreen() {
         contentContainerStyle={styles.listContainer}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText}>Δεν υπάρχουν ειδοποιήσεις</Text>
+            <Text style={styles.emptyText}>No notifications</Text>
           </View>
         }
       />
@@ -188,118 +208,169 @@ export default function UserNotificationsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#ffffff',
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 15,
-    backgroundColor: '#fff',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: '#ffffff',
     borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+    borderBottomColor: '#f1f3f4',
   },
   backButton: {
-    marginRight: 15,
+    padding: 8,
+    marginRight: 8,
   },
   backButtonText: {
-    fontSize: 16,
-    color: '#007bff',
+    fontSize: 20,
+    color: '#1f2937',
+    fontWeight: '600',
   },
   title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#333',
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#1f2937',
     flex: 1,
+    textAlign: 'center',
   },
   badge: {
-    backgroundColor: '#dc3545',
-    borderRadius: 10,
+    backgroundColor: '#ef4444',
+    borderRadius: 12,
     paddingHorizontal: 8,
     paddingVertical: 4,
-    minWidth: 20,
+    minWidth: 24,
     alignItems: 'center',
   },
   badgeText: {
-    color: '#fff',
+    color: '#ffffff',
     fontSize: 12,
-    fontWeight: 'bold',
+    fontWeight: '600',
+  },
+  filterPillsContainer: {
+    flexDirection: 'row',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: '#ffffff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#f1f3f4',
+  },
+  filterPill: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    marginRight: 8,
+  },
+  filterPillText: {
+    fontSize: 12,
+    fontWeight: '600',
   },
   filterContainer: {
     flexDirection: 'row',
-    backgroundColor: '#fff',
-    paddingHorizontal: 15,
-    paddingVertical: 10,
+    backgroundColor: '#ffffff',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+    borderBottomColor: '#f1f3f4',
+    alignItems: 'center',
   },
   filterButton: {
-    backgroundColor: '#f0f0f0',
-    paddingHorizontal: 15,
+    backgroundColor: '#f3f4f6',
+    paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 20,
-    marginRight: 10,
+    marginRight: 12,
   },
   activeFilterButton: {
-    backgroundColor: '#007bff',
+    backgroundColor: '#3b82f6',
   },
   filterText: {
     fontSize: 14,
-    color: '#666',
+    color: '#6b7280',
+    fontWeight: '500',
   },
   activeFilterText: {
-    color: '#fff',
-    fontWeight: 'bold',
+    color: '#ffffff',
+    fontWeight: '600',
+  },
+  markAllButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginLeft: 'auto',
+  },
+  markAllText: {
+    fontSize: 14,
+    color: '#3b82f6',
+    fontWeight: '500',
+    marginRight: 4,
+  },
+  markAllIcon: {
+    fontSize: 14,
+    color: '#3b82f6',
+    fontWeight: '600',
   },
   listContainer: {
-    padding: 15,
+    padding: 16,
   },
   notificationCard: {
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    padding: 15,
-    marginBottom: 10,
+    backgroundColor: '#ffffff',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    shadowRadius: 8,
+    elevation: 4,
+    borderWidth: 1,
+    borderColor: '#f1f3f4',
   },
   unreadNotification: {
     borderLeftWidth: 4,
-    borderLeftColor: '#007bff',
-  },
-  notificationHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  notificationIcon: {
-    fontSize: 24,
-    marginRight: 15,
+    borderLeftColor: '#3b82f6',
   },
   notificationContent: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+  },
+  notificationIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  notificationIconText: {
+    fontSize: 20,
+  },
+  notificationText: {
     flex: 1,
   },
   notificationTitle: {
     fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 2,
+    fontWeight: '600',
+    color: '#1f2937',
+    marginBottom: 4,
+  },
+  notificationMessage: {
+    fontSize: 14,
+    color: '#6b7280',
+    lineHeight: 20,
+    marginBottom: 8,
   },
   notificationTimestamp: {
     fontSize: 12,
-    color: '#666',
+    color: '#9ca3af',
   },
   unreadDot: {
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: '#007bff',
-  },
-  notificationMessage: {
-    fontSize: 14,
-    color: '#666',
-    lineHeight: 20,
+    backgroundColor: '#3b82f6',
+    marginLeft: 8,
+    marginTop: 4,
   },
   emptyContainer: {
     flex: 1,
@@ -309,6 +380,6 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 16,
-    color: '#666',
+    color: '#6b7280',
   },
 });

@@ -1,142 +1,129 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, ScrollView, Alert } from 'react-native';
+import React from 'react';
+import { 
+  View, 
+  Text, 
+  TouchableOpacity, 
+  StyleSheet, 
+  SafeAreaView, 
+  StatusBar,
+  Alert 
+} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { useAuthStore } from '../../store/auth/authStore';
 
 export default function ProfileScreen() {
   const navigation = useNavigation();
-  const [user, setUser] = useState({
-    name: 'Γιάννης Παπαδόπουλος',
-    email: 'giannis@example.com',
-    phone: '+30 210 1234567',
-    role: 'user'
-  });
+  const { user, logout } = useAuthStore();
 
   const handleLogout = () => {
     Alert.alert(
-      'Αποσύνδεση',
-      'Θέλετε να αποσυνδεθείτε;',
+      'Logout',
+      'Are you sure you want to logout?',
       [
-        { text: 'Όχι', style: 'cancel' },
+        { text: 'Cancel', style: 'cancel' },
         { 
-          text: 'Αποσύνδεση', 
-          onPress: () => {
-            // Handle logout logic here
-            navigation.navigate('Login');
-          }
+          text: 'Logout', 
+          style: 'destructive',
+          onPress: () => logout()
         }
       ]
     );
   };
 
-  const handleEditProfile = () => {
-    Alert.alert('Επεξεργασία Προφίλ', 'Η λειτουργία θα είναι διαθέσιμη σύντομα');
-  };
-
-  const handleChangePassword = () => {
-    Alert.alert('Αλλαγή Κωδικού', 'Η λειτουργία θα είναι διαθέσιμη σύντομα');
-  };
-
-  const handleNotifications = () => {
-    Alert.alert('Ρυθμίσεις Ειδοποιήσεων', 'Η λειτουργία θα είναι διαθέσιμη σύντομα');
-  };
-
-  const handlePrivacy = () => {
-    Alert.alert('Απόρρητο', 'Η λειτουργία θα είναι διαθέσιμη σύντομα');
-  };
-
-  const handleHelp = () => {
-    Alert.alert('Βοήθεια', 'Η λειτουργία θα είναι διαθέσιμη σύντομα');
-  };
-
-  const handleAbout = () => {
-    Alert.alert('Σχετικά με την Εφαρμογή', 'WebNet App v1.0.0\n\nΜια εφαρμογή για τη διαχείριση ραντεβού με επαγγελματίες.');
-  };
+  const actionItems = [
+    {
+      id: 'settings',
+      title: 'Settings',
+      icon: '⚙️',
+      onPress: () => console.log('Settings pressed')
+    },
+    {
+      id: 'help',
+      title: 'Help & Support',
+      icon: '❓',
+      onPress: () => console.log('Help pressed')
+    },
+    {
+      id: 'about',
+      title: 'About',
+      icon: 'ℹ️',
+      onPress: () => console.log('About pressed')
+    }
+  ];
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Προφίλ</Text>
-      </View>
-
-      <ScrollView style={styles.content}>
-        <View style={styles.profileSection}>
-          <View style={styles.avatarContainer}>
-            <View style={styles.avatar}>
-              <Text style={styles.avatarText}>
-                {user.name.charAt(0).toUpperCase()}
-              </Text>
-            </View>
+      <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
+      
+      <View style={styles.content}>
+        {/* Profile Header */}
+        <View style={styles.profileHeader}>
+          <View style={styles.avatar}>
+            <Text style={styles.avatarText}>👤</Text>
           </View>
+          <Text style={styles.userName}>{user?.name || 'John Doe'}</Text>
+          <Text style={styles.userEmail}>{user?.email || 'user@demo.com'}</Text>
+          <View style={styles.roleBadge}>
+            <Text style={styles.roleText}>USER</Text>
+          </View>
+        </View>
+
+        {/* Account Information */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Account Information</Text>
           
-          <View style={styles.userInfo}>
-            <Text style={styles.userName}>{user.name}</Text>
-            <Text style={styles.userEmail}>{user.email}</Text>
-            <Text style={styles.userPhone}>{user.phone}</Text>
+          <View style={styles.infoItem}>
+            <Text style={styles.infoIcon}>✉️</Text>
+            <View style={styles.infoContent}>
+              <Text style={styles.infoLabel}>Email</Text>
+              <Text style={styles.infoValue}>{user?.email || 'user@demo.com'}</Text>
+            </View>
           </View>
-        </View>
 
-        <View style={styles.menuSection}>
-          <TouchableOpacity style={styles.menuItem} onPress={handleEditProfile}>
-            <Text style={styles.menuIcon}>✏️</Text>
-            <Text style={styles.menuText}>Επεξεργασία Προφίλ</Text>
-            <Text style={styles.menuArrow}>›</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.menuItem} onPress={handleChangePassword}>
-            <Text style={styles.menuIcon}>🔒</Text>
-            <Text style={styles.menuText}>Αλλαγή Κωδικού</Text>
-            <Text style={styles.menuArrow}>›</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.menuItem} onPress={handleNotifications}>
-            <Text style={styles.menuIcon}>🔔</Text>
-            <Text style={styles.menuText}>Ειδοποιήσεις</Text>
-            <Text style={styles.menuArrow}>›</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.menuItem} onPress={handlePrivacy}>
-            <Text style={styles.menuIcon}>🛡️</Text>
-            <Text style={styles.menuText}>Απόρρητο</Text>
-            <Text style={styles.menuArrow}>›</Text>
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.menuSection}>
-          <TouchableOpacity style={styles.menuItem} onPress={handleHelp}>
-            <Text style={styles.menuIcon}>❓</Text>
-            <Text style={styles.menuText}>Βοήθεια</Text>
-            <Text style={styles.menuArrow}>›</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.menuItem} onPress={handleAbout}>
-            <Text style={styles.menuIcon}>ℹ️</Text>
-            <Text style={styles.menuText}>Σχετικά</Text>
-            <Text style={styles.menuArrow}>›</Text>
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.statsSection}>
-          <Text style={styles.statsTitle}>Στατιστικά</Text>
-          <View style={styles.statsGrid}>
-            <View style={styles.statItem}>
-              <Text style={styles.statNumber}>12</Text>
-              <Text style={styles.statLabel}>Ραντεβού</Text>
+          <View style={styles.infoItem}>
+            <Text style={styles.infoIcon}>👤</Text>
+            <View style={styles.infoContent}>
+              <Text style={styles.infoLabel}>Name</Text>
+              <Text style={styles.infoValue}>{user?.name || 'John Doe'}</Text>
             </View>
-            <View style={styles.statItem}>
-              <Text style={styles.statNumber}>8</Text>
-              <Text style={styles.statLabel}>Αξιολογήσεις</Text>
-            </View>
-            <View style={styles.statItem}>
-              <Text style={styles.statNumber}>15</Text>
-              <Text style={styles.statLabel}>Φίλοι</Text>
+          </View>
+
+          <View style={styles.infoItem}>
+            <Text style={styles.infoIcon}>🛡️</Text>
+            <View style={styles.infoContent}>
+              <Text style={styles.infoLabel}>Role</Text>
+              <Text style={styles.infoValue}>{user?.role || 'user'}</Text>
             </View>
           </View>
         </View>
 
-        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-          <Text style={styles.logoutButtonText}>Αποσύνδεση</Text>
+        {/* Actions */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Actions</Text>
+          
+          {actionItems.map((item) => (
+            <TouchableOpacity
+              key={item.id}
+              style={styles.actionItem}
+              onPress={item.onPress}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.actionIcon}>{item.icon}</Text>
+              <Text style={styles.actionText}>{item.title}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        {/* Logout Button */}
+        <TouchableOpacity 
+          style={styles.logoutButton}
+          onPress={handleLogout}
+          activeOpacity={0.8}
+        >
+          <Text style={styles.logoutIcon}>🚪</Text>
+          <Text style={styles.logoutText}>Logout</Text>
         </TouchableOpacity>
-      </ScrollView>
+      </View>
     </SafeAreaView>
   );
 }
@@ -144,146 +131,128 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
-  },
-  header: {
-    padding: 20,
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#333',
-    textAlign: 'center',
+    backgroundColor: '#ffffff',
   },
   content: {
     flex: 1,
-    padding: 15,
+    padding: 16,
   },
-  profileSection: {
-    backgroundColor: '#fff',
-    padding: 20,
-    borderRadius: 10,
-    marginBottom: 20,
+  profileHeader: {
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  avatarContainer: {
-    marginBottom: 15,
+    paddingVertical: 32,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f1f3f4',
+    marginBottom: 24,
   },
   avatar: {
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: '#007bff',
+    backgroundColor: '#3b82f6',
     justifyContent: 'center',
     alignItems: 'center',
+    marginBottom: 16,
   },
   avatarText: {
-    color: '#fff',
     fontSize: 32,
-    fontWeight: 'bold',
-  },
-  userInfo: {
-    alignItems: 'center',
+    color: '#ffffff',
   },
   userName: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 5,
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#1f2937',
+    marginBottom: 4,
   },
   userEmail: {
     fontSize: 16,
-    color: '#666',
-    marginBottom: 3,
+    color: '#6b7280',
+    marginBottom: 12,
   },
-  userPhone: {
-    fontSize: 16,
-    color: '#666',
+  roleBadge: {
+    backgroundColor: '#3b82f6',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
   },
-  menuSection: {
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    marginBottom: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+  roleText: {
+    color: '#ffffff',
+    fontSize: 12,
+    fontWeight: '600',
   },
-  menuItem: {
+  section: {
+    marginBottom: 32,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#1f2937',
+    marginBottom: 16,
+  },
+  infoItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 15,
+    paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    borderBottomColor: '#f1f3f4',
   },
-  menuIcon: {
+  infoIcon: {
     fontSize: 20,
-    marginRight: 15,
-    width: 25,
+    marginRight: 16,
+    width: 24,
   },
-  menuText: {
-    fontSize: 16,
-    color: '#333',
+  infoContent: {
     flex: 1,
   },
-  menuArrow: {
-    fontSize: 20,
-    color: '#ccc',
-  },
-  statsSection: {
-    backgroundColor: '#fff',
-    padding: 20,
-    borderRadius: 10,
-    marginBottom: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  statsTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 15,
-    textAlign: 'center',
-  },
-  statsGrid: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-  },
-  statItem: {
-    alignItems: 'center',
-  },
-  statNumber: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#007bff',
-    marginBottom: 5,
-  },
-  statLabel: {
+  infoLabel: {
     fontSize: 14,
-    color: '#666',
+    color: '#6b7280',
+    marginBottom: 2,
+  },
+  infoValue: {
+    fontSize: 16,
+    color: '#1f2937',
+    fontWeight: '500',
+  },
+  actionItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f1f3f4',
+  },
+  actionIcon: {
+    fontSize: 20,
+    marginRight: 16,
+    width: 24,
+  },
+  actionText: {
+    fontSize: 16,
+    color: '#1f2937',
+    fontWeight: '500',
   },
   logoutButton: {
-    backgroundColor: '#dc3545',
-    paddingVertical: 15,
-    borderRadius: 25,
+    backgroundColor: '#ef4444',
+    borderRadius: 12,
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 20,
+    justifyContent: 'center',
+    marginTop: 'auto',
+    marginBottom: 32,
+    shadowColor: '#ef4444',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
   },
-  logoutButtonText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
+  logoutIcon: {
+    fontSize: 20,
+    marginRight: 8,
+  },
+  logoutText: {
+    color: '#ffffff',
+    fontSize: 16,
+    fontWeight: '600',
   },
 });

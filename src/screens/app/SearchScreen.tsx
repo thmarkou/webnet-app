@@ -1,5 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, FlatList, TextInput, StyleSheet, SafeAreaView, ScrollView } from 'react-native';
+import { 
+  View, 
+  Text, 
+  TouchableOpacity, 
+  FlatList, 
+  TextInput, 
+  StyleSheet, 
+  SafeAreaView, 
+  ScrollView,
+  StatusBar 
+} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
 export default function SearchScreen() {
@@ -7,47 +17,68 @@ export default function SearchScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedCity, setSelectedCity] = useState('');
+  const [selectedRating, setSelectedRating] = useState('');
   const [professionals, setProfessionals] = useState([]);
   const [filteredProfessionals, setFilteredProfessionals] = useState([]);
 
   const categories = [
-    'Ηλεκτρολόγος',
-    'Υδραυλικός', 
-    'Καθαριστής',
-    'Μαθηματικός',
-    'Φυσικός',
-    'Χημικός'
+    'Electrician',
+    'Plumber', 
+    'Lawyer',
+    'Cleaner',
+    'Mechanic',
+    'Doctor'
   ];
 
   const cities = [
-    'Αθήνα',
-    'Θεσσαλονίκη',
-    'Πάτρα',
-    'Ηράκλειο',
-    'Λάρισα',
-    'Βόλος'
+    'Athens',
+    'Thessaloniki',
+    'Patras',
+    'Heraklion',
+    'Larissa',
+    'Volos'
+  ];
+
+  const ratings = [
+    '5.0',
+    '4.5+',
+    '4.0+',
+    '3.5+'
   ];
 
   const mockProfessionals = [
     {
       id: '1',
-      name: 'Γιάννης Παπαδόπουλος',
-      profession: 'Ηλεκτρολόγος',
-      city: 'Αθήνα',
-      rating: 4.8,
-      reviews: 24,
-      description: 'Ειδικευμένος σε ηλεκτρικές εγκαταστάσεις',
-      image: null
+      name: 'Jane Smith',
+      profession: 'Electrician',
+      city: 'Athens',
+      rating: 5.0,
+      reviews: 36,
+      description: 'Certified electrician specializing in home electrical systems and smart home installations.',
+      verified: true,
+      icon: '⚡'
     },
     {
       id: '2', 
-      name: 'Μαρία Κωνσταντίνου',
-      profession: 'Υδραυλικός',
-      city: 'Θεσσαλονίκη',
-      rating: 4.6,
-      reviews: 18,
-      description: 'Εμπειρία 15+ χρόνια σε υδραυλικές εργασίες',
-      image: null
+      name: 'Maria Kokkinou',
+      profession: 'Lawyer',
+      city: 'Athens',
+      rating: 4.9,
+      reviews: 42,
+      description: 'Experienced lawyer specializing in family and property law.',
+      verified: true,
+      icon: '⚖️'
+    },
+    {
+      id: '3',
+      name: 'George Papadopoulos',
+      profession: 'Plumber',
+      city: 'Athens',
+      rating: 4.8,
+      reviews: 28,
+      description: 'Professional plumber with 10+ years experience in residential and commercial plumbing.',
+      verified: true,
+      icon: '💧'
     }
   ];
 
@@ -58,7 +89,7 @@ export default function SearchScreen() {
 
   useEffect(() => {
     filterProfessionals();
-  }, [searchQuery, selectedCategory, selectedCity]);
+  }, [searchQuery, selectedCategory, selectedCity, selectedRating]);
 
   const filterProfessionals = () => {
     let filtered = professionals;
@@ -78,110 +109,119 @@ export default function SearchScreen() {
       filtered = filtered.filter(prof => prof.city === selectedCity);
     }
 
+    if (selectedRating) {
+      const minRating = parseFloat(selectedRating);
+      filtered = filtered.filter(prof => prof.rating >= minRating);
+    }
+
     setFilteredProfessionals(filtered);
+  };
+
+  const renderStars = (rating) => {
+    const stars = [];
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating % 1 !== 0;
+
+    for (let i = 0; i < fullStars; i++) {
+      stars.push('★');
+    }
+    if (hasHalfStar) {
+      stars.push('☆');
+    }
+    return stars.join('');
   };
 
   const renderProfessional = ({ item }) => (
     <TouchableOpacity 
       style={styles.professionalCard}
       onPress={() => navigation.navigate('ProfessionalDetails', { professional: item })}
+      activeOpacity={0.8}
     >
-      <View style={styles.professionalInfo}>
-        <View style={styles.professionalHeader}>
-          <Text style={styles.professionalName}>{item.name}</Text>
-          <View style={styles.ratingContainer}>
-            <Text style={styles.rating}>⭐ {item.rating}</Text>
-            <Text style={styles.reviews}>({item.reviews})</Text>
+      <View style={styles.professionalHeader}>
+        <Text style={styles.professionalName}>{item.name}</Text>
+        {item.verified && (
+          <View style={styles.verifiedBadge}>
+            <Text style={styles.verifiedText}>✓ Verified</Text>
           </View>
-        </View>
-        
-        <Text style={styles.profession}>{item.profession}</Text>
-        <Text style={styles.city}>📍 {item.city}</Text>
-        <Text style={styles.description}>{item.description}</Text>
-        
-        <TouchableOpacity style={styles.viewDetailsButton}>
-          <Text style={styles.viewDetailsText}>Προβολή Λεπτομερειών</Text>
-        </TouchableOpacity>
+        )}
       </View>
+      
+      <View style={styles.professionRow}>
+        <Text style={styles.professionIcon}>{item.icon}</Text>
+        <Text style={styles.profession}>{item.profession}</Text>
+      </View>
+      
+      <Text style={styles.description}>{item.description}</Text>
+      
+      <View style={styles.ratingRow}>
+        <Text style={styles.starIcon}>★</Text>
+        <Text style={styles.rating}>{item.rating}</Text>
+        <Text style={styles.reviews}>({item.reviews} Reviews)</Text>
+      </View>
+      
+      <View style={styles.locationRow}>
+        <Text style={styles.locationIcon}>📍</Text>
+        <Text style={styles.location}>{item.city}</Text>
+      </View>
+      
+      <TouchableOpacity style={styles.viewDetailsButton}>
+        <Text style={styles.viewDetailsText}>View Details</Text>
+      </TouchableOpacity>
     </TouchableOpacity>
   );
 
   return (
     <SafeAreaView style={styles.container}>
+      <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
+      
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Text style={styles.backButtonText}>← Πίσω</Text>
+          <Text style={styles.backButtonText}>←</Text>
         </TouchableOpacity>
-        <Text style={styles.title}>Βρες Επαγγελματίες</Text>
+        <Text style={styles.title}>Αναζήτηση Επαγγελματιών</Text>
         <TouchableOpacity style={styles.addButton}>
-          <Text style={styles.addButtonText}>+Prof.</Text>
+          <Text style={styles.addButtonText}>+ Prof.</Text>
         </TouchableOpacity>
       </View>
 
       <ScrollView style={styles.content}>
+        {/* Search Bar */}
         <View style={styles.searchContainer}>
           <TextInput
             style={styles.searchInput}
             placeholder="Αναζήτηση επαγγελματιών..."
             value={searchQuery}
             onChangeText={setSearchQuery}
+            placeholderTextColor="#9ca3af"
           />
         </View>
 
+        {/* Filter Buttons */}
         <View style={styles.filtersContainer}>
-          <View style={styles.filterSection}>
-            <Text style={styles.filterTitle}>Κατηγορία</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filterScroll}>
-              {categories.map((category) => (
-                <TouchableOpacity
-                  key={category}
-                  style={[
-                    styles.filterChip,
-                    selectedCategory === category && styles.selectedFilterChip
-                  ]}
-                  onPress={() => setSelectedCategory(
-                    selectedCategory === category ? '' : category
-                  )}
-                >
-                  <Text style={[
-                    styles.filterChipText,
-                    selectedCategory === category && styles.selectedFilterChipText
-                  ]}>
-                    {category}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-          </View>
-
-          <View style={styles.filterSection}>
-            <Text style={styles.filterTitle}>Πόλη</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filterScroll}>
-              {cities.map((city) => (
-                <TouchableOpacity
-                  key={city}
-                  style={[
-                    styles.filterChip,
-                    selectedCity === city && styles.selectedFilterChip
-                  ]}
-                  onPress={() => setSelectedCity(
-                    selectedCity === city ? '' : city
-                  )}
-                >
-                  <Text style={[
-                    styles.filterChipText,
-                    selectedCity === city && styles.selectedFilterChipText
-                  ]}>
-                    {city}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-          </View>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filterScroll}>
+            <TouchableOpacity style={styles.filterButton}>
+              <Text style={styles.filterIcon}>⊞</Text>
+              <Text style={styles.filterText}>Κατηγορία</Text>
+              <Text style={styles.filterArrow}>▼</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity style={styles.filterButton}>
+              <Text style={styles.filterIcon}>📍</Text>
+              <Text style={styles.filterText}>Πόλη</Text>
+              <Text style={styles.filterArrow}>▼</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity style={styles.filterButton}>
+              <Text style={styles.filterIcon}>★</Text>
+              <Text style={styles.filterText}>Βαθμολογία</Text>
+              <Text style={styles.filterArrow}>▼</Text>
+            </TouchableOpacity>
+          </ScrollView>
         </View>
 
+        {/* Results */}
         <View style={styles.resultsContainer}>
-          <Text style={styles.resultsTitle}>Επαγγελματίες</Text>
+          <Text style={styles.resultsTitle}>Professionals</Text>
           <FlatList
             data={filteredProfessionals}
             renderItem={renderProfessional}
@@ -202,116 +242,118 @@ export default function SearchScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#ffffff',
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: 15,
-    backgroundColor: '#fff',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: '#ffffff',
     borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+    borderBottomColor: '#f1f3f4',
   },
   backButton: {
-    marginRight: 15,
+    padding: 8,
   },
   backButtonText: {
-    fontSize: 16,
-    color: '#007bff',
+    fontSize: 20,
+    color: '#1f2937',
+    fontWeight: '600',
   },
   title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#333',
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#1f2937',
     flex: 1,
     textAlign: 'center',
   },
   addButton: {
-    backgroundColor: '#007bff',
+    backgroundColor: '#3b82f6',
     paddingHorizontal: 12,
     paddingVertical: 6,
-    borderRadius: 15,
+    borderRadius: 16,
   },
   addButtonText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: 'bold',
+    color: '#ffffff',
+    fontSize: 12,
+    fontWeight: '600',
   },
   content: {
     flex: 1,
   },
   searchContainer: {
-    padding: 15,
-    backgroundColor: '#fff',
+    padding: 16,
+    backgroundColor: '#ffffff',
   },
   searchInput: {
     borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 25,
-    paddingHorizontal: 15,
+    borderColor: '#d1d5db',
+    borderRadius: 12,
+    paddingHorizontal: 16,
     paddingVertical: 12,
     fontSize: 16,
-    backgroundColor: '#f9f9f9',
+    backgroundColor: '#f9fafb',
+    color: '#1f2937',
   },
   filtersContainer: {
-    backgroundColor: '#fff',
-    padding: 15,
+    backgroundColor: '#ffffff',
+    paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
-  },
-  filterSection: {
-    marginBottom: 15,
-  },
-  filterTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 10,
+    borderBottomColor: '#f1f3f4',
   },
   filterScroll: {
-    flexDirection: 'row',
+    paddingHorizontal: 16,
   },
-  filterChip: {
-    backgroundColor: '#f0f0f0',
-    paddingHorizontal: 15,
+  filterButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f3f4f6',
+    paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 20,
-    marginRight: 10,
+    marginRight: 12,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
   },
-  selectedFilterChip: {
-    backgroundColor: '#007bff',
+  filterIcon: {
+    fontSize: 16,
+    color: '#6b7280',
+    marginRight: 6,
   },
-  filterChipText: {
+  filterText: {
     fontSize: 14,
-    color: '#666',
+    color: '#374151',
+    fontWeight: '500',
+    marginRight: 6,
   },
-  selectedFilterChipText: {
-    color: '#fff',
+  filterArrow: {
+    fontSize: 12,
+    color: '#6b7280',
   },
   resultsContainer: {
     flex: 1,
-    padding: 15,
+    padding: 16,
   },
   resultsTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 15,
+    fontSize: 20,
+    fontWeight: '600',
+    color: '#1f2937',
+    marginBottom: 16,
   },
   professionalCard: {
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    padding: 15,
-    marginBottom: 15,
+    backgroundColor: '#ffffff',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  professionalInfo: {
-    flex: 1,
+    shadowRadius: 8,
+    elevation: 4,
+    borderWidth: 1,
+    borderColor: '#f1f3f4',
   },
   professionalHeader: {
     flexDirection: 'row',
@@ -321,51 +363,86 @@ const styles = StyleSheet.create({
   },
   professionalName: {
     fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
+    fontWeight: '600',
+    color: '#1f2937',
     flex: 1,
   },
-  ratingContainer: {
+  verifiedBadge: {
+    backgroundColor: '#10b981',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  verifiedText: {
+    color: '#ffffff',
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  professionRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginBottom: 8,
   },
-  rating: {
-    fontSize: 14,
-    color: '#ffa500',
-    marginRight: 5,
-  },
-  reviews: {
-    fontSize: 12,
-    color: '#666',
+  professionIcon: {
+    fontSize: 16,
+    marginRight: 8,
   },
   profession: {
     fontSize: 16,
-    color: '#007bff',
-    fontWeight: '600',
-    marginBottom: 4,
-  },
-  city: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 8,
+    color: '#3b82f6',
+    fontWeight: '500',
   },
   description: {
     fontSize: 14,
-    color: '#333',
+    color: '#6b7280',
     lineHeight: 20,
     marginBottom: 12,
   },
+  ratingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  starIcon: {
+    fontSize: 16,
+    color: '#fbbf24',
+    marginRight: 4,
+  },
+  rating: {
+    fontSize: 16,
+    color: '#1f2937',
+    fontWeight: '600',
+    marginRight: 4,
+  },
+  reviews: {
+    fontSize: 14,
+    color: '#6b7280',
+  },
+  locationRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  locationIcon: {
+    fontSize: 14,
+    color: '#6b7280',
+    marginRight: 6,
+  },
+  location: {
+    fontSize: 14,
+    color: '#6b7280',
+  },
   viewDetailsButton: {
-    backgroundColor: '#007bff',
+    backgroundColor: '#3b82f6',
     paddingVertical: 10,
     paddingHorizontal: 20,
-    borderRadius: 20,
+    borderRadius: 8,
     alignSelf: 'flex-start',
   },
   viewDetailsText: {
-    color: '#fff',
+    color: '#ffffff',
     fontSize: 14,
-    fontWeight: 'bold',
+    fontWeight: '600',
   },
   emptyContainer: {
     flex: 1,
@@ -375,6 +452,6 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 16,
-    color: '#666',
+    color: '#6b7280',
   },
 });

@@ -1,203 +1,196 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, FlatList, TextInput, StyleSheet, SafeAreaView, Alert } from 'react-native';
+import { 
+  View, 
+  Text, 
+  TouchableOpacity, 
+  FlatList, 
+  StyleSheet, 
+  SafeAreaView, 
+  StatusBar 
+} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
 export default function FriendsScreen() {
   const navigation = useNavigation();
-  const [searchQuery, setSearchQuery] = useState('');
-  const [friends, setFriends] = useState([]);
-  const [friendRequests, setFriendRequests] = useState([]);
   const [activeTab, setActiveTab] = useState('friends');
+  const [friends, setFriends] = useState([]);
+  const [suggestions, setSuggestions] = useState([]);
 
   const mockFriends = [
     {
       id: '1',
-      name: 'Μαρία Παπαδοπούλου',
-      email: 'maria@example.com',
-      status: 'accepted',
-      avatar: null
+      name: 'John Smith',
+      profession: 'Software Engineer',
+      location: 'Αθήνα',
+      status: 'friend',
+      avatar: '👤'
     },
     {
       id: '2',
-      name: 'Γιάννης Κωνσταντίνου',
-      email: 'giannis@example.com',
-      status: 'accepted',
-      avatar: null
+      name: 'Maria Papadopoulou',
+      profession: 'Teacher',
+      location: 'Θεσσαλονίκη',
+      status: 'friend',
+      avatar: '👤'
     },
     {
       id: '3',
-      name: 'Ελένη Δημητρίου',
-      email: 'eleni@example.com',
-      status: 'accepted',
-      avatar: null
+      name: 'Alex Johnson',
+      profession: 'Marketing Manager',
+      location: 'Αθήνα',
+      status: 'friend',
+      avatar: '👤'
     }
   ];
 
-  const mockFriendRequests = [
+  const mockSuggestions = [
     {
       id: '1',
-      name: 'Νίκος Αντωνίου',
-      email: 'nikos@example.com',
-      status: 'pending',
-      avatar: null
+      name: 'Anna Petrou',
+      profession: 'Nurse',
+      reason: 'Mutual friends: John Smith, Maria Papadopoulou, Alex Johnson',
+      avatar: '👤'
     },
     {
       id: '2',
-      name: 'Σοφία Παπαδοπούλου',
-      email: 'sofia@example.com',
-      status: 'pending',
-      avatar: null
+      name: 'Tom Wilson',
+      profession: 'Sales Manager',
+      reason: 'You live in the same city',
+      avatar: '👤'
+    },
+    {
+      id: '3',
+      name: 'Lisa Brown',
+      profession: 'Project Manager',
+      reason: 'Mutual friends: John Smith, Maria Papadopoulou, Alex Johnson, Sarah Wilson, Mike Chen',
+      avatar: '👤'
     }
   ];
 
   useEffect(() => {
     setFriends(mockFriends);
-    setFriendRequests(mockFriendRequests);
+    setSuggestions(mockSuggestions);
   }, []);
 
-  const handleAcceptRequest = (requestId) => {
-    Alert.alert(
-      'Αποδοχή Αίτησης',
-      'Θέλετε να αποδεχτείτε την αίτηση φιλίας;',
-      [
-        { text: 'Όχι', style: 'cancel' },
-        { 
-          text: 'Αποδοχή', 
-          onPress: () => {
-            setFriendRequests(prev => prev.filter(req => req.id !== requestId));
-            Alert.alert('Επιτυχία', 'Η αίτηση φιλίας αποδεχτηκε!');
-          }
-        }
-      ]
-    );
-  };
-
-  const handleRejectRequest = (requestId) => {
-    Alert.alert(
-      'Απόρριψη Αίτησης',
-      'Θέλετε να απορρίψετε την αίτηση φιλίας;',
-      [
-        { text: 'Όχι', style: 'cancel' },
-        { 
-          text: 'Απόρριψη', 
-          onPress: () => {
-            setFriendRequests(prev => prev.filter(req => req.id !== requestId));
-            Alert.alert('Ενημέρωση', 'Η αίτηση φιλίας απορρίφθηκε.');
-          }
-        }
-      ]
-    );
+  const handleAddFriend = (suggestionId) => {
+    // Add friend logic here
+    console.log('Adding friend:', suggestionId);
   };
 
   const renderFriend = ({ item }) => (
     <View style={styles.friendCard}>
       <View style={styles.friendInfo}>
         <View style={styles.avatar}>
-          <Text style={styles.avatarText}>
-            {item.name.charAt(0).toUpperCase()}
-          </Text>
+          <Text style={styles.avatarText}>{item.avatar}</Text>
         </View>
         <View style={styles.friendDetails}>
           <Text style={styles.friendName}>{item.name}</Text>
-          <Text style={styles.friendEmail}>{item.email}</Text>
+          <Text style={styles.friendProfession}>{item.profession} • {item.location}</Text>
+          <Text style={styles.friendStatus}>Φίλος</Text>
         </View>
       </View>
       <TouchableOpacity style={styles.messageButton}>
-        <Text style={styles.messageButtonText}>💬</Text>
+        <Text style={styles.messageIcon}>💬</Text>
       </TouchableOpacity>
     </View>
   );
 
-  const renderFriendRequest = ({ item }) => (
-    <View style={styles.requestCard}>
-      <View style={styles.friendInfo}>
+  const renderSuggestion = ({ item }) => (
+    <View style={styles.suggestionCard}>
+      <View style={styles.suggestionInfo}>
         <View style={styles.avatar}>
-          <Text style={styles.avatarText}>
-            {item.name.charAt(0).toUpperCase()}
-          </Text>
+          <Text style={styles.avatarText}>{item.avatar}</Text>
         </View>
-        <View style={styles.friendDetails}>
-          <Text style={styles.friendName}>{item.name}</Text>
-          <Text style={styles.friendEmail}>{item.email}</Text>
+        <View style={styles.suggestionDetails}>
+          <Text style={styles.suggestionName}>{item.name}</Text>
+          <Text style={styles.suggestionProfession}>{item.profession}</Text>
+          <Text style={styles.suggestionReason}>{item.reason}</Text>
         </View>
       </View>
-      <View style={styles.requestActions}>
-        <TouchableOpacity 
-          style={styles.acceptButton}
-          onPress={() => handleAcceptRequest(item.id)}
-        >
-          <Text style={styles.acceptButtonText}>Αποδοχή</Text>
-        </TouchableOpacity>
-        <TouchableOpacity 
-          style={styles.rejectButton}
-          onPress={() => handleRejectRequest(item.id)}
-        >
-          <Text style={styles.rejectButtonText}>Απόρριψη</Text>
-        </TouchableOpacity>
-      </View>
+      <TouchableOpacity 
+        style={styles.addButton}
+        onPress={() => handleAddFriend(item.id)}
+      >
+        <Text style={styles.addButtonIcon}>👤+</Text>
+      </TouchableOpacity>
     </View>
   );
 
-  const filteredFriends = friends.filter(friend =>
-    friend.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    friend.email.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  const filteredRequests = friendRequests.filter(request =>
-    request.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    request.email.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const tabs = [
+    { id: 'friends', title: 'Φίλοι' },
+    { id: 'requests', title: 'Αιτήματα' },
+    { id: 'suggestions', title: 'Προτάσεις' },
+    { id: 'search', title: 'Αναζήτηση' }
+  ];
 
   return (
     <SafeAreaView style={styles.container}>
+      <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
+      
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Text style={styles.backButtonText}>← Πίσω</Text>
+          <Text style={styles.backButtonText}>←</Text>
         </TouchableOpacity>
         <Text style={styles.title}>Φίλοι</Text>
       </View>
 
-      <View style={styles.searchContainer}>
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Αναζήτηση φίλων..."
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-        />
-      </View>
-
+      {/* Tab Navigation */}
       <View style={styles.tabContainer}>
-        <TouchableOpacity
-          style={[styles.tab, activeTab === 'friends' && styles.activeTab]}
-          onPress={() => setActiveTab('friends')}
-        >
-          <Text style={[styles.tabText, activeTab === 'friends' && styles.activeTabText]}>
-            Φίλοι ({friends.length})
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.tab, activeTab === 'requests' && styles.activeTab]}
-          onPress={() => setActiveTab('requests')}
-        >
-          <Text style={[styles.tabText, activeTab === 'requests' && styles.activeTabText]}>
-            Αιτήσεις ({friendRequests.length})
-          </Text>
-        </TouchableOpacity>
+        {tabs.map((tab) => (
+          <TouchableOpacity
+            key={tab.id}
+            style={[styles.tab, activeTab === tab.id && styles.activeTab]}
+            onPress={() => setActiveTab(tab.id)}
+          >
+            <Text style={[styles.tabText, activeTab === tab.id && styles.activeTabText]}>
+              {tab.title}
+            </Text>
+          </TouchableOpacity>
+        ))}
       </View>
 
-      <FlatList
-        data={activeTab === 'friends' ? filteredFriends : filteredRequests}
-        renderItem={activeTab === 'friends' ? renderFriend : renderFriendRequest}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.listContainer}
-        ListEmptyComponent={
+      {/* Content */}
+      {activeTab === 'friends' && (
+        <View style={styles.content}>
+          <Text style={styles.sectionTitle}>Φίλοι (3)</Text>
+          <FlatList
+            data={friends}
+            renderItem={renderFriend}
+            keyExtractor={(item) => item.id}
+            contentContainerStyle={styles.listContainer}
+          />
+        </View>
+      )}
+
+      {activeTab === 'suggestions' && (
+        <View style={styles.content}>
+          <Text style={styles.sectionTitle}>Προτάσεις</Text>
+          <FlatList
+            data={suggestions}
+            renderItem={renderSuggestion}
+            keyExtractor={(item) => item.id}
+            contentContainerStyle={styles.listContainer}
+          />
+        </View>
+      )}
+
+      {activeTab === 'requests' && (
+        <View style={styles.content}>
+          <Text style={styles.sectionTitle}>Αιτήματα</Text>
           <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText}>
-              {activeTab === 'friends' ? 'Δεν υπάρχουν φίλοι' : 'Δεν υπάρχουν αιτήσεις'}
-            </Text>
+            <Text style={styles.emptyText}>Δεν υπάρχουν αιτήματα</Text>
           </View>
-        }
-      />
+        </View>
+      )}
+
+      {activeTab === 'search' && (
+        <View style={styles.content}>
+          <Text style={styles.sectionTitle}>Αναζήτηση</Text>
+          <View style={styles.emptyContainer}>
+            <Text style={styles.emptyText}>Αναζήτηση φίλων</Text>
+          </View>
+        </View>
+      )}
     </SafeAreaView>
   );
 }
@@ -205,166 +198,187 @@ export default function FriendsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#ffffff',
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 15,
-    backgroundColor: '#fff',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: '#ffffff',
     borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+    borderBottomColor: '#f1f3f4',
   },
   backButton: {
-    marginRight: 15,
+    padding: 8,
+    marginRight: 8,
   },
   backButtonText: {
-    fontSize: 16,
-    color: '#007bff',
+    fontSize: 20,
+    color: '#1f2937',
+    fontWeight: '600',
   },
   title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#333',
-  },
-  searchContainer: {
-    padding: 15,
-    backgroundColor: '#fff',
-  },
-  searchInput: {
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 25,
-    paddingHorizontal: 15,
-    paddingVertical: 12,
-    fontSize: 16,
-    backgroundColor: '#f9f9f9',
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#1f2937',
+    flex: 1,
+    textAlign: 'center',
   },
   tabContainer: {
     flexDirection: 'row',
-    backgroundColor: '#fff',
+    backgroundColor: '#ffffff',
     borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+    borderBottomColor: '#f1f3f4',
   },
   tab: {
     flex: 1,
-    padding: 15,
+    paddingVertical: 16,
     alignItems: 'center',
     borderBottomWidth: 2,
     borderBottomColor: 'transparent',
   },
   activeTab: {
-    borderBottomColor: '#007bff',
+    borderBottomColor: '#3b82f6',
+    backgroundColor: '#3b82f6',
   },
   tabText: {
     fontSize: 16,
-    color: '#666',
+    color: '#6b7280',
+    fontWeight: '500',
   },
   activeTabText: {
-    color: '#007bff',
-    fontWeight: 'bold',
+    color: '#ffffff',
+    fontWeight: '600',
+  },
+  content: {
+    flex: 1,
+    padding: 16,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#1f2937',
+    marginBottom: 16,
   },
   listContainer: {
-    padding: 15,
+    paddingBottom: 16,
   },
   friendCard: {
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    padding: 15,
-    marginBottom: 10,
+    backgroundColor: '#ffffff',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    shadowRadius: 8,
+    elevation: 4,
+    borderWidth: 1,
+    borderColor: '#f1f3f4',
   },
-  requestCard: {
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    padding: 15,
-    marginBottom: 10,
+  suggestionCard: {
+    backgroundColor: '#ffffff',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    shadowRadius: 8,
+    elevation: 4,
+    borderWidth: 1,
+    borderColor: '#f1f3f4',
   },
   friendInfo: {
     flexDirection: 'row',
     alignItems: 'center',
     flex: 1,
   },
+  suggestionInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
   avatar: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: '#007bff',
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#f3f4f6',
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 15,
+    marginRight: 12,
   },
   avatarText: {
-    color: '#fff',
     fontSize: 20,
-    fontWeight: 'bold',
+    color: '#6b7280',
   },
   friendDetails: {
     flex: 1,
   },
+  suggestionDetails: {
+    flex: 1,
+  },
   friendName: {
     fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 2,
+    fontWeight: '600',
+    color: '#1f2937',
+    marginBottom: 4,
   },
-  friendEmail: {
+  suggestionName: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1f2937',
+    marginBottom: 4,
+  },
+  friendProfession: {
     fontSize: 14,
-    color: '#666',
+    color: '#6b7280',
+    marginBottom: 4,
+  },
+  suggestionProfession: {
+    fontSize: 14,
+    color: '#6b7280',
+    marginBottom: 4,
+  },
+  friendStatus: {
+    fontSize: 12,
+    color: '#10b981',
+    fontWeight: '600',
+  },
+  suggestionReason: {
+    fontSize: 12,
+    color: '#6b7280',
+    lineHeight: 16,
   },
   messageButton: {
-    backgroundColor: '#28a745',
     width: 40,
     height: 40,
     borderRadius: 20,
+    backgroundColor: '#f3f4f6',
     justifyContent: 'center',
     alignItems: 'center',
   },
-  messageButtonText: {
+  messageIcon: {
     fontSize: 18,
   },
-  requestActions: {
-    flexDirection: 'row',
-    marginTop: 15,
-    gap: 10,
-  },
-  acceptButton: {
-    backgroundColor: '#28a745',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
+  addButton: {
+    width: 40,
+    height: 40,
     borderRadius: 20,
-    flex: 1,
+    backgroundColor: '#3b82f6',
+    justifyContent: 'center',
     alignItems: 'center',
   },
-  acceptButtonText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: 'bold',
-  },
-  rejectButton: {
-    backgroundColor: '#dc3545',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 20,
-    flex: 1,
-    alignItems: 'center',
-  },
-  rejectButtonText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: 'bold',
+  addButtonIcon: {
+    fontSize: 16,
+    color: '#ffffff',
   },
   emptyContainer: {
     flex: 1,
@@ -374,6 +388,6 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 16,
-    color: '#666',
+    color: '#6b7280',
   },
 });

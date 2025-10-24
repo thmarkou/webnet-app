@@ -7,6 +7,7 @@ import {
   StyleSheet,
   ScrollView,
   Alert,
+  StatusBar,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
@@ -23,7 +24,6 @@ export default function ProfessionalRegistrationForm() {
     email: '',
     phone: '',
     password: '',
-    confirmPassword: '',
     
     // Step 2: Business Information
     businessName: '',
@@ -33,28 +33,35 @@ export default function ProfessionalRegistrationForm() {
     about: '',
     
     // Step 3: Address Information
-    country: 'Ελλάδα',
-    city: '',
-    address: '',
+    number: '',
+    area: '',
     postalCode: '',
+    country: 'Greece',
+    city: '',
+    
+    // Step 4: Service Information
+    serviceName: '',
+    serviceDescription: '',
+    duration: '',
+    price: '',
   });
 
   const professions = [
-    'Ηλεκτρολόγος',
-    'Υδραυλικός',
-    'Καθαριστής',
-    'Μαθηματικός',
-    'Φυσικός',
-    'Χημικός'
+    'Electrician',
+    'Plumber',
+    'Lawyer',
+    'Cleaner',
+    'Mechanic',
+    'Doctor'
   ];
 
   const cities = [
-    'Αθήνα',
-    'Θεσσαλονίκη',
-    'Πάτρα',
-    'Ηράκλειο',
-    'Λάρισα',
-    'Βόλος'
+    'Athens',
+    'Thessaloniki',
+    'Patras',
+    'Heraklion',
+    'Larissa',
+    'Volos'
   ];
 
   const handleInputChange = (field: string, value: string) => {
@@ -62,7 +69,7 @@ export default function ProfessionalRegistrationForm() {
   };
 
   const handleNext = () => {
-    if (currentStep < 3) {
+    if (currentStep < 4) {
       setCurrentStep(currentStep + 1);
     } else {
       handleSubmit();
@@ -83,51 +90,54 @@ export default function ProfessionalRegistrationForm() {
       });
       // Navigation will be handled by RootNavigator
     } catch (error) {
-      Alert.alert('Σφάλμα', 'Σφάλμα κατά την εγγραφή');
+      Alert.alert('Error', 'Registration failed');
     }
   };
 
   const renderStep1 = () => (
     <View style={styles.stepContainer}>
-      <Text style={styles.stepTitle}>Προσωπικές Πληροφορίες</Text>
+      <Text style={styles.stepTitle}>Personal Information</Text>
       
       <View style={styles.inputGroup}>
-        <Text style={styles.label}>Όνομα *</Text>
+        <Text style={styles.label}>First Name *</Text>
         <TextInput
           style={styles.input}
-          placeholder="Εισάγετε το όνομά σας"
+          placeholder="Enter your first name"
           value={formData.firstName}
           onChangeText={(value) => handleInputChange('firstName', value)}
         />
       </View>
 
       <View style={styles.inputGroup}>
-        <Text style={styles.label}>Επώνυμο *</Text>
+        <Text style={styles.label}>Last Name *</Text>
         <TextInput
           style={styles.input}
-          placeholder="Εισάγετε το επώνυμό σας"
+          placeholder="Enter your last name"
           value={formData.lastName}
           onChangeText={(value) => handleInputChange('lastName', value)}
         />
       </View>
 
       <View style={styles.inputGroup}>
-        <Text style={styles.label}>Email *</Text>
+        <Text style={styles.label}>Email</Text>
         <TextInput
           style={styles.input}
-          placeholder="Εισάγετε το email σας"
+          placeholder="Enter your email (optional)"
           value={formData.email}
           onChangeText={(value) => handleInputChange('email', value)}
           keyboardType="email-address"
           autoCapitalize="none"
         />
+        <Text style={styles.helpText}>
+          Email is optional. If not provided, we'll use your phone number for account management.
+        </Text>
       </View>
 
       <View style={styles.inputGroup}>
-        <Text style={styles.label}>Τηλέφωνο *</Text>
+        <Text style={styles.label}>Phone Number *</Text>
         <TextInput
           style={styles.input}
-          placeholder="Εισάγετε το τηλέφωνό σας"
+          placeholder="Enter your phone number"
           value={formData.phone}
           onChangeText={(value) => handleInputChange('phone', value)}
           keyboardType="phone-pad"
@@ -135,23 +145,12 @@ export default function ProfessionalRegistrationForm() {
       </View>
 
       <View style={styles.inputGroup}>
-        <Text style={styles.label}>Κωδικός *</Text>
+        <Text style={styles.label}>Password *</Text>
         <TextInput
           style={styles.input}
-          placeholder="Εισάγετε τον κωδικό σας"
+          placeholder="Enter your password"
           value={formData.password}
           onChangeText={(value) => handleInputChange('password', value)}
-          secureTextEntry
-        />
-      </View>
-
-      <View style={styles.inputGroup}>
-        <Text style={styles.label}>Επιβεβαίωση Κωδικού *</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Επιβεβαιώστε τον κωδικό σας"
-          value={formData.confirmPassword}
-          onChangeText={(value) => handleInputChange('confirmPassword', value)}
           secureTextEntry
         />
       </View>
@@ -160,23 +159,23 @@ export default function ProfessionalRegistrationForm() {
 
   const renderStep2 = () => (
     <View style={styles.stepContainer}>
-      <Text style={styles.stepTitle}>Πληροφορίες Επιχείρησης</Text>
+      <Text style={styles.stepTitle}>Business Information</Text>
       
       <View style={styles.inputGroup}>
-        <Text style={styles.label}>Όνομα Επιχείρησης *</Text>
+        <Text style={styles.label}>Business Name *</Text>
         <TextInput
           style={styles.input}
-          placeholder="Εισάγετε το όνομα της επιχείρησής σας"
+          placeholder="Enter your business name"
           value={formData.businessName}
           onChangeText={(value) => handleInputChange('businessName', value)}
         />
       </View>
 
       <View style={styles.inputGroup}>
-        <Text style={styles.label}>Επάγγελμα *</Text>
+        <Text style={styles.label}>Profession *</Text>
         <View style={styles.dropdown}>
           <Text style={styles.dropdownText}>
-            {formData.profession || 'Επιλέξτε το επάγγελμά σας'}
+            {formData.profession || 'Select your profession'}
           </Text>
         </View>
         {professions.map((prof) => (
@@ -199,10 +198,10 @@ export default function ProfessionalRegistrationForm() {
       </View>
 
       <View style={styles.inputGroup}>
-        <Text style={styles.label}>ΑΦΜ *</Text>
+        <Text style={styles.label}>VAT number *</Text>
         <TextInput
           style={styles.input}
-          placeholder="Εισάγετε τον ΑΦΜ σας"
+          placeholder="Enter your VAT number"
           value={formData.vatNumber}
           onChangeText={(value) => handleInputChange('vatNumber', value)}
           keyboardType="numeric"
@@ -210,22 +209,25 @@ export default function ProfessionalRegistrationForm() {
       </View>
 
       <View style={styles.inputGroup}>
-        <Text style={styles.label}>Website</Text>
+        <Text style={styles.label}>Website (Optional)</Text>
         <TextInput
           style={styles.input}
-          placeholder="Εισάγετε το URL του website σας (προαιρετικό)"
+          placeholder="Enter your website URL (optional)"
           value={formData.website}
           onChangeText={(value) => handleInputChange('website', value)}
           keyboardType="url"
           autoCapitalize="none"
         />
+        <Text style={styles.helpText}>
+          Add your website to help customers learn more about your services
+        </Text>
       </View>
 
       <View style={styles.inputGroup}>
-        <Text style={styles.label}>Σχετικά με εσάς</Text>
+        <Text style={styles.label}>About (Optional)</Text>
         <TextInput
           style={[styles.input, styles.textArea]}
-          placeholder="Περιγράψτε την εμπειρία και τις υπηρεσίες σας"
+          placeholder="Describe your experience and services"
           value={formData.about}
           onChangeText={(value) => handleInputChange('about', value)}
           multiline
@@ -237,22 +239,53 @@ export default function ProfessionalRegistrationForm() {
 
   const renderStep3 = () => (
     <View style={styles.stepContainer}>
-      <Text style={styles.stepTitle}>Πληροφορίες Διεύθυνσης</Text>
+      <Text style={styles.stepTitle}>Address Information</Text>
       
       <View style={styles.inputGroup}>
-        <Text style={styles.label}>Χώρα *</Text>
+        <Text style={styles.label}>Number *</Text>
         <TextInput
           style={styles.input}
-          value={formData.country}
-          editable={false}
+          placeholder="Enter street number"
+          value={formData.number}
+          onChangeText={(value) => handleInputChange('number', value)}
         />
       </View>
 
       <View style={styles.inputGroup}>
-        <Text style={styles.label}>Πόλη *</Text>
+        <Text style={styles.label}>Area *</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Enter area"
+          value={formData.area}
+          onChangeText={(value) => handleInputChange('area', value)}
+        />
+      </View>
+
+      <View style={styles.inputGroup}>
+        <Text style={styles.label}>Postal Code *</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Enter postal code"
+          value={formData.postalCode}
+          onChangeText={(value) => handleInputChange('postalCode', value)}
+          keyboardType="numeric"
+        />
+      </View>
+
+      <View style={styles.inputGroup}>
+        <Text style={styles.label}>Country *</Text>
         <View style={styles.dropdown}>
           <Text style={styles.dropdownText}>
-            {formData.city || 'Επιλέξτε την πόλη σας'}
+            {formData.country}
+          </Text>
+        </View>
+      </View>
+
+      <View style={styles.inputGroup}>
+        <Text style={styles.label}>City *</Text>
+        <View style={styles.dropdown}>
+          <Text style={styles.dropdownText}>
+            {formData.city || 'Select your city'}
           </Text>
         </View>
         {cities.map((city) => (
@@ -273,24 +306,56 @@ export default function ProfessionalRegistrationForm() {
           </TouchableOpacity>
         ))}
       </View>
+    </View>
+  );
 
+  const renderStep4 = () => (
+    <View style={styles.stepContainer}>
+      <Text style={styles.stepTitle}>Service Information</Text>
+      <Text style={styles.helpText}>
+        Add the services you provide. Duration and pricing can be set later.
+      </Text>
+      
       <View style={styles.inputGroup}>
-        <Text style={styles.label}>Διεύθυνση *</Text>
+        <Text style={styles.label}>Service Name *</Text>
         <TextInput
           style={styles.input}
-          placeholder="Εισάγετε τη διεύθυνσή σας"
-          value={formData.address}
-          onChangeText={(value) => handleInputChange('address', value)}
+          placeholder="e.g., Plumbing Repair, Electrical Installation"
+          value={formData.serviceName}
+          onChangeText={(value) => handleInputChange('serviceName', value)}
         />
       </View>
 
       <View style={styles.inputGroup}>
-        <Text style={styles.label}>Ταχυδρομικός Κώδικας *</Text>
+        <Text style={styles.label}>Description *</Text>
+        <TextInput
+          style={[styles.input, styles.textArea]}
+          placeholder="Describe what this service includes"
+          value={formData.serviceDescription}
+          onChangeText={(value) => handleInputChange('serviceDescription', value)}
+          multiline
+          numberOfLines={4}
+        />
+      </View>
+
+      <View style={styles.inputGroup}>
+        <Text style={styles.label}>Duration (minutes) - Optional</Text>
         <TextInput
           style={styles.input}
-          placeholder="Εισάγετε τον ταχυδρομικό κώδικα"
-          value={formData.postalCode}
-          onChangeText={(value) => handleInputChange('postalCode', value)}
+          placeholder="0"
+          value={formData.duration}
+          onChangeText={(value) => handleInputChange('duration', value)}
+          keyboardType="numeric"
+        />
+      </View>
+
+      <View style={styles.inputGroup}>
+        <Text style={styles.label}>Price (€) - Optional</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="0"
+          value={formData.price}
+          onChangeText={(value) => handleInputChange('price', value)}
           keyboardType="numeric"
         />
       </View>
@@ -299,17 +364,19 @@ export default function ProfessionalRegistrationForm() {
 
   return (
     <SafeAreaView style={styles.container}>
+      <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
+      
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Text style={styles.backButtonText}>← Πίσω</Text>
+          <Text style={styles.backButtonText}>←</Text>
         </TouchableOpacity>
         <Text style={styles.title}>Εγγραφή Επαγγελματία</Text>
       </View>
 
       <View style={styles.progressContainer}>
-        <Text style={styles.progressText}>Βήμα {currentStep} από 3</Text>
+        <Text style={styles.progressText}>Step {currentStep} of 4</Text>
         <View style={styles.progressBar}>
-          <View style={[styles.progressFill, { width: `${(currentStep / 3) * 100}%` }]} />
+          <View style={[styles.progressFill, { width: `${(currentStep / 4) * 100}%` }]} />
         </View>
       </View>
 
@@ -317,12 +384,13 @@ export default function ProfessionalRegistrationForm() {
         {currentStep === 1 && renderStep1()}
         {currentStep === 2 && renderStep2()}
         {currentStep === 3 && renderStep3()}
+        {currentStep === 4 && renderStep4()}
       </ScrollView>
 
       <View style={styles.buttonContainer}>
         {currentStep > 1 && (
           <TouchableOpacity style={styles.previousButton} onPress={handlePrevious}>
-            <Text style={styles.previousButtonText}>Προηγούμενο</Text>
+            <Text style={styles.previousButtonText}>← Previous</Text>
           </TouchableOpacity>
         )}
         
@@ -332,7 +400,7 @@ export default function ProfessionalRegistrationForm() {
           disabled={isLoading}
         >
           <Text style={styles.nextButtonText}>
-            {currentStep === 3 ? 'Δημιουργία Λογαριασμού' : 'Επόμενο'}
+            {currentStep === 4 ? 'Create Account' : 'Next →'}
           </Text>
         </TouchableOpacity>
       </View>
@@ -343,67 +411,74 @@ export default function ProfessionalRegistrationForm() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#ffffff',
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 15,
-    backgroundColor: '#fff',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: '#ffffff',
     borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+    borderBottomColor: '#f1f3f4',
   },
   backButton: {
-    marginRight: 15,
+    padding: 8,
+    marginRight: 8,
   },
   backButtonText: {
-    fontSize: 16,
-    color: '#007bff',
+    fontSize: 20,
+    color: '#1f2937',
+    fontWeight: '600',
   },
   title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#333',
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#1f2937',
+    flex: 1,
+    textAlign: 'center',
   },
   progressContainer: {
-    padding: 20,
-    backgroundColor: '#fff',
+    padding: 16,
+    backgroundColor: '#ffffff',
     borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+    borderBottomColor: '#f1f3f4',
   },
   progressText: {
-    fontSize: 16,
-    color: '#666',
-    marginBottom: 10,
+    fontSize: 14,
+    color: '#6b7280',
+    marginBottom: 8,
   },
   progressBar: {
     height: 4,
-    backgroundColor: '#e0e0e0',
+    backgroundColor: '#e5e7eb',
     borderRadius: 2,
   },
   progressFill: {
     height: '100%',
-    backgroundColor: '#007bff',
+    backgroundColor: '#3b82f6',
     borderRadius: 2,
   },
   content: {
     flex: 1,
-    padding: 20,
+    padding: 16,
   },
   stepContainer: {
-    backgroundColor: '#fff',
+    backgroundColor: '#ffffff',
     padding: 20,
-    borderRadius: 10,
+    borderRadius: 12,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    shadowRadius: 8,
+    elevation: 4,
+    borderWidth: 1,
+    borderColor: '#f1f3f4',
   },
   stepTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
+    fontWeight: '600',
+    color: '#1f2937',
     marginBottom: 20,
   },
   inputGroup: {
@@ -412,82 +487,90 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#333',
+    color: '#1f2937',
     marginBottom: 8,
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: '#d1d5db',
     borderRadius: 8,
-    paddingHorizontal: 15,
+    paddingHorizontal: 16,
     paddingVertical: 12,
     fontSize: 16,
-    backgroundColor: '#f9f9f9',
+    backgroundColor: '#ffffff',
+    color: '#1f2937',
   },
   textArea: {
     height: 100,
     textAlignVertical: 'top',
   },
+  helpText: {
+    fontSize: 12,
+    color: '#6b7280',
+    marginTop: 4,
+    fontStyle: 'italic',
+  },
   dropdown: {
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: '#d1d5db',
     borderRadius: 8,
-    paddingHorizontal: 15,
+    paddingHorizontal: 16,
     paddingVertical: 12,
-    backgroundColor: '#f9f9f9',
-    marginBottom: 10,
+    backgroundColor: '#ffffff',
+    marginBottom: 8,
   },
   dropdownText: {
     fontSize: 16,
-    color: '#333',
+    color: '#1f2937',
   },
   option: {
     padding: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    borderBottomColor: '#f3f4f6',
   },
   selectedOption: {
-    backgroundColor: '#e3f2fd',
+    backgroundColor: '#dbeafe',
   },
   optionText: {
     fontSize: 16,
-    color: '#333',
+    color: '#1f2937',
   },
   selectedOptionText: {
-    color: '#007bff',
-    fontWeight: 'bold',
+    color: '#3b82f6',
+    fontWeight: '600',
   },
   buttonContainer: {
     flexDirection: 'row',
-    padding: 20,
-    backgroundColor: '#fff',
+    padding: 16,
+    backgroundColor: '#ffffff',
     borderTopWidth: 1,
-    borderTopColor: '#e0e0e0',
+    borderTopColor: '#f1f3f4',
+    gap: 12,
   },
   previousButton: {
     flex: 1,
-    backgroundColor: '#f0f0f0',
-    paddingVertical: 15,
-    borderRadius: 25,
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#3b82f6',
+    paddingVertical: 12,
+    borderRadius: 8,
     alignItems: 'center',
-    marginRight: 10,
   },
   previousButtonText: {
-    color: '#666',
+    color: '#3b82f6',
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: '600',
   },
   nextButton: {
     flex: 1,
-    backgroundColor: '#007bff',
-    paddingVertical: 15,
-    borderRadius: 25,
+    backgroundColor: '#3b82f6',
+    paddingVertical: 12,
+    borderRadius: 8,
     alignItems: 'center',
-    marginLeft: 10,
   },
   nextButtonText: {
-    color: '#fff',
+    color: '#ffffff',
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: '600',
   },
 });

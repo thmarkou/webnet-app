@@ -1,134 +1,215 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  SafeAreaView,
-} from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, StatusBar } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { Ionicons } from '@expo/vector-icons';
 
-export default function PreSignUpScreen() {
+const PreSignUpScreen = () => {
   const navigation = useNavigation();
+
+  const handleUserSignUp = () => {
+    navigation.navigate('Register', { role: 'user' });
+  };
+
+  const handleProfessionalSignUp = () => {
+    navigation.navigate('Register', { role: 'professional' });
+  };
+
+  const handleLogin = () => {
+    navigation.navigate('Login');
+  };
 
   return (
     <SafeAreaView style={styles.container}>
+      <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
+      
       <View style={styles.content}>
+        {/* Logo Section */}
         <View style={styles.logoContainer}>
-          <Ionicons name="business" size={64} color="#3b82f6" />
-          <Text style={styles.logoText}>WebNetApp</Text>
+          <View style={styles.logoPlaceholder}>
+            <View style={styles.logoGrid}>
+              <View style={styles.gridDot} />
+              <View style={styles.gridDot} />
+              <View style={styles.gridDot} />
+              <View style={styles.gridDot} />
+            </View>
+          </View>
+          <Text style={styles.appName}>Webnet</Text>
+          <Text style={styles.tagline}>Join WebNet</Text>
         </View>
 
-        <Text style={styles.title}>Επιλέξτε τύπο λογαριασμού</Text>
-        <Text style={styles.subtitle}>Πώς θέλετε να συνεχίσετε;</Text>
-
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity 
-            style={[styles.button, styles.userButton]}
-            onPress={() => navigation.navigate('Register' as never, { role: 'user' } as never)}
-          >
-            <Ionicons name="person" size={32} color="white" />
-            <Text style={styles.buttonText}>Λογαριασμός Χρήστη</Text>
-            <Text style={styles.buttonSubtext}>Βρείτε επαγγελματίες</Text>
+        {/* Role Selection Cards */}
+        <View style={styles.cardsContainer}>
+          {/* User Account Card */}
+          <TouchableOpacity style={styles.card} onPress={handleUserSignUp} activeOpacity={0.8}>
+            <View style={styles.cardContent}>
+              <View style={styles.iconContainer}>
+                <Text style={styles.icon}>👤</Text>
+              </View>
+              <View style={styles.textContainer}>
+                <Text style={styles.cardTitle}>User Account</Text>
+                <Text style={styles.cardDescription}>
+                  Find and book services from verified professionals
+                </Text>
+              </View>
+              <Text style={styles.arrow}>→</Text>
+            </View>
           </TouchableOpacity>
 
-          <TouchableOpacity 
-            style={[styles.button, styles.professionalButton]}
-            onPress={() => navigation.navigate('Register' as never, { role: 'professional' } as never)}
-          >
-            <Ionicons name="briefcase" size={32} color="white" />
-            <Text style={styles.buttonText}>Λογαριασμός Επαγγελματία</Text>
-            <Text style={styles.buttonSubtext}>Προσφέρετε υπηρεσίες</Text>
+          {/* Professional Account Card */}
+          <TouchableOpacity style={styles.card} onPress={handleProfessionalSignUp} activeOpacity={0.8}>
+            <View style={styles.cardContent}>
+              <View style={styles.iconContainer}>
+                <Text style={styles.icon}>💼</Text>
+              </View>
+              <View style={styles.textContainer}>
+                <Text style={styles.cardTitle}>Professional Account</Text>
+                <Text style={styles.cardDescription}>
+                  Grow your business and reach more clients
+                </Text>
+              </View>
+              <Text style={styles.arrow}>→</Text>
+            </View>
           </TouchableOpacity>
         </View>
 
-        <TouchableOpacity 
-          style={styles.loginLink}
-          onPress={() => navigation.navigate('Login' as never)}
-        >
-          <Text style={styles.loginText}>Έχετε ήδη λογαριασμό; Συνδεθείτε</Text>
-        </TouchableOpacity>
+        {/* Login Link */}
+        <View style={styles.loginContainer}>
+          <Text style={styles.loginText}>
+            Έχετε Λογαριασμό{' '}
+            <Text style={styles.loginLink} onPress={handleLogin}>
+              Σύνδεση
+            </Text>
+          </Text>
+        </View>
       </View>
     </SafeAreaView>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8fafc',
+    backgroundColor: '#ffffff',
   },
   content: {
     flex: 1,
-    paddingHorizontal: 20,
+    paddingHorizontal: 24,
     paddingTop: 60,
-    alignItems: 'center',
+    paddingBottom: 40,
   },
   logoContainer: {
     alignItems: 'center',
     marginBottom: 60,
   },
-  logoText: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#3b82f6',
-    marginTop: 16,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#1e293b',
-    textAlign: 'center',
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: '#64748b',
-    textAlign: 'center',
-    marginBottom: 40,
-  },
-  buttonContainer: {
-    width: '100%',
-    gap: 20,
-  },
-  button: {
-    padding: 24,
-    borderRadius: 12,
+  logoPlaceholder: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: '#f8f9fa',
+    justifyContent: 'center',
     alignItems: 'center',
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: '#e9ecef',
+  },
+  logoGrid: {
+    width: 32,
+    height: 32,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  gridDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#6c757d',
+    margin: 2,
+  },
+  appName: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: '#1a1a1a',
+    marginBottom: 8,
+    letterSpacing: -0.5,
+  },
+  tagline: {
+    fontSize: 16,
+    color: '#6c757d',
+    fontWeight: '400',
+  },
+  cardsContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    gap: 16,
+  },
+  card: {
+    backgroundColor: '#ffffff',
+    borderRadius: 16,
+    padding: 20,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
-      height: 2,
+      height: 4,
     },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
-    elevation: 5,
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 6,
+    borderWidth: 1,
+    borderColor: '#f1f3f4',
   },
-  userButton: {
-    backgroundColor: '#3b82f6',
+  cardContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
-  professionalButton: {
-    backgroundColor: '#10b981',
+  iconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#f8f9fa',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 16,
+    borderWidth: 1,
+    borderColor: '#e9ecef',
   },
-  buttonText: {
-    color: 'white',
+  icon: {
+    fontSize: 24,
+  },
+  textContainer: {
+    flex: 1,
+  },
+  cardTitle: {
     fontSize: 18,
     fontWeight: '600',
-    marginTop: 12,
+    color: '#1a1a1a',
     marginBottom: 4,
+    letterSpacing: -0.2,
   },
-  buttonSubtext: {
-    color: 'white',
+  cardDescription: {
     fontSize: 14,
-    opacity: 0.9,
+    color: '#6c757d',
+    lineHeight: 20,
+    fontWeight: '400',
   },
-  loginLink: {
-    marginTop: 40,
+  arrow: {
+    fontSize: 20,
+    color: '#007AFF',
+    fontWeight: '600',
+  },
+  loginContainer: {
+    alignItems: 'center',
+    marginTop: 20,
   },
   loginText: {
-    color: '#3b82f6',
     fontSize: 16,
-    textAlign: 'center',
+    color: '#6c757d',
+    fontWeight: '400',
+  },
+  loginLink: {
+    color: '#007AFF',
+    fontWeight: '600',
   },
 });
+
+export default PreSignUpScreen;
