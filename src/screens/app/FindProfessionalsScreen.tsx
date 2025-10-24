@@ -21,6 +21,8 @@ export default function FindProfessionalsScreen() {
   const [sortBy, setSortBy] = useState('rating'); // rating, distance, price
   const [professionals, setProfessionals] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
+  const [showCityDropdown, setShowCityDropdown] = useState(false);
 
   const categories = [
     { id: '', name: 'Όλες οι Κατηγορίες', icon: '🔧' },
@@ -368,24 +370,6 @@ export default function FindProfessionalsScreen() {
     </TouchableOpacity>
   );
 
-  const renderCategory = (category) => (
-    <TouchableOpacity
-      key={category.id}
-      style={[
-        styles.categoryButton,
-        selectedCategory === category.id && styles.selectedCategory
-      ]}
-      onPress={() => setSelectedCategory(category.id)}
-    >
-      <Text style={styles.categoryIcon}>{category.icon}</Text>
-      <Text style={[
-        styles.categoryText,
-        selectedCategory === category.id && styles.selectedCategoryText
-      ]}>
-        {category.name}
-      </Text>
-    </TouchableOpacity>
-  );
 
   return (
     <SafeAreaView style={styles.container}>
@@ -416,40 +400,95 @@ export default function FindProfessionalsScreen() {
         {/* Categories Dropdown */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Επάγγελμα</Text>
-          <View style={styles.dropdownContainer}>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              <View style={styles.categoriesContainer}>
-                {categories.map(renderCategory)}
-              </View>
-            </ScrollView>
-          </View>
+          <TouchableOpacity
+            style={styles.dropdownButton}
+            onPress={() => setShowCategoryDropdown(!showCategoryDropdown)}
+          >
+            <Text style={styles.dropdownButtonText}>
+              {selectedCategory ? 
+                categories.find(cat => cat.id === selectedCategory)?.name || 'Επιλέξτε επάγγελμα' :
+                'Επιλέξτε επάγγελμα'
+              }
+            </Text>
+            <Text style={styles.dropdownArrow}>
+              {showCategoryDropdown ? '▲' : '▼'}
+            </Text>
+          </TouchableOpacity>
+          
+          {showCategoryDropdown && (
+            <View style={styles.dropdownList}>
+              <ScrollView style={styles.dropdownScrollView} nestedScrollEnabled={true}>
+                {categories.map(category => (
+                  <TouchableOpacity
+                    key={category.id}
+                    style={[
+                      styles.dropdownItem,
+                      selectedCategory === category.id && styles.selectedDropdownItem
+                    ]}
+                    onPress={() => {
+                      setSelectedCategory(category.id);
+                      setShowCategoryDropdown(false);
+                    }}
+                  >
+                    <Text style={styles.dropdownItemIcon}>{category.icon}</Text>
+                    <Text style={[
+                      styles.dropdownItemText,
+                      selectedCategory === category.id && styles.selectedDropdownItemText
+                    ]}>
+                      {category.name}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            </View>
+          )}
         </View>
 
         {/* Filters */}
         <View style={styles.filtersContainer}>
           <View style={styles.filterRow}>
             <Text style={styles.filterLabel}>Πόλη:</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              <View style={styles.filterOptions}>
-                {cities.map(city => (
-                  <TouchableOpacity
-                    key={city.id}
-                    style={[
-                      styles.filterButton,
-                      selectedCity === city.id && styles.selectedFilter
-                    ]}
-                    onPress={() => setSelectedCity(city.id)}
-                  >
-                    <Text style={[
-                      styles.filterButtonText,
-                      selectedCity === city.id && styles.selectedFilterText
-                    ]}>
-                      {city.name}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
+            <TouchableOpacity
+              style={styles.dropdownButton}
+              onPress={() => setShowCityDropdown(!showCityDropdown)}
+            >
+              <Text style={styles.dropdownButtonText}>
+                {selectedCity ? 
+                  cities.find(city => city.id === selectedCity)?.name || 'Επιλέξτε πόλη' :
+                  'Επιλέξτε πόλη'
+                }
+              </Text>
+              <Text style={styles.dropdownArrow}>
+                {showCityDropdown ? '▲' : '▼'}
+              </Text>
+            </TouchableOpacity>
+            
+            {showCityDropdown && (
+              <View style={styles.dropdownList}>
+                <ScrollView style={styles.dropdownScrollView} nestedScrollEnabled={true}>
+                  {cities.map(city => (
+                    <TouchableOpacity
+                      key={city.id}
+                      style={[
+                        styles.dropdownItem,
+                        selectedCity === city.id && styles.selectedDropdownItem
+                      ]}
+                      onPress={() => {
+                        setSelectedCity(city.id);
+                        setShowCityDropdown(false);
+                      }}
+                    >
+                      <Text style={[
+                        styles.dropdownItemText,
+                        selectedCity === city.id && styles.selectedDropdownItemText
+                      ]}>
+                        {city.name}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
               </View>
-            </ScrollView>
+            )}
           </View>
           
           <View style={styles.filterRow}>
@@ -606,36 +645,6 @@ const styles = StyleSheet.create({
     color: '#1f2937',
     marginBottom: 12,
   },
-  categoriesContainer: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  categoryButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 20,
-    backgroundColor: '#f3f4f6',
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
-  },
-  selectedCategory: {
-    backgroundColor: '#007AFF',
-    borderColor: '#007AFF',
-  },
-  categoryIcon: {
-    fontSize: 16,
-    marginRight: 6,
-  },
-  categoryText: {
-    fontSize: 14,
-    color: '#6b7280',
-    fontWeight: '500',
-  },
-  selectedCategoryText: {
-    color: '#ffffff',
-  },
   filtersContainer: {
     backgroundColor: '#f8fafc',
     borderRadius: 12,
@@ -726,6 +735,68 @@ const styles = StyleSheet.create({
     backgroundColor: '#f8fafc',
     borderRadius: 8,
     padding: 8,
+  },
+  dropdownButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#d1d5db',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 12,
+    marginBottom: 8,
+  },
+  dropdownButtonText: {
+    fontSize: 16,
+    color: '#374151',
+    flex: 1,
+  },
+  dropdownArrow: {
+    fontSize: 12,
+    color: '#6b7280',
+    marginLeft: 8,
+  },
+  dropdownList: {
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#d1d5db',
+    borderRadius: 8,
+    marginTop: 4,
+    maxHeight: 200,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  dropdownScrollView: {
+    maxHeight: 200,
+  },
+  dropdownItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f3f4f6',
+  },
+  selectedDropdownItem: {
+    backgroundColor: '#eff6ff',
+  },
+  dropdownItemIcon: {
+    fontSize: 16,
+    marginRight: 12,
+  },
+  dropdownItemText: {
+    fontSize: 16,
+    color: '#374151',
+    flex: 1,
+  },
+  selectedDropdownItemText: {
+    color: '#1d4ed8',
+    fontWeight: '600',
   },
   resultsContainer: {
     flex: 1,
