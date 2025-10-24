@@ -5,7 +5,8 @@ interface User {
   name: string;
   email: string;
   phone?: string;
-  role: 'user' | 'professional';
+  role: 'user' | 'professional' | 'admin';
+  profession?: string;
 }
 
 interface AuthState {
@@ -49,23 +50,25 @@ export const useAuthStore = create<AuthState & AuthActions>((set, get) => ({
       if (email === 'pro@demo.com') {
         mockUser = {
           id: 'pro1',
-          name: 'Γιάννης Παπαδόπουλος',
+          name: 'Χάρης Σκαλτσουνάκης',
           email: email,
           phone: '+30 210 1234567',
-          role: 'professional'
+          role: 'professional',
+          profession: 'Ασφαλιστής'
         };
       } else if (email === 'admin@demo.com') {
         mockUser = {
           id: 'admin1',
-          name: 'Διαχειριστής',
+          name: 'Θεοφάης Μάρκου',
           email: email,
           phone: '+30 210 1234567',
-          role: 'admin'
+          role: 'admin',
+          profession: 'Chief Technology Officer'
         };
       } else {
         mockUser = {
           id: 'user1',
-          name: 'Μαρία Παπαδοπούλου',
+          name: 'Μιχάλης Σκαλτσουνάκης',
           email: email,
           phone: '+30 210 1234567',
           role: 'user'
