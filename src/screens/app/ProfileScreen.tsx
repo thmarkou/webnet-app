@@ -7,7 +7,9 @@ import {
   SafeAreaView, 
   StatusBar,
   Alert,
-  ScrollView 
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform 
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useAuthStore } from '../../store/auth/authStore';
@@ -118,11 +120,15 @@ export default function ProfileScreen() {
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
       
-      <ScrollView 
-        style={styles.scrollView} 
-        contentContainerStyle={styles.content}
-        showsVerticalScrollIndicator={true}
+      <KeyboardAvoidingView 
+        style={styles.keyboardAvoidingView}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
+        <ScrollView 
+          style={styles.scrollView} 
+          contentContainerStyle={styles.content}
+          showsVerticalScrollIndicator={true}
+        >
         {/* Profile Header */}
         <View style={styles.profileHeader}>
           <View style={styles.avatar}>
@@ -193,7 +199,8 @@ export default function ProfileScreen() {
           <Text style={styles.logoutIcon}>🚪</Text>
           <Text style={styles.logoutText}>Logout</Text>
         </TouchableOpacity>
-      </ScrollView>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
@@ -203,13 +210,16 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#ffffff',
   },
+  keyboardAvoidingView: {
+    flex: 1,
+  },
   scrollView: {
     flex: 1,
-    marginBottom: 200, // Massive margin to push content up
   },
   content: {
     padding: 16,
-    paddingBottom: 500, // Ultra-massive padding to ensure content is well above tab bar
+    paddingBottom: 600, // Ultra-massive padding to ensure content is well above tab bar
+    minHeight: '100%', // Ensure content takes full height
   },
   profileHeader: {
     alignItems: 'center',
