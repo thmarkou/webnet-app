@@ -49,7 +49,7 @@ function MainTabNavigator() {
         name="Home"
         component={HomeScreen}
         options={{
-          tabBarLabel: 'Αρχική',
+          tabBarLabel: '',
           tabBarIcon: ({ color, size }) => (
             <Text style={{ fontSize: size, color }}>🏠</Text>
           ),
@@ -59,7 +59,7 @@ function MainTabNavigator() {
         name="Search"
         component={SearchScreen}
         options={{
-          tabBarLabel: 'Αναζήτηση',
+          tabBarLabel: '',
           tabBarIcon: ({ color, size }) => (
             <Text style={{ fontSize: size, color }}>🔍</Text>
           ),
@@ -69,7 +69,7 @@ function MainTabNavigator() {
         name="Notifications"
         component={UserNotificationsScreen}
         options={{
-          tabBarLabel: 'Ειδοποιήσεις',
+          tabBarLabel: '',
           tabBarIcon: ({ color, size }) => (
             <Text style={{ fontSize: size, color }}>🔔</Text>
           ),
@@ -79,7 +79,7 @@ function MainTabNavigator() {
         name="Friends"
         component={FriendsScreen}
         options={{
-          tabBarLabel: 'Φίλοι',
+          tabBarLabel: '',
           tabBarIcon: ({ color, size }) => (
             <Text style={{ fontSize: size, color }}>👥</Text>
           ),
@@ -89,7 +89,7 @@ function MainTabNavigator() {
         name="Profile"
         component={ProfileScreen}
         options={{
-          tabBarLabel: 'Προφίλ',
+          tabBarLabel: '',
           tabBarIcon: ({ color, size }) => (
             <Text style={{ fontSize: size, color }}>👤</Text>
           ),
