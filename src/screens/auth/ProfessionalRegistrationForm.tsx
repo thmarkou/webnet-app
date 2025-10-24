@@ -8,10 +8,12 @@ import {
   ScrollView,
   Alert,
   StatusBar,
+  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { useAuthStore } from '../../store/auth/authStore';
+import * as ImagePicker from 'expo-image-picker';
 
 export default function ProfessionalRegistrationForm() {
   const navigation = useNavigation();
@@ -27,6 +29,7 @@ export default function ProfessionalRegistrationForm() {
     email: '',
     phone: '',
     password: '',
+    profilePhoto: null,
     
     // Step 2: Business Information
     businessName: '',
@@ -142,6 +145,26 @@ export default function ProfessionalRegistrationForm() {
     }
   };
 
+  const pickImage = async () => {
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.8,
+      });
+
+      if (!result.canceled && result.assets[0]) {
+        setFormData(prev => ({
+          ...prev,
+          profilePhoto: result.assets[0].uri
+        }));
+      }
+    } catch (error) {
+      Alert.alert('Σφάλμα', 'Δεν ήταν δυνατή η επιλογή εικόνας');
+    }
+  };
+
   const renderStep1 = () => (
     <View style={styles.stepContainer}>
       <Text style={styles.stepTitle}>Προσωπικές Πληροφορίες</Text>
@@ -190,6 +213,23 @@ export default function ProfessionalRegistrationForm() {
           onChangeText={(value) => handleInputChange('phone', value)}
           keyboardType="phone-pad"
         />
+      </View>
+
+      <View style={styles.inputGroup}>
+        <Text style={styles.label}>Φωτογραφία Προφίλ (Προαιρετικό)</Text>
+        <TouchableOpacity style={styles.photoUploadButton} onPress={pickImage}>
+          {formData.profilePhoto ? (
+            <Image source={{ uri: formData.profilePhoto }} style={styles.photoPreview} />
+          ) : (
+            <View style={styles.photoPlaceholder}>
+              <Text style={styles.photoPlaceholderText}>📷</Text>
+              <Text style={styles.photoPlaceholderLabel}>Επιλέξτε Φωτογραφία</Text>
+            </View>
+          )}
+        </TouchableOpacity>
+        <Text style={styles.helpText}>
+          Προσθέστε μια φωτογραφία προφίλ για να σας αναγνωρίσουν καλύτερα οι πελάτες.
+        </Text>
       </View>
 
       <View style={styles.inputGroup}>
@@ -697,5 +737,33 @@ const styles = StyleSheet.create({
     color: '#ffffff',
     fontSize: 16,
     fontWeight: '600',
+  },
+  photoUploadButton: {
+    borderWidth: 2,
+    borderColor: '#d1d5db',
+    borderStyle: 'dashed',
+    borderRadius: 8,
+    padding: 20,
+    alignItems: 'center',
+    backgroundColor: '#f9fafb',
+  },
+  photoPreview: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    borderWidth: 2,
+    borderColor: '#3b82f6',
+  },
+  photoPlaceholder: {
+    alignItems: 'center',
+  },
+  photoPlaceholderText: {
+    fontSize: 32,
+    marginBottom: 8,
+  },
+  photoPlaceholderLabel: {
+    fontSize: 14,
+    color: '#6b7280',
+    fontWeight: '500',
   },
 });
