@@ -15,7 +15,6 @@ import HomeScreen from '../screens/app/HomeScreen';
 import ProfileScreen from '../screens/app/ProfileScreen';
 import AppointmentsListScreen from '../screens/app/AppointmentsListScreen';
 import FriendsScreen from '../screens/app/FriendsScreen';
-import UserNotificationsScreen from '../screens/app/UserNotificationsScreen';
 import ProfessionalDetailsScreen from '../screens/app/ProfessionalDetailsScreen';
 import BookAppointmentScreen from '../screens/app/BookAppointmentScreen';
 import AddReviewScreen from '../screens/app/AddReviewScreen';
@@ -60,16 +59,6 @@ function MainTabNavigator() {
           tabBarLabel: '',
           tabBarIcon: ({ color, size }) => (
             <Text style={{ fontSize: size, color }}>🏠</Text>
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="Notifications"
-        component={UserNotificationsScreen}
-        options={{
-          tabBarLabel: '',
-          tabBarIcon: ({ color, size }) => (
-            <Text style={{ fontSize: size, color }}>🔔</Text>
           ),
         }}
       />
