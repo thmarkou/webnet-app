@@ -9,58 +9,48 @@ import {
   StatusBar 
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { useAuthStore } from '../../store/auth/authStore';
+import { useNotificationStore } from '../../store/notifications/notificationStore';
+import { 
+  getUserNotifications, 
+  markNotificationAsRead, 
+  markAllNotificationsAsRead,
+  subscribeToUserNotifications 
+} from '../../services/firebase/notifications';
 
 export default function UserNotificationsScreen() {
   const navigation = useNavigation();
-  const [notifications, setNotifications] = useState([]);
+  const { user } = useAuthStore();
+  const { notifications, setNotifications, setLoading, markAsRead } = useNotificationStore();
   const [activeFilter, setActiveFilter] = useState('all');
 
-  const mockNotifications = [
-    {
-      id: '1',
-      type: 'appointment_request',
-      title: 'New Appointment Request',
-      message: 'John Smith has requested a plumbing repair appointment for January 15, 2024 at 10:00 AM',
-      timestamp: '651d ago',
-      isRead: false,
-      icon: '📅',
-      iconColor: '#6b7280'
-    },
-    {
-      id: '2',
-      type: 'appointment_confirmed',
-      title: 'Appointment Confirmed',
-      message: 'Your appointment with George Papadopoulos has been confirmed for January 15, 2024 at 10:00 AM',
-      timestamp: '651d ago',
-      isRead: false,
-      icon: '✅',
-      iconColor: '#10b981'
-    },
-    {
-      id: '3',
-      type: 'appointment_rejected',
-      title: 'Appointment Rejected',
-      message: 'Your appointment request with Maria Konstantinou has been rejected. Please try booking with another professional.',
-      timestamp: '652d ago',
-      isRead: true,
-      icon: '❌',
-      iconColor: '#ef4444'
-    },
-    {
-      id: '4',
-      type: 'payment_received',
-      title: 'Payment Received',
-      message: 'You received €150 for the emergency repair service completed yesterday',
-      timestamp: '653d ago',
-      isRead: true,
-      icon: '💳',
-      iconColor: '#3b82f6'
-    }
-  ];
-
   useEffect(() => {
-    setNotifications(mockNotifications);
-  }, []);
+    if (user?.id) {
+      setLoading(true);
+      
+      // Subscribe to real-time notifications
+      const unsubscribe = subscribeToUserNotifications(user.id, (realTimeNotifications) => {
+        const formattedNotifications = realTimeNotifications.map(notif => ({
+          id: notif.id,
+          type: notif.type,
+          title: notif.title,
+          message: notif.message,
+          timestamp: notif.createdAt.toDate().toLocaleDateString('el-GR'),
+          isRead: notif.isRead,
+          icon: notif.icon,
+          iconColor: notif.iconColor,
+          recipientId: notif.recipientId,
+          senderId: notif.senderId,
+          appointmentId: notif.appointmentId,
+        }));
+        
+        setNotifications(formattedNotifications);
+        setLoading(false);
+      });
+      
+      return () => unsubscribe();
+    }
+  }, [user?.id]);
 
   const filters = [
     { id: 'confirmed', title: 'Confirmed', icon: '✅', color: '#10b981' },
@@ -83,19 +73,20 @@ export default function UserNotificationsScreen() {
     }
   };
 
-  const handleNotificationPress = (notification) => {
-    // Mark as read
-    setNotifications(prev => 
-      prev.map(notif => 
-        notif.id === notification.id 
-          ? { ...notif, isRead: true }
-          : notif
-      )
-    );
+  const handleNotificationPress = async (notification) => {
+    // Mark as read in Firebase
+    try {
+      await markNotificationAsRead(notification.id);
+      markAsRead(notification.id);
+    } catch (error) {
+      console.error('Error marking notification as read:', error);
+    }
 
     // Navigate based on notification type
     switch (notification.type) {
+      case 'appointment_request':
       case 'appointment_confirmed':
+      case 'appointment_rejected':
       case 'appointment_reminder':
         navigation.navigate('MainTabs', { screen: 'Appointments' });
         break;
@@ -103,7 +94,11 @@ export default function UserNotificationsScreen() {
         navigation.navigate('MainTabs', { screen: 'Friends' });
         break;
       case 'review_request':
-        navigation.navigate('AddReview');
+        navigation.navigate('AddReview', { appointmentId: notification.appointmentId });
+        break;
+      case 'message':
+        // Navigate to chat/messaging screen
+        navigation.navigate('Chat', { senderId: notification.senderId });
         break;
       default:
         break;

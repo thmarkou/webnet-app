@@ -1,13 +1,18 @@
 import { create } from 'zustand';
+import { NotificationData } from '../../services/firebase/notifications';
 
 interface Notification {
   id: string;
-  type: 'appointment_confirmed' | 'appointment_reminder' | 'friend_request' | 'review_request';
+  type: 'appointment_request' | 'appointment_confirmed' | 'appointment_rejected' | 'appointment_reminder' | 'friend_request' | 'review_request' | 'payment_received' | 'message';
   title: string;
   message: string;
   timestamp: string;
   isRead: boolean;
   icon: string;
+  iconColor?: string;
+  recipientId?: string;
+  senderId?: string;
+  appointmentId?: string;
 }
 
 interface NotificationState {
@@ -18,11 +23,13 @@ interface NotificationState {
 
 interface NotificationActions {
   addNotification: (notification: Omit<Notification, 'id'>) => void;
+  setNotifications: (notifications: Notification[]) => void;
   markAsRead: (notificationId: string) => void;
   markAllAsRead: () => void;
   removeNotification: (notificationId: string) => void;
   clearAllNotifications: () => void;
   updateUnreadCount: () => void;
+  setLoading: (loading: boolean) => void;
 }
 
 export const useNotificationStore = create<NotificationState & NotificationActions>((set, get) => ({
@@ -84,5 +91,14 @@ export const useNotificationStore = create<NotificationState & NotificationActio
     const state = get();
     const unreadCount = state.notifications.filter(notif => !notif.isRead).length;
     set({ unreadCount });
+  },
+
+  setNotifications: (notifications) => {
+    set({ notifications });
+    get().updateUnreadCount();
+  },
+
+  setLoading: (loading) => {
+    set({ isLoading: loading });
   },
 }));

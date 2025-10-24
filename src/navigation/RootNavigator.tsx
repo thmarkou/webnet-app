@@ -20,6 +20,7 @@ import UserNotificationsScreen from '../screens/app/UserNotificationsScreen';
 import ProfessionalDetailsScreen from '../screens/app/ProfessionalDetailsScreen';
 import BookAppointmentScreen from '../screens/app/BookAppointmentScreen';
 import AddReviewScreen from '../screens/app/AddReviewScreen';
+import ChatScreen from '../screens/app/ChatScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -143,6 +144,11 @@ export default function RootNavigator() {
           <Stack.Screen 
             name="AddReview" 
             component={AddReviewScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen 
+            name="Chat" 
+            component={ChatScreen}
             options={{ headerShown: false }}
           />
         </>
