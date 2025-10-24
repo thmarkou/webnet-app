@@ -6,7 +6,8 @@ import {
   StyleSheet, 
   SafeAreaView, 
   StatusBar,
-  Alert 
+  Alert,
+  ScrollView 
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useAuthStore } from '../../store/auth/authStore';
@@ -117,7 +118,7 @@ export default function ProfileScreen() {
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
       
-      <View style={styles.content}>
+      <ScrollView style={styles.scrollView} contentContainerStyle={styles.content}>
         {/* Profile Header */}
         <View style={styles.profileHeader}>
           <View style={styles.avatar}>
@@ -188,7 +189,7 @@ export default function ProfileScreen() {
           <Text style={styles.logoutIcon}>🚪</Text>
           <Text style={styles.logoutText}>Logout</Text>
         </TouchableOpacity>
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -198,10 +199,12 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#ffffff',
   },
-  content: {
+  scrollView: {
     flex: 1,
+  },
+  content: {
     padding: 16,
-    paddingBottom: 100, // Add extra padding to prevent content going under tab bar
+    paddingBottom: 100, // Extra padding to ensure content is above tab bar
   },
   profileHeader: {
     alignItems: 'center',
