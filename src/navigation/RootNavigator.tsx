@@ -9,6 +9,7 @@ import PreSignUpScreen from '../screens/auth/PreSignUpScreen';
 import LoginScreen from '../screens/auth/LoginScreen';
 import RegisterScreen from '../screens/auth/RegisterScreen';
 import ForgotPasswordScreen from '../screens/auth/ForgotPasswordScreen';
+import ProfessionalRegistrationForm from '../screens/auth/ProfessionalRegistrationForm';
 
 // App Screens
 import HomeScreen from '../screens/app/HomeScreen';
@@ -164,6 +165,11 @@ export default function RootNavigator() {
           <Stack.Screen 
             name="FindProfessionals" 
             component={FindProfessionalsScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen 
+            name="ProfessionalRegistration" 
+            component={ProfessionalRegistrationForm}
             options={{ headerShown: false }}
           />
         </>
