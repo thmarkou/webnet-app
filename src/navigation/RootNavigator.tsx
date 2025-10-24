@@ -19,6 +19,7 @@ import BookAppointmentScreen from '../screens/app/BookAppointmentScreen';
 import AddReviewScreen from '../screens/app/AddReviewScreen';
 import ChatScreen from '../screens/app/ChatScreen';
 import ProfessionalProfileScreen from '../screens/app/ProfessionalProfileScreen';
+import UserNotificationsScreen from '../screens/app/UserNotificationsScreen';
 import ProfessionalNotificationsScreen from '../screens/app/ProfessionalNotificationsScreen';
 import RateProfessionalScreen from '../screens/app/RateProfessionalScreen';
 import UpdateServiceDetailsScreen from '../screens/app/UpdateServiceDetailsScreen';
@@ -128,6 +129,11 @@ export default function RootNavigator() {
           <Stack.Screen 
             name="ProfessionalProfile" 
             component={ProfessionalProfileScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen 
+            name="UserNotifications" 
+            component={UserNotificationsScreen}
             options={{ headerShown: false }}
           />
           <Stack.Screen 
