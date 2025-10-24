@@ -81,17 +81,9 @@ export default function ProfileScreen() {
     }
   ];
 
-  // User-specific action items
+  // User-specific action items (currently none - users rate professionals from appointment screens)
   const userActionItems = [
-    {
-      id: 'rate-professional',
-      title: 'Αξιολόγηση Επαγγελματία',
-      icon: '⭐',
-      onPress: () => navigation.navigate('RateProfessional', { 
-        professional: { name: 'Γιάννης Παπαδόπουλος', profession: 'Ηλεκτρολόγος' },
-        appointment: { date: '15 Ιανουαρίου 2024' }
-      })
-    }
+    // Rating professionals should be done from appointment completion screens, not from profile
   ];
 
   // Admin-specific action items
