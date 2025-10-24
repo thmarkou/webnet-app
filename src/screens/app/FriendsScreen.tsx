@@ -9,6 +9,7 @@ import {
   StatusBar 
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { triggerFriendRequestNotification } from '../../services/notifications/mockNotifications';
 
 export default function FriendsScreen() {
   const navigation = useNavigation();

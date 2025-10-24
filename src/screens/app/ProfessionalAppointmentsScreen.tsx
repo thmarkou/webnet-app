@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, FlatList, StyleSheet, SafeAreaView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { triggerAppointmentNotification } from '../../services/notifications/mockNotifications';
 
 export default function ProfessionalAppointmentsScreen() {
   const navigation = useNavigation();
@@ -152,6 +153,33 @@ export default function ProfessionalAppointmentsScreen() {
       case 'confirmed': return 'Επιβεβαιωμένο';
       case 'completed': return 'Ολοκληρωμένο';
       default: return 'Άγνωστο';
+    }
+  };
+
+  const handleAppointmentAction = async (appointmentId, action) => {
+    // Update appointment status
+    setAppointments(prev => 
+      prev.map(apt => 
+        apt.id === appointmentId 
+          ? { ...apt, status: action === 'accept' ? 'confirmed' : 'rejected' }
+          : apt
+      )
+    );
+
+    // Trigger notification to user
+    const appointment = appointments.find(apt => apt.id === appointmentId);
+    if (appointment) {
+      await triggerAppointmentNotification(
+        action === 'accept' ? 'appointment_confirmed' : 'appointment_rejected',
+        {
+          id: appointmentId,
+          professionalName: 'Επαγγελματίας',
+          serviceName: appointment.service,
+          date: `${appointment.day} στις ${appointment.time}`
+        },
+        appointment.userId || 'user1', // User's ID
+        'pro1' // Professional's ID
+      );
     }
   };
 

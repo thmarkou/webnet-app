@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, TextInput, StyleSheet, SafeAreaView, ScrollView, Alert } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import { triggerAppointmentNotification } from '../../services/notifications/mockNotifications';
 
 export default function BookAppointmentScreen() {
   const navigation = useNavigation();
@@ -17,11 +18,24 @@ export default function BookAppointmentScreen() {
     '09:00', '10:00', '11:00', '12:00', '14:00', '15:00', '16:00', '17:00'
   ];
 
-  const handleBookAppointment = () => {
+  const handleBookAppointment = async () => {
     if (!selectedDate || !selectedTime || !service || !repair) {
       Alert.alert('Σφάλμα', 'Παρακαλώ συμπληρώστε όλα τα απαραίτητα πεδία');
       return;
     }
+
+    // Trigger appointment request notification
+    await triggerAppointmentNotification(
+      'appointment_request',
+      {
+        id: Date.now().toString(),
+        professionalName: professional?.name || 'Επαγγελματίας',
+        serviceName: service,
+        date: `${selectedDate} στις ${selectedTime}`
+      },
+      professional?.id || 'pro1', // Professional's ID
+      'user1' // User's ID
+    );
 
     Alert.alert(
       'Επιτυχία',
