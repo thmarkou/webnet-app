@@ -14,7 +14,6 @@ import ForgotPasswordScreen from '../screens/auth/ForgotPasswordScreen';
 import HomeScreen from '../screens/app/HomeScreen';
 import ProfileScreen from '../screens/app/ProfileScreen';
 import AppointmentsListScreen from '../screens/app/AppointmentsListScreen';
-import SearchScreen from '../screens/app/SearchScreen';
 import FriendsScreen from '../screens/app/FriendsScreen';
 import UserNotificationsScreen from '../screens/app/UserNotificationsScreen';
 import ProfessionalDetailsScreen from '../screens/app/ProfessionalDetailsScreen';
@@ -61,16 +60,6 @@ function MainTabNavigator() {
           tabBarLabel: '',
           tabBarIcon: ({ color, size }) => (
             <Text style={{ fontSize: size, color }}>🏠</Text>
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="Search"
-        component={SearchScreen}
-        options={{
-          tabBarLabel: '',
-          tabBarIcon: ({ color, size }) => (
-            <Text style={{ fontSize: size, color }}>🔍</Text>
           ),
         }}
       />
