@@ -10,37 +10,67 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { triggerFriendRequestNotification } from '../../services/notifications/mockNotifications';
+import { getUnreadChatCount } from '../../services/messaging/mockMessaging';
+import { useAuthStore } from '../../store/auth/authStore';
 
 export default function FriendsScreen() {
   const navigation = useNavigation();
+  const { user } = useAuthStore();
   const [activeTab, setActiveTab] = useState('friends');
   const [friends, setFriends] = useState([]);
   const [suggestions, setSuggestions] = useState([]);
+  const [unreadCounts, setUnreadCounts] = useState({});
+
+  // Fetch unread message counts for each friend
+  useEffect(() => {
+    const fetchUnreadCounts = async () => {
+      if (user?.id) {
+        const counts = {};
+        for (const friend of mockFriends) {
+          try {
+            const count = await getUnreadChatCount(user.id, friend.id);
+            counts[friend.id] = count;
+          } catch (error) {
+            console.error(`Error fetching unread count for ${friend.id}:`, error);
+            counts[friend.id] = 0;
+          }
+        }
+        setUnreadCounts(counts);
+      }
+    };
+
+    fetchUnreadCounts();
+    
+    // Update every 5 seconds to simulate real-time updates
+    const interval = setInterval(fetchUnreadCounts, 5000);
+    
+    return () => clearInterval(interval);
+  }, [user?.id]);
 
   const mockFriends = [
     {
-      id: '1',
-      name: 'John Smith',
-      profession: 'Software Engineer',
-      location: 'Αθήνα',
-      status: 'friend',
-      avatar: '👤'
-    },
-    {
-      id: '2',
-      name: 'Maria Papadopoulou',
-      profession: 'Teacher',
+      id: 'user2',
+      name: 'Μαρία Παπαδοπούλου',
+      profession: 'Δασκάλα',
       location: 'Θεσσαλονίκη',
       status: 'friend',
-      avatar: '👤'
+      avatar: '👩'
     },
     {
-      id: '3',
-      name: 'Alex Johnson',
-      profession: 'Marketing Manager',
+      id: 'user3',
+      name: 'Γιάννης Παπαδόπουλος',
+      profession: 'Μηχανικός',
       location: 'Αθήνα',
       status: 'friend',
-      avatar: '👤'
+      avatar: '👨'
+    },
+    {
+      id: 'pro1',
+      name: 'Χάρης Σκαλτσουνάκης',
+      profession: 'Ασφαλιστής',
+      location: 'Αθήνα',
+      status: 'friend',
+      avatar: '👨‍💼'
     }
   ];
 
@@ -78,26 +108,38 @@ export default function FriendsScreen() {
     console.log('Adding friend:', suggestionId);
   };
 
-  const renderFriend = ({ item }) => (
-    <View style={styles.friendCard}>
-      <View style={styles.friendInfo}>
-        <View style={styles.avatar}>
-          <Text style={styles.avatarText}>{item.avatar}</Text>
+  const renderFriend = ({ item }) => {
+    const unreadCount = unreadCounts[item.id] || 0;
+    
+    return (
+      <View style={styles.friendCard}>
+        <View style={styles.friendInfo}>
+          <View style={styles.avatar}>
+            <Text style={styles.avatarText}>{item.avatar}</Text>
+            {/* Unread message indicator */}
+            {unreadCount > 0 && (
+              <View style={styles.unreadIndicator}>
+                <Text style={styles.unreadCount}>
+                  {unreadCount > 99 ? '99+' : unreadCount}
+                </Text>
+              </View>
+            )}
+          </View>
+          <View style={styles.friendDetails}>
+            <Text style={styles.friendName}>{item.name}</Text>
+            <Text style={styles.friendProfession}>{item.profession} • {item.location}</Text>
+            <Text style={styles.friendStatus}>Φίλος</Text>
+          </View>
         </View>
-        <View style={styles.friendDetails}>
-          <Text style={styles.friendName}>{item.name}</Text>
-          <Text style={styles.friendProfession}>{item.profession} • {item.location}</Text>
-          <Text style={styles.friendStatus}>Φίλος</Text>
-        </View>
+        <TouchableOpacity 
+          style={styles.messageButton}
+          onPress={() => navigation.navigate('Chat', { senderId: item.id })}
+        >
+          <Text style={styles.messageIcon}>💬</Text>
+        </TouchableOpacity>
       </View>
-      <TouchableOpacity 
-        style={styles.messageButton}
-        onPress={() => navigation.navigate('Chat', { senderId: item.id })}
-      >
-        <Text style={styles.messageIcon}>💬</Text>
-      </TouchableOpacity>
-    </View>
-  );
+    );
+  };
 
   const renderSuggestion = ({ item }) => (
     <View style={styles.suggestionCard}>
@@ -318,10 +360,30 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
+    position: 'relative',
   },
   avatarText: {
     fontSize: 20,
     color: '#6b7280',
+  },
+  unreadIndicator: {
+    position: 'absolute',
+    top: -4,
+    right: -4,
+    backgroundColor: '#10b981',
+    borderRadius: 10,
+    minWidth: 20,
+    height: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: '#ffffff',
+  },
+  unreadCount: {
+    color: '#ffffff',
+    fontSize: 12,
+    fontWeight: '600',
+    textAlign: 'center',
   },
   friendDetails: {
     flex: 1,
