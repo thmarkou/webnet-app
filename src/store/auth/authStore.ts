@@ -43,14 +43,34 @@ export const useAuthStore = create<AuthState & AuthActions>((set, get) => ({
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // Mock user data
-      const mockUser: User = {
-        id: '1',
-        name: 'Γιάννης Παπαδόπουλος',
-        email: email,
-        phone: '+30 210 1234567',
-        role: 'user'
-      };
+      // Mock user data based on email
+      let mockUser: User;
+      
+      if (email === 'pro@demo.com') {
+        mockUser = {
+          id: '2',
+          name: 'Γιάννης Παπαδόπουλος',
+          email: email,
+          phone: '+30 210 1234567',
+          role: 'professional'
+        };
+      } else if (email === 'admin@demo.com') {
+        mockUser = {
+          id: '3',
+          name: 'Διαχειριστής',
+          email: email,
+          phone: '+30 210 1234567',
+          role: 'admin'
+        };
+      } else {
+        mockUser = {
+          id: '1',
+          name: 'Μαρία Παπαδοπούλου',
+          email: email,
+          phone: '+30 210 1234567',
+          role: 'user'
+        };
+      }
       
       const mockToken = 'mock-jwt-token';
       
