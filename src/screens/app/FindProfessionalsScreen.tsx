@@ -17,6 +17,7 @@ export default function FindProfessionalsScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedCity, setSelectedCity] = useState('');
+  const [minRating, setMinRating] = useState(0); // 0 = all, 1-5 stars
   const [sortBy, setSortBy] = useState('rating'); // rating, distance, price
   const [professionals, setProfessionals] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -30,6 +31,18 @@ export default function FindProfessionalsScreen() {
     { id: 'cleaner', name: 'Καθαριστής', icon: '🧹' },
     { id: 'gardener', name: 'Κηπουρός', icon: '🌱' },
     { id: 'mechanic', name: 'Μηχανικός', icon: '🔧' },
+    { id: 'locksmith', name: 'Κλειδαράς', icon: '🔐' },
+    { id: 'hvac', name: 'Θερμοσίφωνας', icon: '🔥' },
+    { id: 'flooring', name: 'Παρκέ', icon: '🏠' },
+    { id: 'roofing', name: 'Στεγές', icon: '🏘️' },
+    { id: 'appliance', name: 'Συσκευές', icon: '🔌' },
+    { id: 'security', name: 'Ασφάλεια', icon: '🛡️' },
+    { id: 'landscaping', name: 'Τοπία', icon: '🌳' },
+    { id: 'pool', name: 'Πισίνα', icon: '🏊' },
+    { id: 'furniture', name: 'Έπιπλα', icon: '🪑' },
+    { id: 'glass', name: 'Γυαλί', icon: '🪟' },
+    { id: 'metalwork', name: 'Μεταλλοτεχνία', icon: '⚒️' },
+    { id: 'concrete', name: 'Σκυρόδεμα', icon: '🏗️' },
   ];
 
   const cities = [
@@ -40,6 +53,29 @@ export default function FindProfessionalsScreen() {
     { id: 'heraklion', name: 'Ηράκλειο' },
     { id: 'larissa', name: 'Λάρισα' },
     { id: 'volos', name: 'Βόλος' },
+    { id: 'ioannina', name: 'Ιωάννινα' },
+    { id: 'kavala', name: 'Καβάλα' },
+    { id: 'komotini', name: 'Κομοτηνή' },
+    { id: 'serres', name: 'Σέρρες' },
+    { id: 'drama', name: 'Δράμα' },
+    { id: 'xanthi', name: 'Ξάνθη' },
+    { id: 'alexandroupoli', name: 'Αλεξανδρούπολη' },
+    { id: 'kalamata', name: 'Καλαμάτα' },
+    { id: 'tripoli', name: 'Τρίπολη' },
+    { id: 'sparti', name: 'Σπάρτη' },
+    { id: 'corinth', name: 'Κόρινθος' },
+    { id: 'argos', name: 'Άργος' },
+    { id: 'nafplio', name: 'Ναύπλιο' },
+    { id: 'mykonos', name: 'Μύκονος' },
+    { id: 'santorini', name: 'Σαντορίνη' },
+    { id: 'rhodes', name: 'Ρόδος' },
+    { id: 'crete', name: 'Κρήτη' },
+    { id: 'lesvos', name: 'Λέσβος' },
+    { id: 'chios', name: 'Χίος' },
+    { id: 'samos', name: 'Σάμος' },
+    { id: 'zakynthos', name: 'Ζάκυνθος' },
+    { id: 'kefalonia', name: 'Κεφαλονιά' },
+    { id: 'corfu', name: 'Κέρκυρα' },
   ];
 
   const mockProfessionals = [
@@ -132,12 +168,102 @@ export default function FindProfessionalsScreen() {
       verified: false,
       responseTime: '1.5 ώρες',
       completionRate: '92%'
+    },
+    {
+      id: '6',
+      name: 'Σπύρος Δημητρίου',
+      profession: 'Κλειδαράς',
+      category: 'locksmith',
+      city: 'athens',
+      rating: 4.9,
+      reviewCount: 234,
+      price: '€60-120',
+      distance: '1.8 km',
+      availability: 'Διαθέσιμος',
+      services: ['Αντικατάσταση Κλειδιών', 'Ξεκλείδωμα', 'Σύστημα Ασφαλείας'],
+      description: 'Επαγγελματίας κλειδαράς με 20+ χρόνια εμπειρία. Γρήγορη εξυπηρέτηση 24/7 για όλες τις κλειδαρικές ανάγκες.',
+      image: '🔐',
+      verified: true,
+      responseTime: '30 λεπτά',
+      completionRate: '100%'
+    },
+    {
+      id: '7',
+      name: 'Ελένη Παπαδοπούλου',
+      profession: 'Θερμοσίφωνας',
+      category: 'hvac',
+      city: 'thessaloniki',
+      rating: 4.7,
+      reviewCount: 156,
+      price: '€80-150',
+      distance: '3.5 km',
+      availability: 'Διαθέσιμος',
+      services: ['Επισκευή Θερμοσίφωνα', 'Συντήρηση', 'Εγκατάσταση'],
+      description: 'Ειδικευμένη τεχνικός θερμοσίφωνα με πιστοποίηση. Επισκευές και συντήρηση όλων των μοντέλων.',
+      image: '🔥',
+      verified: true,
+      responseTime: '2 ώρες',
+      completionRate: '98%'
+    },
+    {
+      id: '8',
+      name: 'Μιχάλης Κωνσταντίνου',
+      profession: 'Παρκέ',
+      category: 'flooring',
+      city: 'athens',
+      rating: 4.3,
+      reviewCount: 89,
+      price: '€25-45',
+      distance: '2.1 km',
+      availability: 'Διαθέσιμος',
+      services: ['Τοποθέτηση Παρκέ', 'Συντήρηση', 'Ανάκτηση'],
+      description: 'Επαγγελματίας παρκετζής με εμπειρία σε όλα τα είδη ξύλου. Ποιότητα και ακρίβεια στην εργασία.',
+      image: '🏠',
+      verified: false,
+      responseTime: '1 ώρα',
+      completionRate: '95%'
+    },
+    {
+      id: '9',
+      name: 'Αννα Γεωργίου',
+      profession: 'Συσκευές',
+      category: 'appliance',
+      city: 'patras',
+      rating: 4.6,
+      reviewCount: 167,
+      price: '€40-80',
+      distance: '1.9 km',
+      availability: 'Διαθέσιμος',
+      services: ['Επισκευή Ψυγείου', 'Πλυντήριο', 'Φούρνος'],
+      description: 'Ειδικευμένη τεχνικός συσκευών με γνώσεις σε όλες τις μάρκες. Γρήγορη και αξιόπιστη εξυπηρέτηση.',
+      image: '🔌',
+      verified: true,
+      responseTime: '45 λεπτά',
+      completionRate: '97%'
+    },
+    {
+      id: '10',
+      name: 'Γιώργος Παπαγιάννης',
+      profession: 'Ασφάλεια',
+      category: 'security',
+      city: 'athens',
+      rating: 4.8,
+      reviewCount: 198,
+      price: '€100-200',
+      distance: '2.7 km',
+      availability: 'Διαθέσιμος',
+      services: ['Συστήματα Ασφαλείας', 'Καμερες', 'Αντιασφάλεια'],
+      description: 'Ειδικευμένος τεχνικός συστημάτων ασφαλείας. Εγκαταστάσεις και συντήρηση για σπίτια και επιχειρήσεις.',
+      image: '🛡️',
+      verified: true,
+      responseTime: '1 ώρα',
+      completionRate: '99%'
     }
   ];
 
   useEffect(() => {
     filterProfessionals();
-  }, [searchQuery, selectedCategory, selectedCity, sortBy]);
+  }, [searchQuery, selectedCategory, selectedCity, minRating, sortBy]);
 
   const filterProfessionals = () => {
     setIsLoading(true);
@@ -163,6 +289,11 @@ export default function FindProfessionalsScreen() {
       // Filter by city
       if (selectedCity) {
         filtered = filtered.filter(prof => prof.city === selectedCity);
+      }
+      
+      // Filter by minimum rating
+      if (minRating > 0) {
+        filtered = filtered.filter(prof => prof.rating >= minRating);
       }
       
       // Sort results
@@ -282,14 +413,16 @@ export default function FindProfessionalsScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* Categories */}
+        {/* Categories Dropdown */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Κατηγορίες</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            <View style={styles.categoriesContainer}>
-              {categories.map(renderCategory)}
-            </View>
-          </ScrollView>
+          <Text style={styles.sectionTitle}>Επάγγελμα</Text>
+          <View style={styles.dropdownContainer}>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              <View style={styles.categoriesContainer}>
+                {categories.map(renderCategory)}
+              </View>
+            </ScrollView>
+          </View>
         </View>
 
         {/* Filters */}
@@ -317,6 +450,29 @@ export default function FindProfessionalsScreen() {
                 ))}
               </View>
             </ScrollView>
+          </View>
+          
+          <View style={styles.filterRow}>
+            <Text style={styles.filterLabel}>Ελάχιστη Αξιολόγηση:</Text>
+            <View style={styles.ratingFilterContainer}>
+              {[0, 1, 2, 3, 4, 5].map(rating => (
+                <TouchableOpacity
+                  key={rating}
+                  style={[
+                    styles.ratingButton,
+                    minRating === rating && styles.selectedRating
+                  ]}
+                  onPress={() => setMinRating(rating)}
+                >
+                  <Text style={[
+                    styles.ratingButtonText,
+                    minRating === rating && styles.selectedRatingText
+                  ]}>
+                    {rating === 0 ? 'Όλα' : `${rating}+ ⭐`}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
           </View>
           
           <View style={styles.filterRow}>
@@ -540,6 +696,36 @@ const styles = StyleSheet.create({
   },
   selectedSortText: {
     color: '#ffffff',
+  },
+  ratingFilterContainer: {
+    flexDirection: 'row',
+    gap: 8,
+    flexWrap: 'wrap',
+  },
+  ratingButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#d1d5db',
+  },
+  selectedRating: {
+    backgroundColor: '#f59e0b',
+    borderColor: '#f59e0b',
+  },
+  ratingButtonText: {
+    fontSize: 12,
+    color: '#6b7280',
+    fontWeight: '500',
+  },
+  selectedRatingText: {
+    color: '#ffffff',
+  },
+  dropdownContainer: {
+    backgroundColor: '#f8fafc',
+    borderRadius: 8,
+    padding: 8,
   },
   resultsContainer: {
     flex: 1,
