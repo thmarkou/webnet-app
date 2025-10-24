@@ -469,7 +469,7 @@ export default function ProfessionalRegistrationForm() {
           disabled={isLoading}
         >
           <Text style={styles.nextButtonText}>
-            {currentStep === 4 ? 'Δημιουργία Λογαριασμού' : 'Επόμενο →'}
+            {currentStep === 4 ? 'Δημιουργ. Λογαριασμού' : 'Επόμενο →'}
           </Text>
         </TouchableOpacity>
       </View>
