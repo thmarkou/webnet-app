@@ -145,24 +145,33 @@ export default function ProfessionalRegistrationForm() {
     }
   };
 
-  const pickImage = async () => {
-    try {
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
-        aspect: [1, 1],
-        quality: 0.8,
-      });
+  const [showAvatarSelection, setShowAvatarSelection] = useState(false);
 
-      if (!result.canceled && result.assets[0]) {
-        setFormData(prev => ({
-          ...prev,
-          profilePhoto: result.assets[0].uri
-        }));
-      }
-    } catch (error) {
-      Alert.alert('Σφάλμα', 'Δεν ήταν δυνατή η επιλογή εικόνας');
-    }
+  const avatars = [
+    { id: '1', emoji: '👨‍🔧', name: 'Άνδρας Ηλεκτρολόγος' },
+    { id: '2', emoji: '👩‍🔧', name: 'Γυναίκα Υδραυλικός' },
+    { id: '3', emoji: '👨‍🎨', name: 'Άνδρας Μαραγκός' },
+    { id: '4', emoji: '👩‍🎨', name: 'Γυναίκα Ζωγράφος' },
+    { id: '5', emoji: '👨‍💼', name: 'Άνδρας Επαγγελματίας' },
+    { id: '6', emoji: '👩‍💼', name: 'Γυναίκα Επαγγελματίας' },
+    { id: '7', emoji: '👨‍⚕️', name: 'Άνδρας Γιατρός' },
+    { id: '8', emoji: '👩‍⚕️', name: 'Γυναίκα Γιατρός' },
+    { id: '9', emoji: '👨‍🍳', name: 'Άνδρας Μάγειρας' },
+    { id: '10', emoji: '👩‍🍳', name: 'Γυναίκα Μάγειρας' },
+    { id: '11', emoji: '👨‍🏫', name: 'Άνδρας Δάσκαλος' },
+    { id: '12', emoji: '👩‍🏫', name: 'Γυναίκα Δασκάλα' },
+    { id: '13', emoji: '👨‍💻', name: 'Άνδρας Προγραμματιστής' },
+    { id: '14', emoji: '👩‍💻', name: 'Γυναίκα Προγραμματίστρια' },
+    { id: '15', emoji: '👨‍🔬', name: 'Άνδρας Επιστήμονας' },
+    { id: '16', emoji: '👩‍🔬', name: 'Γυναίκα Επιστήμονας' },
+  ];
+
+  const selectAvatar = (avatar) => {
+    setFormData(prev => ({
+      ...prev,
+      profilePhoto: avatar.emoji
+    }));
+    setShowAvatarSelection(false);
   };
 
   const renderStep1 = () => (
@@ -216,19 +225,21 @@ export default function ProfessionalRegistrationForm() {
       </View>
 
       <View style={styles.inputGroup}>
-        <Text style={styles.label}>Φωτογραφία Προφίλ (Προαιρετικό)</Text>
-        <TouchableOpacity style={styles.photoUploadButton} onPress={pickImage}>
+        <Text style={styles.label}>Avatar Προφίλ (Προαιρετικό)</Text>
+        <TouchableOpacity style={styles.photoUploadButton} onPress={() => setShowAvatarSelection(true)}>
           {formData.profilePhoto ? (
-            <Image source={{ uri: formData.profilePhoto }} style={styles.photoPreview} />
+            <View style={styles.avatarPreview}>
+              <Text style={styles.avatarEmoji}>{formData.profilePhoto}</Text>
+            </View>
           ) : (
             <View style={styles.photoPlaceholder}>
-              <Text style={styles.photoPlaceholderText}>📷</Text>
-              <Text style={styles.photoPlaceholderLabel}>Επιλέξτε Φωτογραφία</Text>
+              <Text style={styles.photoPlaceholderText}>👤</Text>
+              <Text style={styles.photoPlaceholderLabel}>Επιλέξτε Avatar</Text>
             </View>
           )}
         </TouchableOpacity>
         <Text style={styles.helpText}>
-          Προσθέστε μια φωτογραφία προφίλ για να σας αναγνωρίσουν καλύτερα οι πελάτες.
+          Επιλέξτε ένα avatar που αντιπροσωπεύει το επάγγελμά σας.
         </Text>
       </View>
 
@@ -241,6 +252,32 @@ export default function ProfessionalRegistrationForm() {
           onChangeText={(value) => handleInputChange('password', value)}
           secureTextEntry
         />
+      </View>
+    </View>
+  );
+
+  const renderAvatarSelection = () => (
+    <View style={styles.avatarModal}>
+      <View style={styles.avatarModalContent}>
+        <Text style={styles.avatarModalTitle}>Επιλέξτε Avatar</Text>
+        <View style={styles.avatarGrid}>
+          {avatars.map((avatar) => (
+            <TouchableOpacity
+              key={avatar.id}
+              style={styles.avatarOption}
+              onPress={() => selectAvatar(avatar)}
+            >
+              <Text style={styles.avatarOptionEmoji}>{avatar.emoji}</Text>
+              <Text style={styles.avatarOptionName}>{avatar.name}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+        <TouchableOpacity
+          style={styles.avatarModalClose}
+          onPress={() => setShowAvatarSelection(false)}
+        >
+          <Text style={styles.avatarModalCloseText}>Κλείσιμο</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -548,6 +585,8 @@ export default function ProfessionalRegistrationForm() {
           </Text>
         </TouchableOpacity>
       </View>
+      
+      {showAvatarSelection && renderAvatarSelection()}
     </SafeAreaView>
   );
 }
@@ -765,5 +804,81 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#6b7280',
     fontWeight: '500',
+  },
+  avatarPreview: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    borderWidth: 2,
+    borderColor: '#3b82f6',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f9fafb',
+  },
+  avatarEmoji: {
+    fontSize: 40,
+  },
+  avatarModal: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1000,
+  },
+  avatarModalContent: {
+    backgroundColor: '#ffffff',
+    borderRadius: 12,
+    padding: 20,
+    margin: 20,
+    maxHeight: '80%',
+    width: '90%',
+  },
+  avatarModalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#1f2937',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  avatarGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+  },
+  avatarOption: {
+    width: '22%',
+    alignItems: 'center',
+    padding: 10,
+    marginBottom: 10,
+    borderRadius: 8,
+    backgroundColor: '#f9fafb',
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+  },
+  avatarOptionEmoji: {
+    fontSize: 24,
+    marginBottom: 4,
+  },
+  avatarOptionName: {
+    fontSize: 10,
+    color: '#6b7280',
+    textAlign: 'center',
+  },
+  avatarModalClose: {
+    backgroundColor: '#3b82f6',
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  avatarModalCloseText: {
+    color: '#ffffff',
+    fontSize: 16,
+    fontWeight: '600',
   },
 });
