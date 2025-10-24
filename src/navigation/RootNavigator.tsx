@@ -21,6 +21,12 @@ import ProfessionalDetailsScreen from '../screens/app/ProfessionalDetailsScreen'
 import BookAppointmentScreen from '../screens/app/BookAppointmentScreen';
 import AddReviewScreen from '../screens/app/AddReviewScreen';
 import ChatScreen from '../screens/app/ChatScreen';
+import ProfessionalProfileScreen from '../screens/app/ProfessionalProfileScreen';
+import ProfessionalNotificationsScreen from '../screens/app/ProfessionalNotificationsScreen';
+import RateProfessionalScreen from '../screens/app/RateProfessionalScreen';
+import UpdateServiceDetailsScreen from '../screens/app/UpdateServiceDetailsScreen';
+import DatabaseManagementScreen from '../screens/app/DatabaseManagementScreen';
+import AdminDashboardScreen from '../screens/app/AdminDashboardScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -149,6 +155,36 @@ export default function RootNavigator() {
           <Stack.Screen 
             name="Chat" 
             component={ChatScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen 
+            name="ProfessionalProfile" 
+            component={ProfessionalProfileScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen 
+            name="ProfessionalNotifications" 
+            component={ProfessionalNotificationsScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen 
+            name="RateProfessional" 
+            component={RateProfessionalScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen 
+            name="UpdateServiceDetails" 
+            component={UpdateServiceDetailsScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen 
+            name="DatabaseManagement" 
+            component={DatabaseManagementScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen 
+            name="AdminDashboard" 
+            component={AdminDashboardScreen}
             options={{ headerShown: false }}
           />
         </>

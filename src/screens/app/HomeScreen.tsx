@@ -43,6 +43,13 @@ export default function HomeScreen() {
       description: 'Συνδεθείτε με άλλους χρήστες',
       icon: '👥',
       screen: 'Friends'
+    },
+    {
+      id: 'database',
+      title: 'Διαχείριση Βάσης',
+      description: 'Διαχείριση δεδομένων και αρχικοποίηση',
+      icon: '🗄️',
+      screen: 'DatabaseManagement'
     }
   ];
 
