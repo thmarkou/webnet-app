@@ -241,7 +241,7 @@ export default function ProfessionalRegistrationForm() {
         <Text style={styles.label}>Ιστοσελίδα (Προαιρετικό)</Text>
         <TextInput
           style={styles.input}
-          placeholder="Enter your website URL (optional)"
+          placeholder="Εισάγετε τη διεύθυνση της ιστοσελίδας σας (προαιρετικό)"
           value={formData.website}
           onChangeText={(value) => handleInputChange('website', value)}
           keyboardType="url"
@@ -256,7 +256,7 @@ export default function ProfessionalRegistrationForm() {
         <Text style={styles.label}>Σχετικά (Προαιρετικό)</Text>
         <TextInput
           style={[styles.input, styles.textArea]}
-          placeholder="Describe your experience and services"
+          placeholder="Περιγράψτε την εμπειρία και τις υπηρεσίες σας"
           value={formData.about}
           onChangeText={(value) => handleInputChange('about', value)}
           multiline
