@@ -10,10 +10,12 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useAuthStore } from '../../store/auth/authStore';
+import { useNotificationStore } from '../../store/notifications/notificationStore';
 
 export default function HomeScreen() {
   const navigation = useNavigation();
   const { user, logout } = useAuthStore();
+  const { unreadCount } = useNotificationStore();
 
   const actionCards = [
     {
@@ -83,6 +85,14 @@ export default function HomeScreen() {
               <View style={styles.actionCardContent}>
                 <View style={styles.actionIcon}>
                   <Text style={styles.actionIconText}>{card.icon}</Text>
+                  {/* Notification Badge for Notifications card */}
+                  {card.id === 'notifications' && unreadCount > 0 && (
+                    <View style={styles.notificationBadge}>
+                      <Text style={styles.notificationBadgeText}>
+                        {unreadCount > 99 ? '99+' : unreadCount}
+                      </Text>
+                    </View>
+                  )}
                 </View>
                 <View style={styles.actionText}>
                   <Text style={styles.actionTitle}>{card.title}</Text>
@@ -157,9 +167,29 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 16,
+    position: 'relative',
   },
   actionIconText: {
     fontSize: 24,
+  },
+  notificationBadge: {
+    position: 'absolute',
+    top: -4,
+    right: -4,
+    backgroundColor: '#ef4444',
+    borderRadius: 10,
+    minWidth: 20,
+    height: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: '#ffffff',
+  },
+  notificationBadgeText: {
+    color: '#ffffff',
+    fontSize: 12,
+    fontWeight: '600',
+    textAlign: 'center',
   },
   actionText: {
     flex: 1,
