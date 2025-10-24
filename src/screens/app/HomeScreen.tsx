@@ -27,7 +27,7 @@ export default function HomeScreen() {
       title: 'Notifications',
       description: 'View appointment updates and confirmations',
       icon: '🔔',
-      screen: 'UserNotifications'
+      screen: 'Notifications'
     },
     {
       id: 'find',
