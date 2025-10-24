@@ -456,7 +456,7 @@ export default function ProfessionalRegistrationForm() {
       <View style={styles.buttonContainer}>
         {currentStep > 1 && (
           <TouchableOpacity style={styles.previousButton} onPress={handlePrevious}>
-            <Text style={styles.previousButtonText}>← Previous</Text>
+            <Text style={styles.previousButtonText}>← Προηγούμενο</Text>
           </TouchableOpacity>
         )}
         
@@ -466,7 +466,7 @@ export default function ProfessionalRegistrationForm() {
           disabled={isLoading}
         >
           <Text style={styles.nextButtonText}>
-            {currentStep === 4 ? 'Create Account' : 'Next →'}
+            {currentStep === 4 ? 'Δημιουργία Λογαριασμού' : 'Επόμενο →'}
           </Text>
         </TouchableOpacity>
       </View>
