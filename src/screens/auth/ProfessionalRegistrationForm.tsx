@@ -17,6 +17,9 @@ export default function ProfessionalRegistrationForm() {
   const navigation = useNavigation();
   const { register, isLoading } = useAuthStore();
   const [currentStep, setCurrentStep] = useState(1);
+  const [showProfessionDropdown, setShowProfessionDropdown] = useState(false);
+  const [showCityDropdown, setShowCityDropdown] = useState(false);
+  const [showCountryDropdown, setShowCountryDropdown] = useState(false);
   const [formData, setFormData] = useState({
     // Step 1: Personal Information
     firstName: '',
@@ -69,6 +72,11 @@ export default function ProfessionalRegistrationForm() {
   };
 
   const handleNext = () => {
+    // Close all dropdowns
+    setShowProfessionDropdown(false);
+    setShowCityDropdown(false);
+    setShowCountryDropdown(false);
+    
     if (currentStep < 4) {
       setCurrentStep(currentStep + 1);
     } else {
@@ -77,6 +85,11 @@ export default function ProfessionalRegistrationForm() {
   };
 
   const handlePrevious = () => {
+    // Close all dropdowns
+    setShowProfessionDropdown(false);
+    setShowCityDropdown(false);
+    setShowCountryDropdown(false);
+    
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1);
     }
@@ -173,28 +186,41 @@ export default function ProfessionalRegistrationForm() {
 
       <View style={styles.inputGroup}>
         <Text style={styles.label}>Profession *</Text>
-        <View style={styles.dropdown}>
+        <TouchableOpacity 
+          style={styles.dropdown}
+          onPress={() => setShowProfessionDropdown(!showProfessionDropdown)}
+        >
           <Text style={styles.dropdownText}>
             {formData.profession || 'Select your profession'}
           </Text>
-        </View>
-        {professions.map((prof) => (
-          <TouchableOpacity
-            key={prof}
-            style={[
-              styles.option,
-              formData.profession === prof && styles.selectedOption
-            ]}
-            onPress={() => handleInputChange('profession', prof)}
-          >
-            <Text style={[
-              styles.optionText,
-              formData.profession === prof && styles.selectedOptionText
-            ]}>
-              {prof}
-            </Text>
-          </TouchableOpacity>
-        ))}
+          <Text style={styles.dropdownArrow}>
+            {showProfessionDropdown ? '▲' : '▼'}
+          </Text>
+        </TouchableOpacity>
+        {showProfessionDropdown && (
+          <View style={styles.dropdownOptions}>
+            {professions.map((prof) => (
+              <TouchableOpacity
+                key={prof}
+                style={[
+                  styles.option,
+                  formData.profession === prof && styles.selectedOption
+                ]}
+                onPress={() => {
+                  handleInputChange('profession', prof);
+                  setShowProfessionDropdown(false);
+                }}
+              >
+                <Text style={[
+                  styles.optionText,
+                  formData.profession === prof && styles.selectedOptionText
+                ]}>
+                  {prof}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        )}
       </View>
 
       <View style={styles.inputGroup}>
@@ -274,37 +300,77 @@ export default function ProfessionalRegistrationForm() {
 
       <View style={styles.inputGroup}>
         <Text style={styles.label}>Country *</Text>
-        <View style={styles.dropdown}>
+        <TouchableOpacity 
+          style={styles.dropdown}
+          onPress={() => setShowCountryDropdown(!showCountryDropdown)}
+        >
           <Text style={styles.dropdownText}>
             {formData.country}
           </Text>
-        </View>
+          <Text style={styles.dropdownArrow}>
+            {showCountryDropdown ? '▲' : '▼'}
+          </Text>
+        </TouchableOpacity>
+        {showCountryDropdown && (
+          <View style={styles.dropdownOptions}>
+            <TouchableOpacity
+              style={[
+                styles.option,
+                formData.country === 'Greece' && styles.selectedOption
+              ]}
+              onPress={() => {
+                handleInputChange('country', 'Greece');
+                setShowCountryDropdown(false);
+              }}
+            >
+              <Text style={[
+                styles.optionText,
+                formData.country === 'Greece' && styles.selectedOptionText
+              ]}>
+                Greece
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
       </View>
 
       <View style={styles.inputGroup}>
         <Text style={styles.label}>City *</Text>
-        <View style={styles.dropdown}>
+        <TouchableOpacity 
+          style={styles.dropdown}
+          onPress={() => setShowCityDropdown(!showCityDropdown)}
+        >
           <Text style={styles.dropdownText}>
             {formData.city || 'Select your city'}
           </Text>
-        </View>
-        {cities.map((city) => (
-          <TouchableOpacity
-            key={city}
-            style={[
-              styles.option,
-              formData.city === city && styles.selectedOption
-            ]}
-            onPress={() => handleInputChange('city', city)}
-          >
-            <Text style={[
-              styles.optionText,
-              formData.city === city && styles.selectedOptionText
-            ]}>
-              {city}
-            </Text>
-          </TouchableOpacity>
-        ))}
+          <Text style={styles.dropdownArrow}>
+            {showCityDropdown ? '▲' : '▼'}
+          </Text>
+        </TouchableOpacity>
+        {showCityDropdown && (
+          <View style={styles.dropdownOptions}>
+            {cities.map((city) => (
+              <TouchableOpacity
+                key={city}
+                style={[
+                  styles.option,
+                  formData.city === city && styles.selectedOption
+                ]}
+                onPress={() => {
+                  handleInputChange('city', city);
+                  setShowCityDropdown(false);
+                }}
+              >
+                <Text style={[
+                  styles.optionText,
+                  formData.city === city && styles.selectedOptionText
+                ]}>
+                  {city}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        )}
       </View>
     </View>
   );
@@ -518,10 +584,31 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     backgroundColor: '#ffffff',
     marginBottom: 8,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   dropdownText: {
     fontSize: 16,
     color: '#1f2937',
+    flex: 1,
+  },
+  dropdownArrow: {
+    fontSize: 12,
+    color: '#6b7280',
+  },
+  dropdownOptions: {
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#d1d5db',
+    borderRadius: 8,
+    marginTop: -8,
+    marginBottom: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
   option: {
     padding: 12,
