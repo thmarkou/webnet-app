@@ -97,10 +97,10 @@ export default function UserNotificationsScreen() {
     switch (notification.type) {
       case 'appointment_confirmed':
       case 'appointment_reminder':
-        navigation.navigate('AppointmentsList');
+        navigation.navigate('MainTabs', { screen: 'Appointments' });
         break;
       case 'friend_request':
-        navigation.navigate('Friends');
+        navigation.navigate('MainTabs', { screen: 'Friends' });
         break;
       case 'review_request':
         navigation.navigate('AddReview');
