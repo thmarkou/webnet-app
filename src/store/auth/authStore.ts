@@ -48,7 +48,7 @@ export const useAuthStore = create<AuthState & AuthActions>((set, get) => ({
       
       if (email === 'pro@demo.com') {
         mockUser = {
-          id: '2',
+          id: 'pro1',
           name: 'Γιάννης Παπαδόπουλος',
           email: email,
           phone: '+30 210 1234567',
@@ -56,7 +56,7 @@ export const useAuthStore = create<AuthState & AuthActions>((set, get) => ({
         };
       } else if (email === 'admin@demo.com') {
         mockUser = {
-          id: '3',
+          id: 'admin1',
           name: 'Διαχειριστής',
           email: email,
           phone: '+30 210 1234567',
@@ -64,7 +64,7 @@ export const useAuthStore = create<AuthState & AuthActions>((set, get) => ({
         };
       } else {
         mockUser = {
-          id: '1',
+          id: 'user1',
           name: 'Μαρία Παπαδοπούλου',
           email: email,
           phone: '+30 210 1234567',
