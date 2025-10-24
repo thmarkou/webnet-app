@@ -53,7 +53,7 @@ export default function HomeScreen() {
       title: 'Ειδοποιήσεις',
       description: 'Δείτε ενημερώσεις και επιβεβαιώσεις ραντεβού',
       icon: '🔔',
-      screen: 'Notifications'
+      screen: 'UserNotifications'
     },
     {
       id: 'find',
