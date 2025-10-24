@@ -16,31 +16,31 @@ export default function ProfessionalDetailsScreen() {
   const { professional } = route.params || {};
 
   const mockProfessional = {
-    name: 'Jane Smith',
-    profession: 'Electrician',
+    name: 'Γιάννη Σμιθ',
+    profession: 'Ηλεκτρολόγος',
     rating: 5.0,
     reviews: 36,
-    location: 'Athens, Greece',
+    location: 'Αθήνα, Ελλάδα',
     phone: '+30 6923456789',
-    email: 'jane.smith@example.com',
-    about: 'Certified electrician specializing in home electrical systems and smart home installations.',
+    email: 'gianni.smith@example.com',
+    about: 'Πιστοποιημένη ηλεκτρολόγος με εξειδίκευση σε οικιακά ηλεκτρικά συστήματα και εγκαταστάσεις έξυπνων σπιτιών.',
     verified: true
   };
 
   const mockReviews = [
     {
       id: '1',
-      reviewer: 'George Dimitriou',
+      reviewer: 'Γιώργος Δημητρίου',
       rating: 5,
-      comment: 'Jane did an amazing job installing our new lighting system. Very professional and knowledgeable.',
+      comment: 'Η Γιάννη έκανε εξαιρετική δουλειά στην εγκατάσταση του νέου συστήματος φωτισμού μας. Πολύ επαγγελματική και γνώστης.',
       date: '5.7.2023',
       type: 'positive'
     },
     {
       id: '2',
-      reviewer: 'Maria Papadopoulou',
+      reviewer: 'Μαρία Παπαδοπούλου',
       rating: 5,
-      comment: 'Excellent service and very reliable. Highly recommended!',
+      comment: 'Εξαιρετική εξυπηρέτηση και πολύ αξιόπιστη. Συνιστώ ανεπιφύλακτα!',
       date: '3.7.2023',
       type: 'positive'
     }
@@ -74,7 +74,7 @@ export default function ProfessionalDetailsScreen() {
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
           <Text style={styles.backButtonText}>←</Text>
         </TouchableOpacity>
-        <Text style={styles.title}>Find Professionals</Text>
+        <Text style={styles.title}>Βρείτε Επαγγελματίες</Text>
       </View>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
@@ -116,17 +116,17 @@ export default function ProfessionalDetailsScreen() {
 
         {/* About Section */}
         <View style={styles.aboutSection}>
-          <Text style={styles.sectionTitle}>About</Text>
+          <Text style={styles.sectionTitle}>Σχετικά</Text>
           <Text style={styles.aboutText}>{mockProfessional.about}</Text>
         </View>
 
         {/* Reviews Section */}
         <View style={styles.reviewsSection}>
           <View style={styles.reviewsHeader}>
-            <Text style={styles.sectionTitle}>Reviews</Text>
+            <Text style={styles.sectionTitle}>Αξιολογήσεις</Text>
             <TouchableOpacity style={styles.addReviewButton} onPress={handleAddReview}>
               <Text style={styles.addReviewIcon}>+</Text>
-              <Text style={styles.addReviewText}>Add Review</Text>
+              <Text style={styles.addReviewText}>Προσθήκη Αξιολόγησης</Text>
             </TouchableOpacity>
           </View>
 
@@ -151,7 +151,7 @@ export default function ProfessionalDetailsScreen() {
               <View style={styles.reviewFooter}>
                 <TouchableOpacity style={styles.positiveButton}>
                   <Text style={styles.positiveIcon}>👍</Text>
-                  <Text style={styles.positiveText}>Positive</Text>
+                  <Text style={styles.positiveText}>Θετική</Text>
                 </TouchableOpacity>
                 <Text style={styles.reviewDate}>{review.date}</Text>
               </View>
@@ -161,7 +161,7 @@ export default function ProfessionalDetailsScreen() {
 
         {/* Book Appointment Button */}
         <TouchableOpacity style={styles.bookButton} onPress={handleBookAppointment}>
-          <Text style={styles.bookButtonText}>Book Appointment</Text>
+          <Text style={styles.bookButtonText}>Κλείστε Ραντεβού</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
