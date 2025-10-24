@@ -20,14 +20,14 @@ export default function LoginScreen() {
 
   const handleLogin = async () => {
     if (!email || !password) {
-      Alert.alert('Error', 'Please fill in all fields');
+      Alert.alert('Σφάλμα', 'Παρακαλώ συμπληρώστε όλα τα πεδία');
       return;
     }
 
     try {
       await login(email, password);
     } catch (error) {
-      Alert.alert('Login Failed', 'Invalid credentials');
+      Alert.alert('Αποτυχία Σύνδεσης', 'Μη έγκυρα στοιχεία');
     }
   };
 
@@ -56,7 +56,7 @@ export default function LoginScreen() {
           >
             <Text style={styles.backButtonText}>←</Text>
           </TouchableOpacity>
-          <Text style={styles.title}>Login</Text>
+          <Text style={styles.title}>Σύνδεση</Text>
         </View>
 
         {/* Login Form */}
@@ -65,7 +65,7 @@ export default function LoginScreen() {
             <Text style={styles.label}>Email</Text>
             <TextInput
               style={styles.input}
-              placeholder="Enter your email"
+              placeholder="Εισάγετε το email σας"
               value={email}
               onChangeText={setEmail}
               keyboardType="email-address"
@@ -75,10 +75,10 @@ export default function LoginScreen() {
           </View>
 
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Password</Text>
+            <Text style={styles.label}>Κωδικός</Text>
             <TextInput
               style={styles.input}
-              placeholder="Enter your password"
+              placeholder="Εισάγετε τον κωδικό σας"
               value={password}
               onChangeText={setPassword}
               secureTextEntry
@@ -92,50 +92,50 @@ export default function LoginScreen() {
             disabled={isLoading}
           >
             <Text style={styles.loginButtonText}>
-              {isLoading ? 'Logging in...' : 'Login'}
+              {isLoading ? 'Σύνδεση...' : 'Σύνδεση'}
             </Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.forgotPassword}>
-            <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+            <Text style={styles.forgotPasswordText}>Ξεχάσατε τον κωδικό;</Text>
           </TouchableOpacity>
         </View>
 
         {/* Demo Login Buttons */}
         <View style={styles.demoContainer}>
-          <Text style={styles.demoTitle}>Demo Accounts</Text>
+          <Text style={styles.demoTitle}>Demo Λογαριασμοί</Text>
           
           <TouchableOpacity 
             style={[styles.demoButton, styles.userDemoButton]}
             onPress={() => handleDemoLogin('user')}
           >
-            <Text style={styles.demoButtonText}>👤 User Demo</Text>
+            <Text style={styles.demoButtonText}>👤 Demo Χρήστη</Text>
           </TouchableOpacity>
 
           <TouchableOpacity 
             style={[styles.demoButton, styles.professionalDemoButton]}
             onPress={() => handleDemoLogin('professional')}
           >
-            <Text style={styles.demoButtonText}>💼 Professional Demo</Text>
+            <Text style={styles.demoButtonText}>💼 Demo Επαγγελματία</Text>
           </TouchableOpacity>
 
           <TouchableOpacity 
             style={[styles.demoButton, styles.adminDemoButton]}
             onPress={() => handleDemoLogin('admin')}
           >
-            <Text style={styles.demoButtonText}>⚙️ Admin Demo</Text>
+            <Text style={styles.demoButtonText}>⚙️ Demo Διαχειριστή</Text>
           </TouchableOpacity>
         </View>
 
         {/* Sign Up Link */}
         <View style={styles.signupContainer}>
           <Text style={styles.signupText}>
-            Don't have an account?{' '}
+            Δεν έχετε λογαριασμό;{' '}
             <Text 
               style={styles.signupLink}
               onPress={() => navigation.navigate('PreSignUp')}
             >
-              Sign Up
+              Εγγραφή
             </Text>
           </Text>
         </View>
