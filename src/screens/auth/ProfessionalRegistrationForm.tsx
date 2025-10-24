@@ -39,7 +39,7 @@ export default function ProfessionalRegistrationForm() {
     number: '',
     area: '',
     postalCode: '',
-    country: 'Greece',
+    country: 'Ελλάδα',
     city: '',
     
     // Step 4: Service Information
@@ -59,12 +59,12 @@ export default function ProfessionalRegistrationForm() {
   ];
 
   const cities = [
-    'Athens',
-    'Thessaloniki',
-    'Patras',
-    'Heraklion',
-    'Larissa',
-    'Volos'
+    'Αθήνα',
+    'Θεσσαλονίκη',
+    'Πάτρα',
+    'Ηράκλειο',
+    'Λάρισα',
+    'Βόλος'
   ];
 
   const handleInputChange = (field: string, value: string) => {
@@ -271,7 +271,7 @@ export default function ProfessionalRegistrationForm() {
         <Text style={styles.label}>Αριθμός *</Text>
         <TextInput
           style={styles.input}
-          placeholder="Enter street number"
+          placeholder="Εισάγετε τον αριθμό οδού"
           value={formData.number}
           onChangeText={(value) => handleInputChange('number', value)}
         />
@@ -281,7 +281,7 @@ export default function ProfessionalRegistrationForm() {
         <Text style={styles.label}>Περιοχή *</Text>
         <TextInput
           style={styles.input}
-          placeholder="Enter area"
+          placeholder="Εισάγετε την περιοχή"
           value={formData.area}
           onChangeText={(value) => handleInputChange('area', value)}
         />
@@ -291,7 +291,7 @@ export default function ProfessionalRegistrationForm() {
         <Text style={styles.label}>Ταχυδρομικός Κώδικας *</Text>
         <TextInput
           style={styles.input}
-          placeholder="Enter postal code"
+          placeholder="Εισάγετε τον ταχυδρομικό κώδικα"
           value={formData.postalCode}
           onChangeText={(value) => handleInputChange('postalCode', value)}
           keyboardType="numeric"
@@ -299,7 +299,7 @@ export default function ProfessionalRegistrationForm() {
       </View>
 
       <View style={styles.inputGroup}>
-        <Text style={styles.label}>Country *</Text>
+        <Text style={styles.label}>Χώρα *</Text>
         <TouchableOpacity 
           style={styles.dropdown}
           onPress={() => setShowCountryDropdown(!showCountryDropdown)}
@@ -316,18 +316,18 @@ export default function ProfessionalRegistrationForm() {
             <TouchableOpacity
               style={[
                 styles.option,
-                formData.country === 'Greece' && styles.selectedOption
+                formData.country === 'Ελλάδα' && styles.selectedOption
               ]}
               onPress={() => {
-                handleInputChange('country', 'Greece');
+                handleInputChange('country', 'Ελλάδα');
                 setShowCountryDropdown(false);
               }}
             >
               <Text style={[
                 styles.optionText,
-                formData.country === 'Greece' && styles.selectedOptionText
+                formData.country === 'Ελλάδα' && styles.selectedOptionText
               ]}>
-                Greece
+                Ελλάδα
               </Text>
             </TouchableOpacity>
           </View>
@@ -335,13 +335,13 @@ export default function ProfessionalRegistrationForm() {
       </View>
 
       <View style={styles.inputGroup}>
-        <Text style={styles.label}>City *</Text>
+        <Text style={styles.label}>Πόλη *</Text>
         <TouchableOpacity 
           style={styles.dropdown}
           onPress={() => setShowCityDropdown(!showCityDropdown)}
         >
           <Text style={styles.dropdownText}>
-            {formData.city || 'Select your city'}
+            {formData.city || 'Επιλέξτε την πόλη σας'}
           </Text>
           <Text style={styles.dropdownArrow}>
             {showCityDropdown ? '▲' : '▼'}
