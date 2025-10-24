@@ -35,7 +35,7 @@ export default function UserNotificationsScreen() {
           type: notif.type,
           title: notif.title,
           message: notif.message,
-          timestamp: notif.createdAt.toDate().toLocaleDateString('el-GR'),
+          timestamp: notif.createdAt.toLocaleDateString('el-GR'),
           isRead: notif.isRead,
           icon: notif.icon,
           iconColor: notif.iconColor,
