@@ -50,6 +50,53 @@ let mockMessages: Message[] = [
     isRead: false,
     messageType: 'text',
     appointmentId: 'apt1'
+  },
+  // New mock messages for different users
+  {
+    id: '4',
+    senderId: 'user2',
+    recipientId: 'user1',
+    content: 'Γεια! Πώς πάει η δουλειά;',
+    timestamp: new Date(Date.now() - 7200000), // 2 hours ago
+    isRead: false,
+    messageType: 'text'
+  },
+  {
+    id: '5',
+    senderId: 'user1',
+    recipientId: 'user2',
+    content: 'Καλά, ευχαριστώ! Εσύ πώς είσαι;',
+    timestamp: new Date(Date.now() - 7000000), // ~1.9 hours ago
+    isRead: true,
+    messageType: 'text'
+  },
+  {
+    id: '6',
+    senderId: 'user2',
+    recipientId: 'user1',
+    content: 'Καλά και εγώ! Θα ήθελα να σου μιλήσω για κάτι σημαντικό.',
+    timestamp: new Date(Date.now() - 6000000), // ~1.7 hours ago
+    isRead: false,
+    messageType: 'text'
+  },
+  {
+    id: '7',
+    senderId: 'pro1',
+    recipientId: 'user1',
+    content: 'Το ραντεβού για αύριο επιβεβαιώνεται στις 15:00.',
+    timestamp: new Date(Date.now() - 900000), // 15 minutes ago
+    isRead: false,
+    messageType: 'text',
+    appointmentId: 'apt1'
+  },
+  {
+    id: '8',
+    senderId: 'user3',
+    recipientId: 'user1',
+    content: 'Γεια! Έχεις δει το νέο επαγγελματία που προτείνω;',
+    timestamp: new Date(Date.now() - 1800000), // 30 minutes ago
+    isRead: false,
+    messageType: 'text'
   }
 ];
 
@@ -58,9 +105,23 @@ let mockChatRooms: ChatRoom[] = [
   {
     id: 'chat1',
     participants: ['user1', 'pro1'],
-    lastMessage: mockMessages[2],
-    lastMessageTime: mockMessages[2].timestamp,
+    lastMessage: mockMessages[6], // Latest message from pro1
+    lastMessageTime: mockMessages[6].timestamp,
     appointmentId: 'apt1',
+    isActive: true
+  },
+  {
+    id: 'chat2',
+    participants: ['user1', 'user2'],
+    lastMessage: mockMessages[5], // Latest message from user1
+    lastMessageTime: mockMessages[5].timestamp,
+    isActive: true
+  },
+  {
+    id: 'chat3',
+    participants: ['user1', 'user3'],
+    lastMessage: mockMessages[7], // Latest message from user3
+    lastMessageTime: mockMessages[7].timestamp,
     isActive: true
   }
 ];
@@ -161,4 +222,18 @@ export const markMessagesAsRead = async (userId: string, senderId: string) => {
       msg.isRead = true;
     }
   });
+};
+
+// Get unread message count for a user
+export const getUnreadMessageCount = async (userId: string): Promise<number> => {
+  return mockMessages.filter(msg => 
+    msg.recipientId === userId && !msg.isRead
+  ).length;
+};
+
+// Get unread message count for a specific chat
+export const getUnreadChatCount = async (userId: string, senderId: string): Promise<number> => {
+  return mockMessages.filter(msg => 
+    msg.senderId === senderId && msg.recipientId === userId && !msg.isRead
+  ).length;
 };

@@ -11,11 +11,34 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { useAuthStore } from '../../store/auth/authStore';
 import { useNotificationStore } from '../../store/notifications/notificationStore';
+import { getUnreadMessageCount } from '../../services/messaging/mockMessaging';
 
 export default function HomeScreen() {
   const navigation = useNavigation();
   const { user, logout } = useAuthStore();
   const { unreadCount } = useNotificationStore();
+  const [unreadMessageCount, setUnreadMessageCount] = useState(0);
+
+  // Fetch unread message count
+  useEffect(() => {
+    const fetchUnreadCount = async () => {
+      if (user?.id) {
+        try {
+          const count = await getUnreadMessageCount(user.id);
+          setUnreadMessageCount(count);
+        } catch (error) {
+          console.error('Error fetching unread message count:', error);
+        }
+      }
+    };
+
+    fetchUnreadCount();
+    
+    // Update every 5 seconds to simulate real-time updates
+    const interval = setInterval(fetchUnreadCount, 5000);
+    
+    return () => clearInterval(interval);
+  }, [user?.id]);
 
   const actionCards = [
     {
@@ -90,6 +113,14 @@ export default function HomeScreen() {
                     <View style={styles.notificationBadge}>
                       <Text style={styles.notificationBadgeText}>
                         {unreadCount > 99 ? '99+' : unreadCount}
+                      </Text>
+                    </View>
+                  )}
+                  {/* Chat Badge for Friends card */}
+                  {card.id === 'friends' && unreadMessageCount > 0 && (
+                    <View style={styles.chatBadge}>
+                      <Text style={styles.chatBadgeText}>
+                        {unreadMessageCount > 99 ? '99+' : unreadMessageCount}
                       </Text>
                     </View>
                   )}
@@ -186,6 +217,25 @@ const styles = StyleSheet.create({
     borderColor: '#ffffff',
   },
   notificationBadgeText: {
+    color: '#ffffff',
+    fontSize: 12,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
+  chatBadge: {
+    position: 'absolute',
+    top: -4,
+    right: -4,
+    backgroundColor: '#10b981',
+    borderRadius: 10,
+    minWidth: 20,
+    height: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: '#ffffff',
+  },
+  chatBadgeText: {
     color: '#ffffff',
     fontSize: 12,
     fontWeight: '600',
