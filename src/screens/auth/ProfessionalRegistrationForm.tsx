@@ -50,12 +50,12 @@ export default function ProfessionalRegistrationForm() {
   });
 
   const professions = [
-    'Electrician',
-    'Plumber',
-    'Lawyer',
-    'Cleaner',
-    'Mechanic',
-    'Doctor'
+    { name: 'Ηλεκτρολόγος', icon: '⚡' },
+    { name: 'Υδραυλικός', icon: '🔧' },
+    { name: 'Δικηγόρος', icon: '⚖️' },
+    { name: 'Καθαριστής', icon: '🧹' },
+    { name: 'Μηχανικός', icon: '🔩' },
+    { name: 'Γιατρός', icon: '🩺' }
   ];
 
   const cities = [
@@ -191,7 +191,10 @@ export default function ProfessionalRegistrationForm() {
           onPress={() => setShowProfessionDropdown(!showProfessionDropdown)}
         >
           <Text style={styles.dropdownText}>
-            {formData.profession || 'Select your profession'}
+            {formData.profession ? 
+              professions.find(p => p.name === formData.profession)?.icon + ' ' + formData.profession : 
+              'Επιλέξτε το επάγγελμά σας'
+            }
           </Text>
           <Text style={styles.dropdownArrow}>
             {showProfessionDropdown ? '▲' : '▼'}
@@ -201,21 +204,21 @@ export default function ProfessionalRegistrationForm() {
           <View style={styles.dropdownOptions}>
             {professions.map((prof) => (
               <TouchableOpacity
-                key={prof}
+                key={prof.name}
                 style={[
                   styles.option,
-                  formData.profession === prof && styles.selectedOption
+                  formData.profession === prof.name && styles.selectedOption
                 ]}
                 onPress={() => {
-                  handleInputChange('profession', prof);
+                  handleInputChange('profession', prof.name);
                   setShowProfessionDropdown(false);
                 }}
               >
                 <Text style={[
                   styles.optionText,
-                  formData.profession === prof && styles.selectedOptionText
+                  formData.profession === prof.name && styles.selectedOptionText
                 ]}>
-                  {prof}
+                  {prof.icon} {prof.name}
                 </Text>
               </TouchableOpacity>
             ))}
