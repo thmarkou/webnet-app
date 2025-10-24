@@ -218,7 +218,7 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: 16,
-    paddingBottom: 600, // Ultra-massive padding to ensure content is well above tab bar
+    paddingBottom: 800, // EXTREME padding to ensure content is well above tab bar
     minHeight: '100%', // Ensure content takes full height
   },
   profileHeader: {
