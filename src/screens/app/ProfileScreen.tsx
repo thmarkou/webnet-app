@@ -201,6 +201,7 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     padding: 16,
+    paddingBottom: 100, // Add extra padding to prevent content going under tab bar
   },
   profileHeader: {
     alignItems: 'center',
