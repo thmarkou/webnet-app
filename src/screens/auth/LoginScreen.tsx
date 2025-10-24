@@ -38,7 +38,7 @@ export default function LoginScreen() {
       admin: { email: 'admin@demo.com', password: 'demo123' }
     };
 
-    const credentials = demoCredentials[role];
+    const credentials = demoCredentials[role as keyof typeof demoCredentials];
     setEmail(credentials.email);
     setPassword(credentials.password);
   };
