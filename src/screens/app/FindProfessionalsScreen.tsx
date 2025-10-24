@@ -444,52 +444,54 @@ export default function FindProfessionalsScreen() {
           )}
         </View>
 
+        {/* City Dropdown */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Πόλη</Text>
+          <TouchableOpacity
+            style={styles.dropdownButton}
+            onPress={() => setShowCityDropdown(!showCityDropdown)}
+          >
+            <Text style={styles.dropdownButtonText}>
+              {selectedCity ? 
+                cities.find(city => city.id === selectedCity)?.name || 'Επιλέξτε πόλη' :
+                'Επιλέξτε πόλη'
+              }
+            </Text>
+            <Text style={styles.dropdownArrow}>
+              {showCityDropdown ? '▲' : '▼'}
+            </Text>
+          </TouchableOpacity>
+          
+          {showCityDropdown && (
+            <View style={styles.dropdownList}>
+              <ScrollView style={styles.dropdownScrollView} nestedScrollEnabled={true}>
+                {cities.map(city => (
+                  <TouchableOpacity
+                    key={city.id}
+                    style={[
+                      styles.dropdownItem,
+                      selectedCity === city.id && styles.selectedDropdownItem
+                    ]}
+                    onPress={() => {
+                      setSelectedCity(city.id);
+                      setShowCityDropdown(false);
+                    }}
+                  >
+                    <Text style={[
+                      styles.dropdownItemText,
+                      selectedCity === city.id && styles.selectedDropdownItemText
+                    ]}>
+                      {city.name}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            </View>
+          )}
+        </View>
+
         {/* Filters */}
         <View style={styles.filtersContainer}>
-          <View style={styles.filterRow}>
-            <Text style={styles.filterLabel}>Πόλη:</Text>
-            <TouchableOpacity
-              style={styles.dropdownButton}
-              onPress={() => setShowCityDropdown(!showCityDropdown)}
-            >
-              <Text style={styles.dropdownButtonText}>
-                {selectedCity ? 
-                  cities.find(city => city.id === selectedCity)?.name || 'Επιλέξτε πόλη' :
-                  'Επιλέξτε πόλη'
-                }
-              </Text>
-              <Text style={styles.dropdownArrow}>
-                {showCityDropdown ? '▲' : '▼'}
-              </Text>
-            </TouchableOpacity>
-            
-            {showCityDropdown && (
-              <View style={styles.dropdownList}>
-                <ScrollView style={styles.dropdownScrollView} nestedScrollEnabled={true}>
-                  {cities.map(city => (
-                    <TouchableOpacity
-                      key={city.id}
-                      style={[
-                        styles.dropdownItem,
-                        selectedCity === city.id && styles.selectedDropdownItem
-                      ]}
-                      onPress={() => {
-                        setSelectedCity(city.id);
-                        setShowCityDropdown(false);
-                      }}
-                    >
-                      <Text style={[
-                        styles.dropdownItemText,
-                        selectedCity === city.id && styles.selectedDropdownItemText
-                      ]}>
-                        {city.name}
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
-                </ScrollView>
-              </View>
-            )}
-          </View>
           
           <View style={styles.filterRow}>
             <Text style={styles.filterLabel}>Ελάχιστη Αξιολόγηση:</Text>
@@ -637,13 +639,13 @@ const styles = StyleSheet.create({
     color: '#ffffff',
   },
   section: {
-    marginBottom: 20,
+    marginBottom: 12,
   },
   sectionTitle: {
     fontSize: 16,
     fontWeight: '600',
     color: '#1f2937',
-    marginBottom: 12,
+    marginBottom: 8,
   },
   filtersContainer: {
     backgroundColor: '#f8fafc',
@@ -655,9 +657,9 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   filterLabel: {
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: '600',
-    color: '#374151',
+    color: '#1f2937',
     marginBottom: 8,
   },
   filterOptions: {
@@ -746,7 +748,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 12,
-    marginBottom: 8,
+    marginBottom: 4,
   },
   dropdownButtonText: {
     fontSize: 16,
