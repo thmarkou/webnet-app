@@ -118,7 +118,11 @@ export default function ProfileScreen() {
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
       
-      <ScrollView style={styles.scrollView} contentContainerStyle={styles.content}>
+      <ScrollView 
+        style={styles.scrollView} 
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={true}
+      >
         {/* Profile Header */}
         <View style={styles.profileHeader}>
           <View style={styles.avatar}>
@@ -201,10 +205,11 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flex: 1,
+    marginBottom: 200, // Massive margin to push content up
   },
   content: {
     padding: 16,
-    paddingBottom: 100, // Extra padding to ensure content is above tab bar
+    paddingBottom: 500, // Ultra-massive padding to ensure content is well above tab bar
   },
   profileHeader: {
     alignItems: 'center',
