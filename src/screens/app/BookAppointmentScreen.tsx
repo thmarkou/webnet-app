@@ -185,8 +185,9 @@ const styles = StyleSheet.create({
     marginRight: 15,
   },
   backButtonText: {
-    fontSize: 16,
-    color: '#007bff',
+    fontSize: 20,
+    color: '#007AFF',
+    fontWeight: '600',
   },
   title: {
     fontSize: 20,
