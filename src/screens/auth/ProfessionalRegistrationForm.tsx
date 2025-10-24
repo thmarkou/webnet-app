@@ -96,6 +96,41 @@ export default function ProfessionalRegistrationForm() {
   };
 
   const handleSubmit = async () => {
+    // Validate required fields for Step 4
+    if (!formData.serviceName || !formData.serviceDescription) {
+      Alert.alert(
+        'Ατελές Στοιχείο', 
+        'Παρακαλώ συμπληρώστε το όνομα και την περιγραφή της υπηρεσίας.'
+      );
+      return;
+    }
+
+    // Validate all required fields from all steps
+    const requiredFields = [
+      { field: 'firstName', label: 'Όνομα' },
+      { field: 'lastName', label: 'Επώνυμο' },
+      { field: 'phone', label: 'Τηλέφωνο' },
+      { field: 'password', label: 'Κωδικός' },
+      { field: 'businessName', label: 'Όνομα Επιχείρησης' },
+      { field: 'profession', label: 'Επάγγελμα' },
+      { field: 'vatNumber', label: 'ΑΦΜ' },
+      { field: 'number', label: 'Αριθμός' },
+      { field: 'area', label: 'Περιοχή' },
+      { field: 'postalCode', label: 'Ταχυδρομικός Κώδικας' },
+      { field: 'country', label: 'Χώρα' },
+      { field: 'city', label: 'Πόλη' }
+    ];
+
+    for (const { field, label } of requiredFields) {
+      if (!formData[field]) {
+        Alert.alert(
+          'Ατελές Στοιχείο', 
+          `Παρακαλώ συμπληρώστε το πεδίο: ${label}`
+        );
+        return;
+      }
+    }
+
     try {
       await register({
         ...formData,
@@ -103,7 +138,7 @@ export default function ProfessionalRegistrationForm() {
       });
       // Navigation will be handled by RootNavigator
     } catch (error) {
-      Alert.alert('Error', 'Registration failed');
+      Alert.alert('Σφάλμα', 'Η εγγραφή απέτυχε');
     }
   };
 

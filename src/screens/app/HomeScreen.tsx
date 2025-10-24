@@ -18,39 +18,39 @@ export default function HomeScreen() {
   const actionCards = [
     {
       id: 'appointments',
-      title: 'My Appointments',
-      description: 'View your upcoming and past appointments',
+      title: 'Τα Ραντεβού Μου',
+      description: 'Δείτε τα επερχόμενα και προηγούμενα ραντεβού σας',
       icon: '📅',
       screen: 'AppointmentsList'
     },
     {
       id: 'notifications',
-      title: 'Notifications',
-      description: 'View appointment updates and confirmations',
+      title: 'Ειδοποιήσεις',
+      description: 'Δείτε ενημερώσεις και επιβεβαιώσεις ραντεβού',
       icon: '🔔',
       screen: 'Notifications'
     },
     {
       id: 'find',
-      title: 'Find Professionals',
-      description: 'Search for services you need',
+      title: 'Βρείτε Επαγγελματίες',
+      description: 'Αναζητήστε τις υπηρεσίες που χρειάζεστε',
       icon: '🔍',
       screen: 'Search'
     },
     {
       id: 'friends',
-      title: 'Friends',
-      description: 'Connect with other users',
+      title: 'Φίλοι',
+      description: 'Συνδεθείτε με άλλους χρήστες',
       icon: '👥',
       screen: 'Friends'
     }
   ];
 
   const overviewMetrics = [
-    { label: 'Booked Services', value: '12', color: '#3b82f6' },
-    { label: 'This Month', value: '8', color: '#3b82f6' },
-    { label: 'Avg. Rating', value: '4.8', color: '#3b82f6' },
-    { label: 'Spent', value: '€1,200', color: '#3b82f6' }
+    { label: 'Κλεισμένα Ραντεβού', value: '12', color: '#3b82f6' },
+    { label: 'Αυτό το Μήνα', value: '8', color: '#3b82f6' },
+    { label: 'Μέση Αξιολόγηση', value: '4.8', color: '#3b82f6' },
+    { label: 'Ξοδεύτηκε', value: '€1,200', color: '#3b82f6' }
   ];
 
   const handleLogout = () => {
@@ -106,7 +106,7 @@ export default function HomeScreen() {
         <View style={styles.logoutContainer}>
           <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
             <Text style={styles.logoutIcon}>🚪</Text>
-            <Text style={styles.logoutText}>Logout</Text>
+            <Text style={styles.logoutText}>Αποσύνδεση</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
