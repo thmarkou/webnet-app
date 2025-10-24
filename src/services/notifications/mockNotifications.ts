@@ -228,3 +228,8 @@ export const triggerMessageNotification = async (
     iconColor: '#8b5cf6',
   });
 };
+
+// Fetch notifications for a user
+export const fetchUserNotifications = async (userId: string): Promise<NotificationData[]> => {
+  return mockNotifications.filter(notif => notif.recipientId === userId);
+};

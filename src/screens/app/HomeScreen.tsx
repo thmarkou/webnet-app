@@ -12,12 +12,34 @@ import { useNavigation } from '@react-navigation/native';
 import { useAuthStore } from '../../store/auth/authStore';
 import { useNotificationStore } from '../../store/notifications/notificationStore';
 import { getUnreadMessageCount } from '../../services/messaging/mockMessaging';
+import { fetchUserNotifications } from '../../services/notifications/mockNotifications';
 
 export default function HomeScreen() {
   const navigation = useNavigation();
   const { user, logout } = useAuthStore();
-  const { unreadCount } = useNotificationStore();
+  const { unreadCount, setNotifications } = useNotificationStore();
   const [unreadMessageCount, setUnreadMessageCount] = useState(0);
+
+  // Fetch notifications
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      if (user?.id) {
+        try {
+          const notifications = await fetchUserNotifications(user.id);
+          setNotifications(notifications);
+        } catch (error) {
+          console.error('Error fetching notifications:', error);
+        }
+      }
+    };
+
+    fetchNotifications();
+    
+    // Update every 5 seconds to simulate real-time updates
+    const interval = setInterval(fetchNotifications, 5000);
+    
+    return () => clearInterval(interval);
+  }, [user?.id, setNotifications]);
 
   // Fetch unread message count
   useEffect(() => {
