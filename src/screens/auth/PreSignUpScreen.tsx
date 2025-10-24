@@ -33,7 +33,7 @@ const PreSignUpScreen = () => {
             </View>
           </View>
           <Text style={styles.appName}>Webnet</Text>
-          <Text style={styles.tagline}>Join WebNet</Text>
+          <Text style={styles.tagline}>Συνδεθείτε στο WebNet</Text>
         </View>
 
         {/* Role Selection Cards */}
@@ -45,9 +45,9 @@ const PreSignUpScreen = () => {
                 <Text style={styles.icon}>👤</Text>
               </View>
               <View style={styles.textContainer}>
-                <Text style={styles.cardTitle}>User Account</Text>
+                <Text style={styles.cardTitle}>Λογαριασμός Χρήστη</Text>
                 <Text style={styles.cardDescription}>
-                  Find and book services from verified professionals
+                  Βρείτε και κλείστε ραντεβού με επαληθευμένους επαγγελματίες
                 </Text>
               </View>
               <Text style={styles.arrow}>→</Text>
@@ -61,9 +61,9 @@ const PreSignUpScreen = () => {
                 <Text style={styles.icon}>💼</Text>
               </View>
               <View style={styles.textContainer}>
-                <Text style={styles.cardTitle}>Professional Account</Text>
+                <Text style={styles.cardTitle}>Λογαριασμός Επαγγελματία</Text>
                 <Text style={styles.cardDescription}>
-                  Grow your business and reach more clients
+                  Αναπτύξτε την επιχείρησή σας και φτάστε σε περισσότερους πελάτες
                 </Text>
               </View>
               <Text style={styles.arrow}>→</Text>
