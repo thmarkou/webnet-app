@@ -389,17 +389,17 @@ export default function ProfessionalRegistrationForm() {
         <Text style={styles.label}>Όνομα Υπηρεσίας *</Text>
         <TextInput
           style={styles.input}
-          placeholder="e.g., Plumbing Repair, Electrical Installation"
+          placeholder="π.χ., Επισκευή Υδραυλικών, Ηλεκτρικές Εγκαταστάσεις"
           value={formData.serviceName}
           onChangeText={(value) => handleInputChange('serviceName', value)}
         />
       </View>
 
       <View style={styles.inputGroup}>
-        <Text style={styles.label}>Description *</Text>
+        <Text style={styles.label}>Περιγραφή *</Text>
         <TextInput
           style={[styles.input, styles.textArea]}
-          placeholder="Describe what this service includes"
+          placeholder="Περιγράψτε τι περιλαμβάνει αυτή η υπηρεσία"
           value={formData.serviceDescription}
           onChangeText={(value) => handleInputChange('serviceDescription', value)}
           multiline
@@ -419,7 +419,7 @@ export default function ProfessionalRegistrationForm() {
       </View>
 
       <View style={styles.inputGroup}>
-        <Text style={styles.label}>Price (€) - Optional</Text>
+        <Text style={styles.label}>Τιμή (€) - Προαιρετικό</Text>
         <TextInput
           style={styles.input}
           placeholder="0"
