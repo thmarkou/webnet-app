@@ -17,12 +17,12 @@ export default function ProfileScreen() {
 
   const handleLogout = () => {
     Alert.alert(
-      'Logout',
-      'Are you sure you want to logout?',
+      'Αποσύνδεση',
+      'Είστε σίγουροι ότι θέλετε να αποσυνδεθείτε;',
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: 'Ακύρωση', style: 'cancel' },
         { 
-          text: 'Logout', 
+          text: 'Αποσύνδεση', 
           style: 'destructive',
           onPress: () => logout()
         }
@@ -32,20 +32,60 @@ export default function ProfileScreen() {
 
   const actionItems = [
     {
+      id: 'professional-profile',
+      title: 'Προφίλ Επαγγελματία',
+      icon: '👨‍🔧',
+      onPress: () => navigation.navigate('ProfessionalProfile')
+    },
+    {
+      id: 'professional-notifications',
+      title: 'Ειδοποιήσεις Επαγγελματία',
+      icon: '🔔',
+      onPress: () => navigation.navigate('ProfessionalNotifications')
+    },
+    {
+      id: 'rate-professional',
+      title: 'Αξιολόγηση Επαγγελματία',
+      icon: '⭐',
+      onPress: () => navigation.navigate('RateProfessional', { 
+        professional: { name: 'Γιάννης Παπαδόπουλος', profession: 'Ηλεκτρολόγος' },
+        appointment: { date: '15 Ιανουαρίου 2024' }
+      })
+    },
+    {
+      id: 'update-service',
+      title: 'Ενημέρωση Υπηρεσίας',
+      icon: '🔧',
+      onPress: () => navigation.navigate('UpdateServiceDetails', {
+        appointment: { 
+          date: '15 Ιανουαρίου 2024', 
+          time: '10:00',
+          service: 'Επισκευή Ηλεκτρικών',
+          repair: 'Επισκευή φωτισμού'
+        }
+      })
+    },
+    {
+      id: 'admin-dashboard',
+      title: 'Διαχείριση Συστήματος',
+      icon: '👨‍💼',
+      onPress: () => navigation.navigate('AdminDashboard')
+    },
+    {
       id: 'settings',
-      title: 'Settings',
+      title: 'Ρυθμίσεις',
       icon: '⚙️',
       onPress: () => console.log('Settings pressed')
     },
     {
       id: 'help',
-      title: 'Help & Support',
+      title: 'Βοήθεια & Υποστήριξη',
       icon: '❓',
       onPress: () => console.log('Help pressed')
     },
     {
       id: 'about',
-      title: 'About',
+      title: 'Σχετικά',
       icon: 'ℹ️',
       onPress: () => console.log('About pressed')
     }
@@ -64,13 +104,13 @@ export default function ProfileScreen() {
           <Text style={styles.userName}>{user?.name || 'John Doe'}</Text>
           <Text style={styles.userEmail}>{user?.email || 'user@demo.com'}</Text>
           <View style={styles.roleBadge}>
-            <Text style={styles.roleText}>USER</Text>
+            <Text style={styles.roleText}>ΧΡΗΣΤΗΣ</Text>
           </View>
         </View>
 
         {/* Account Information */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Account Information</Text>
+          <Text style={styles.sectionTitle}>Πληροφορίες Λογαριασμού</Text>
           
           <View style={styles.infoItem}>
             <Text style={styles.infoIcon}>✉️</Text>
@@ -83,7 +123,7 @@ export default function ProfileScreen() {
           <View style={styles.infoItem}>
             <Text style={styles.infoIcon}>👤</Text>
             <View style={styles.infoContent}>
-              <Text style={styles.infoLabel}>Name</Text>
+              <Text style={styles.infoLabel}>Όνομα</Text>
               <Text style={styles.infoValue}>{user?.name || 'John Doe'}</Text>
             </View>
           </View>
@@ -91,7 +131,7 @@ export default function ProfileScreen() {
           <View style={styles.infoItem}>
             <Text style={styles.infoIcon}>🛡️</Text>
             <View style={styles.infoContent}>
-              <Text style={styles.infoLabel}>Role</Text>
+              <Text style={styles.infoLabel}>Ρόλος</Text>
               <Text style={styles.infoValue}>{user?.role || 'user'}</Text>
             </View>
           </View>
@@ -99,7 +139,7 @@ export default function ProfileScreen() {
 
         {/* Actions */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Actions</Text>
+          <Text style={styles.sectionTitle}>Ενέργειες</Text>
           
           {actionItems.map((item) => (
             <TouchableOpacity
