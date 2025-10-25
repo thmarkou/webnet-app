@@ -24,4 +24,12 @@ config.resolver.blockList = [];
 // Enable symlinks for better module resolution
 config.resolver.unstable_enableSymlinks = true;
 
+// Fix entry point resolution
+config.resolver.resolverMainFields = ['react-native', 'browser', 'main'];
+
+// Ensure proper module resolution
+config.resolver.nodeModulesPaths = [
+  path.resolve(__dirname, 'node_modules'),
+];
+
 module.exports = config;
