@@ -13,6 +13,7 @@
     "fix:metro": "./scripts/fixMetro.sh",
     "fix:entry": "./scripts/fixEntryPoint.sh",
     "fix:watchman": "./scripts/fixWatchman.sh",
+    "fix:typescript": "./scripts/fixMetroTypeScript.sh",
     "ios": "expo run:ios",
     "web": "expo start --web",
     "db:init": "ts-node scripts/initRealData.ts",
