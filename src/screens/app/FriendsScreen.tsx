@@ -133,7 +133,10 @@ export default function FriendsScreen() {
         </View>
         <TouchableOpacity 
           style={styles.messageButton}
-          onPress={() => navigation.navigate('Chat', { senderId: item.id })}
+          onPress={() => navigation.navigate('Chat', { 
+            senderId: item.id, 
+            professionalName: item.name 
+          })}
         >
           <Text style={styles.messageIcon}>💬</Text>
         </TouchableOpacity>
