@@ -181,11 +181,11 @@ export default function FriendsScreen() {
 
   const getTabIcon = (tabId) => {
     switch (tabId) {
-      case 'friends': return '👥';
+      case 'friends': return '👤';
       case 'requests': return '📨';
       case 'suggestions': return '💡';
       case 'search': return '🔍';
-      default: return '👥';
+      default: return '👤';
     }
   };
 
@@ -216,9 +216,12 @@ export default function FriendsScreen() {
               ]}
               onPress={() => setActiveTab(tab.id)}
             >
-              <Text style={[styles.tabPillText, { color: getTabColor(tab.id) }]}>
-                {getTabIcon(tab.id)} {tab.title}
-              </Text>
+              <View style={styles.tabPillContent}>
+                <Text style={styles.tabPillIcon}>{getTabIcon(tab.id)}</Text>
+                <Text style={[styles.tabPillText, { color: getTabColor(tab.id) }]}>
+                  {tab.title}
+                </Text>
+              </View>
             </TouchableOpacity>
           ))}
         </View>
@@ -322,8 +325,16 @@ const styles = StyleSheet.create({
     marginHorizontal: 2,
     minHeight: 36,
   },
+  tabPillContent: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  tabPillIcon: {
+    fontSize: 16,
+    marginBottom: 2,
+  },
   tabPillText: {
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: '600',
     textAlign: 'center',
     numberOfLines: 1,
