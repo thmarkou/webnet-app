@@ -37,7 +37,7 @@ export default function FindProfessionalsScreen() {
     { id: 'painter', name: 'Μαραγκός', icon: '🎨' },
     { id: 'cleaner', name: 'Καθαριστής', icon: '🧹' },
     { id: 'gardener', name: 'Κηπουρός', icon: '🌱' },
-    { id: 'mechanic', name: 'Μηχανικός', icon: '🔧' },
+    { id: 'mechanic', name: 'Μηχανικός Γενικά', icon: '🔧' },
     { id: 'locksmith', name: 'Κλειδαράς', icon: '🔐' },
     { id: 'hvac', name: 'Θερμοσίφωνας', icon: '🔥' },
     { id: 'flooring', name: 'Παρκέ', icon: '🏠' },

@@ -57,7 +57,7 @@ export default function ProfessionalRegistrationForm() {
     { name: 'Υδραυλικός', icon: '🔧' },
     { name: 'Δικηγόρος', icon: '⚖️' },
     { name: 'Καθαριστής', icon: '🧹' },
-    { name: 'Μηχανικός', icon: '🔩' },
+    { name: 'Μηχανικός Γενικά', icon: '🔩' },
     { name: 'Γιατρός', icon: '🩺' },
     { name: 'Ξυλουργός', icon: '🔨' },
     { name: 'Μηχανικός Αυτοκινήτων', icon: '🚗' },
