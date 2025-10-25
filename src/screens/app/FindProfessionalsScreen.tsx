@@ -588,7 +588,7 @@ export default function FindProfessionalsScreen() {
         <View style={styles.searchContainer}>
           <TextInput
             style={styles.searchInput}
-            placeholder="Αναζήτηση επαγγελματιών..."
+            placeholder="Αναζήτηση..."
             value={searchQuery}
             onChangeText={setSearchQuery}
             placeholderTextColor="#9ca3af"
@@ -596,16 +596,13 @@ export default function FindProfessionalsScreen() {
           <TouchableOpacity style={styles.searchButton}>
             <Text style={styles.searchButtonText}>🔍</Text>
           </TouchableOpacity>
+          <TouchableOpacity 
+            style={styles.clearFiltersIconButton}
+            onPress={clearAllFilters}
+          >
+            <Text style={styles.clearFiltersIconText}>🗑️</Text>
+          </TouchableOpacity>
         </View>
-
-        {/* Clear Filters Button */}
-        <TouchableOpacity 
-          style={styles.clearFiltersButton}
-          onPress={clearAllFilters}
-        >
-          <Text style={styles.clearFiltersIcon}>🗑️</Text>
-          <Text style={styles.clearFiltersText}>Καθαρισμός Φίλτρων</Text>
-        </TouchableOpacity>
 
         {/* Categories Dropdown */}
         <View style={styles.section}>
@@ -864,6 +861,19 @@ const styles = StyleSheet.create({
   },
   searchButtonText: {
     fontSize: 18,
+    color: '#ffffff',
+  },
+  clearFiltersIconButton: {
+    backgroundColor: '#FF6B6B',
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: 8,
+  },
+  clearFiltersIconText: {
+    fontSize: 16,
     color: '#ffffff',
   },
   section: {
@@ -1221,27 +1231,6 @@ const styles = StyleSheet.create({
   fabText: {
     color: '#ffffff',
     fontSize: 14,
-    fontWeight: '600',
-  },
-  clearFiltersButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#f3f4f6',
-    borderWidth: 1,
-    borderColor: '#d1d5db',
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    marginBottom: 20,
-  },
-  clearFiltersIcon: {
-    fontSize: 16,
-    marginRight: 8,
-  },
-  clearFiltersText: {
-    fontSize: 14,
-    color: '#6b7280',
     fontWeight: '600',
   },
   // Friend recommendation styles
