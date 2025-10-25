@@ -230,31 +230,33 @@ export default function UserNotificationsScreen() {
         </View>
       </View>
 
-      {/* Filter Buttons */}
+      {/* Filter Buttons - Aligned with colorful filters */}
       <View style={styles.filterContainer}>
-        <TouchableOpacity
-          style={[styles.filterButton, activeFilter === 'all' && styles.activeFilterButton]}
-          onPress={() => setActiveFilter('all')}
-        >
-          <Text style={[styles.filterText, activeFilter === 'all' && styles.activeFilterText]}>
-            Όλες
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.filterButton, activeFilter === 'unread' && styles.activeFilterButton]}
-          onPress={() => setActiveFilter('unread')}
-        >
-          <Text style={[styles.filterText, activeFilter === 'unread' && styles.activeFilterText]}>
-            Διαβάστηκαν ({unreadCount})
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity 
-          style={styles.markAllButton}
-          onPress={handleMarkAllAsRead}
-        >
-          <Text style={styles.markAllText}>Σημείωση όλων ως διαβασμένες</Text>
-          <Text style={styles.markAllIcon}>✓</Text>
-        </TouchableOpacity>
+        <View style={styles.filterRow}>
+          <TouchableOpacity
+            style={[styles.filterButton, activeFilter === 'all' && styles.activeFilterButton]}
+            onPress={() => setActiveFilter('all')}
+          >
+            <Text style={[styles.filterText, activeFilter === 'all' && styles.activeFilterText]}>
+              Όλες
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.filterButton, activeFilter === 'unread' && styles.activeFilterButton]}
+            onPress={() => setActiveFilter('unread')}
+          >
+            <Text style={[styles.filterText, activeFilter === 'unread' && styles.activeFilterText]}>
+              Διαβάστηκαν ({unreadCount})
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={styles.markAllButton}
+            onPress={handleMarkAllAsRead}
+          >
+            <Text style={styles.markAllText}>Όλα διαβασμένα</Text>
+            <Text style={styles.markAllIcon}>✓</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       <FlatList
@@ -356,12 +358,15 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   filterContainer: {
-    flexDirection: 'row',
     backgroundColor: '#ffffff',
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: '#f1f3f4',
+  },
+  filterRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
   },
   filterButton: {
@@ -369,7 +374,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 20,
-    marginRight: 12,
+    flex: 1,
+    marginHorizontal: 4,
   },
   activeFilterButton: {
     backgroundColor: '#3b82f6',
@@ -386,7 +392,9 @@ const styles = StyleSheet.create({
   markAllButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginLeft: 'auto',
+    flex: 1,
+    marginHorizontal: 4,
+    justifyContent: 'center',
   },
   markAllText: {
     fontSize: 14,
