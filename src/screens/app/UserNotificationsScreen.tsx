@@ -202,12 +202,15 @@ export default function UserNotificationsScreen() {
               ]}
               onPress={() => setActiveFilter(filter.id)}
             >
-              <Text 
-                style={[styles.filterPillText, { color: filter.color }]}
-                numberOfLines={1}
-              >
-                {filter.icon} {filter.title}
-              </Text>
+              <View style={styles.filterPillContent}>
+                <Text style={styles.filterPillIcon}>{filter.icon}</Text>
+                <Text 
+                  style={[styles.filterPillText, { color: filter.color }]}
+                  numberOfLines={1}
+                >
+                  {filter.title}
+                </Text>
+              </View>
             </TouchableOpacity>
           ))}
         </View>
@@ -352,8 +355,16 @@ const styles = StyleSheet.create({
     minHeight: 36,
     width: '30%',
   },
+  filterPillContent: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  filterPillIcon: {
+    fontSize: 16,
+    marginBottom: 2,
+  },
   filterPillText: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: '600',
     textAlign: 'center',
     numberOfLines: 1,
