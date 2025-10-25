@@ -10,10 +10,45 @@ import {
   Alert,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { useAuthStore } from '../../store/auth/authStore';
 
 export default function DatabaseManagementScreen() {
   const navigation = useNavigation();
+  const { user } = useAuthStore();
   const [isLoading, setIsLoading] = useState(false);
+
+  // Check if user is admin
+  if (user?.role !== 'admin') {
+    return (
+      <SafeAreaView style={styles.container}>
+        <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
+        
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+            <Text style={styles.backButtonText}>←</Text>
+          </TouchableOpacity>
+          <View style={styles.headerContent}>
+            <Text style={styles.title}>Διαχείριση Βάσης Δεδομένων</Text>
+            <Text style={styles.userName}>{user?.name || 'Χρήστη'}</Text>
+          </View>
+        </View>
+
+        <View style={styles.accessDeniedContainer}>
+          <Text style={styles.accessDeniedIcon}>🚫</Text>
+          <Text style={styles.accessDeniedTitle}>Πρόσβαση Απαγορευμένη</Text>
+          <Text style={styles.accessDeniedText}>
+            Μόνο οι διαχειριστές έχουν πρόσβαση σε αυτή τη σελίδα.
+          </Text>
+          <TouchableOpacity 
+            style={styles.backToHomeButton}
+            onPress={() => navigation.navigate('Home')}
+          >
+            <Text style={styles.backToHomeButtonText}>Επιστροφή στην Αρχική</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   const handleInitializeData = async () => {
     setIsLoading(true);
@@ -179,7 +214,10 @@ export default function DatabaseManagementScreen() {
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
           <Text style={styles.backButtonText}>←</Text>
         </TouchableOpacity>
-        <Text style={styles.title}>Διαχείριση Βάσης Δεδομένων</Text>
+        <View style={styles.headerContent}>
+          <Text style={styles.title}>Διαχείριση Βάσης Δεδομένων</Text>
+          <Text style={styles.userName}>{user?.name || 'Χρήστη'}</Text>
+        </View>
       </View>
 
       <ScrollView style={styles.content}>
@@ -280,12 +318,56 @@ const styles = StyleSheet.create({
     color: '#007AFF',
     fontWeight: '600',
   },
+  headerContent: {
+    flex: 1,
+    alignItems: 'center',
+  },
   title: {
     fontSize: 18,
     fontWeight: '600',
     color: '#1f2937',
-    flex: 1,
     textAlign: 'center',
+  },
+  userName: {
+    fontSize: 14,
+    color: '#6b7280',
+    fontWeight: '500',
+    marginTop: 2,
+  },
+  accessDeniedContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 32,
+  },
+  accessDeniedIcon: {
+    fontSize: 64,
+    marginBottom: 16,
+  },
+  accessDeniedTitle: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#dc2626',
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  accessDeniedText: {
+    fontSize: 16,
+    color: '#6b7280',
+    textAlign: 'center',
+    lineHeight: 24,
+    marginBottom: 32,
+  },
+  backToHomeButton: {
+    backgroundColor: '#007AFF',
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 8,
+  },
+  backToHomeButtonText: {
+    color: '#ffffff',
+    fontSize: 16,
+    fontWeight: '600',
   },
   content: {
     flex: 1,
