@@ -169,6 +169,24 @@ export default function AppointmentsListScreen() {
     }
   };
 
+  const getTabColor = (tabId) => {
+    switch (tabId) {
+      case 'upcoming': return '#3b82f6'; // Blue
+      case 'pending': return '#f59e0b'; // Orange
+      case 'past': return '#6b7280'; // Gray
+      default: return '#6b7280';
+    }
+  };
+
+  const getTabIcon = (tabId) => {
+    switch (tabId) {
+      case 'upcoming': return '📅';
+      case 'pending': return '⏳';
+      case 'past': return '✅';
+      default: return '📅';
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
@@ -181,17 +199,26 @@ export default function AppointmentsListScreen() {
       </View>
 
       <View style={styles.tabContainer}>
-        {tabs.map((tab) => (
-          <TouchableOpacity
-            key={tab.id}
-            style={[styles.tab, activeTab === tab.id && styles.activeTab]}
-            onPress={() => setActiveTab(tab.id)}
-          >
-            <Text style={[styles.tabText, activeTab === tab.id && styles.activeTabText]}>
-              {tab.title}
-            </Text>
-          </TouchableOpacity>
-        ))}
+        <View style={styles.tabRow}>
+          {tabs.map((tab, index) => (
+            <TouchableOpacity
+              key={tab.id}
+              style={[
+                styles.tabPill, 
+                { 
+                  backgroundColor: getTabColor(tab.id) + '20',
+                  flex: 1,
+                  marginHorizontal: 4
+                }
+              ]}
+              onPress={() => setActiveTab(tab.id)}
+            >
+              <Text style={[styles.tabPillText, { color: getTabColor(tab.id) }]}>
+                {getTabIcon(tab.id)} {tab.title}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
       </View>
 
       <FlatList
@@ -242,30 +269,31 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   tabContainer: {
-    flexDirection: 'row',
     backgroundColor: '#ffffff',
     borderBottomWidth: 1,
     borderBottomColor: '#f1f3f4',
   },
-  tab: {
-    flex: 1,
-    paddingVertical: 16,
+  tabRow: {
+    flexDirection: 'row',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    justifyContent: 'space-between',
     alignItems: 'center',
-    borderBottomWidth: 2,
-    borderBottomColor: 'transparent',
   },
-  activeTab: {
-    borderBottomColor: '#3b82f6',
-    backgroundColor: '#3b82f6',
+  tabPill: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flex: 1,
+    marginHorizontal: 4,
   },
-  tabText: {
-    fontSize: 16,
-    color: '#6b7280',
-    fontWeight: '500',
-  },
-  activeTabText: {
-    color: '#ffffff',
+  tabPillText: {
+    fontSize: 12,
     fontWeight: '600',
+    textAlign: 'center',
+    numberOfLines: 1,
   },
   listContainer: {
     padding: 16,
