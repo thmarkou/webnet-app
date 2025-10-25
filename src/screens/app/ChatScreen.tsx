@@ -126,7 +126,11 @@ export default function ChatScreen() {
             styles.messageTime,
             isMyMessage ? styles.myMessageTime : styles.otherMessageTime
           ]}>
-            {item.timestamp.toLocaleTimeString('el-GR', { 
+            {item.timestamp.toLocaleDateString('el-GR', {
+              day: '2-digit',
+              month: '2-digit',
+              year: '2-digit'
+            })} {item.timestamp.toLocaleTimeString('el-GR', { 
               hour: '2-digit', 
               minute: '2-digit' 
             })}
