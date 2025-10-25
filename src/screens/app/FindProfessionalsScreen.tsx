@@ -9,6 +9,7 @@ import {
   ScrollView,
   TextInput,
   FlatList,
+  Alert,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
@@ -97,7 +98,9 @@ export default function FindProfessionalsScreen() {
       image: '👨‍🔧',
       verified: true,
       responseTime: '1 ώρα',
-      completionRate: '98%'
+      completionRate: '98%',
+      phone: '+30 210 1234567',
+      email: 'giannis.papadopoulos@example.com'
     },
     {
       id: '2',
@@ -115,7 +118,9 @@ export default function FindProfessionalsScreen() {
       image: '👩‍🔧',
       verified: true,
       responseTime: '30 λεπτά',
-      completionRate: '100%'
+      completionRate: '100%',
+      phone: '+30 210 2345678',
+      email: 'maria.kostopoulou@example.com'
     },
     {
       id: '3',
@@ -133,7 +138,9 @@ export default function FindProfessionalsScreen() {
       image: '👨‍🎨',
       verified: true,
       responseTime: '2 ώρες',
-      completionRate: '95%'
+      completionRate: '95%',
+      phone: '+30 210 3456789',
+      email: 'petros.nikolaou@example.com'
     },
     {
       id: '4',
@@ -277,6 +284,45 @@ export default function FindProfessionalsScreen() {
     setShowCityDropdown(false);
   };
 
+  const handleContact = (professional) => {
+    // For now, we'll show an alert with contact options
+    // In a real app, this could open a phone dialer, email client, or chat
+    Alert.alert(
+      `Επικοινωνία με ${professional.name}`,
+      `Επιλέξτε τρόπο επικοινωνίας:`,
+      [
+        {
+          text: '📞 Τηλέφωνο',
+          onPress: () => {
+            // In a real app, this would open the phone dialer
+            Alert.alert('Τηλέφωνο', `Θα καλέσετε τον ${professional.name} στο ${professional.phone || '+30 210 1234567'}`);
+          }
+        },
+        {
+          text: '✉️ Email',
+          onPress: () => {
+            // In a real app, this would open the email client
+            Alert.alert('Email', `Θα στείλετε email στον ${professional.name} στο ${professional.email || 'professional@example.com'}`);
+          }
+        },
+        {
+          text: '💬 Chat',
+          onPress: () => {
+            // Navigate to chat screen
+            navigation.navigate('Chat', { 
+              senderId: professional.id,
+              professionalName: professional.name 
+            });
+          }
+        },
+        {
+          text: 'Ακύρωση',
+          style: 'cancel'
+        }
+      ]
+    );
+  };
+
   const filterProfessionals = () => {
     setIsLoading(true);
     
@@ -373,7 +419,10 @@ export default function FindProfessionalsScreen() {
           <Text style={styles.availabilityText}>🟢 {item.availability}</Text>
           <Text style={styles.responseTime}>⏱️ {item.responseTime}</Text>
         </View>
-        <TouchableOpacity style={styles.contactButton}>
+        <TouchableOpacity 
+          style={styles.contactButton}
+          onPress={() => handleContact(item)}
+        >
           <Text style={styles.contactButtonText}>Επικοινωνία</Text>
         </TouchableOpacity>
       </View>
