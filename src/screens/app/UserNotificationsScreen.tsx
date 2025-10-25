@@ -6,7 +6,8 @@ import {
   FlatList, 
   StyleSheet, 
   SafeAreaView, 
-  StatusBar 
+  StatusBar,
+  ScrollView
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useAuthStore } from '../../store/auth/authStore';
@@ -176,7 +177,12 @@ export default function UserNotificationsScreen() {
       </View>
 
       {/* Filter Pills */}
-      <View style={styles.filterPillsContainer}>
+      <ScrollView 
+        horizontal 
+        showsHorizontalScrollIndicator={false}
+        style={styles.filterPillsContainer}
+        contentContainerStyle={styles.filterPillsContent}
+      >
         {filters.map((filter) => (
           <TouchableOpacity
             key={filter.id}
@@ -188,7 +194,7 @@ export default function UserNotificationsScreen() {
             </Text>
           </TouchableOpacity>
         ))}
-      </View>
+      </ScrollView>
 
       {/* Filter Buttons */}
       <View style={styles.filterContainer}>
@@ -273,12 +279,14 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   filterPillsContainer: {
-    flexDirection: 'row',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
     backgroundColor: '#ffffff',
     borderBottomWidth: 1,
     borderBottomColor: '#f1f3f4',
+  },
+  filterPillsContent: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    flexDirection: 'row',
   },
   filterPill: {
     paddingHorizontal: 12,
