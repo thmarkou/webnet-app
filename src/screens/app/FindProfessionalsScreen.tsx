@@ -443,6 +443,12 @@ export default function FindProfessionalsScreen() {
       }
       setFriendRecommendations(friendRecs);
       
+      // Debug logging
+      console.log('Friend recommendations found:', friendRecs.length);
+      friendRecs.forEach(rec => {
+        console.log(`Friend ${rec.recommenderName} recommends ${rec.professionalName} (ID: ${rec.professionalId})`);
+      });
+      
       // Sort results with friend recommendations first, then by selected criteria
       filtered.sort((a, b) => {
         const aIsRecommended = friendRecs.some(rec => rec.professionalId === a.id);
@@ -491,6 +497,11 @@ export default function FindProfessionalsScreen() {
   const renderProfessional = ({ item }) => {
     // Check if this professional is recommended by friends
     const friendRecommendation = friendRecommendations.find(rec => rec.professionalId === item.id);
+    
+    // Debug logging
+    if (friendRecommendation) {
+      console.log(`Professional ${item.name} is recommended by ${friendRecommendation.recommenderName}`);
+    }
     
     return (
       <TouchableOpacity
