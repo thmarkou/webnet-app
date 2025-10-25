@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, TextInput, StyleSheet, SafeAreaView, ScrollView, Alert } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import { useAuthStore } from '../../store/auth/authStore';
 import { triggerAppointmentNotification } from '../../services/notifications/mockNotifications';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
 export default function BookAppointmentScreen() {
   const navigation = useNavigation();
   const route = useRoute();
+  const { user } = useAuthStore();
   const { professional } = route.params || {};
   
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -72,7 +74,10 @@ export default function BookAppointmentScreen() {
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
           <Text style={styles.backButtonText}>←</Text>
         </TouchableOpacity>
-        <Text style={styles.title}>Κλείσε Ραντεβού</Text>
+        <View style={styles.headerContent}>
+          <Text style={styles.title}>Κλείσε Ραντεβού</Text>
+          <Text style={styles.userName}>{user?.name || 'Χρήστη'}</Text>
+        </View>
       </View>
 
       <ScrollView style={styles.content}>
@@ -232,12 +237,21 @@ const styles = StyleSheet.create({
     color: '#007AFF',
     fontWeight: '600',
   },
+  headerContent: {
+    flex: 1,
+    alignItems: 'center',
+  },
   title: {
     fontSize: 20,
     fontWeight: 'bold',
     color: '#333',
-    flex: 1,
     textAlign: 'center',
+  },
+  userName: {
+    fontSize: 14,
+    color: '#6b7280',
+    fontWeight: '500',
+    marginTop: 2,
   },
   content: {
     flex: 1,

@@ -9,10 +9,12 @@ import {
   ScrollView 
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import { useAuthStore } from '../../store/auth/authStore';
 
 export default function ProfessionalDetailsScreen() {
   const navigation = useNavigation();
   const route = useRoute();
+  const { user } = useAuthStore();
   const { professional } = route.params || {};
 
   // Use the professional data passed from navigation, or fallback to mock data
@@ -87,7 +89,10 @@ export default function ProfessionalDetailsScreen() {
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
           <Text style={styles.backButtonText}>←</Text>
         </TouchableOpacity>
-        <Text style={styles.title}>Βρείτε Επαγγελματίες</Text>
+        <View style={styles.headerContent}>
+          <Text style={styles.title}>Βρείτε Επαγγελματίες</Text>
+          <Text style={styles.userName}>{user?.name || 'Χρήστη'}</Text>
+        </View>
       </View>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
@@ -204,12 +209,21 @@ const styles = StyleSheet.create({
     color: '#007AFF',
     fontWeight: '600',
   },
+  headerContent: {
+    flex: 1,
+    alignItems: 'center',
+  },
   title: {
     fontSize: 18,
     fontWeight: '600',
     color: '#1f2937',
-    flex: 1,
     textAlign: 'center',
+  },
+  userName: {
+    fontSize: 14,
+    color: '#6b7280',
+    fontWeight: '500',
+    marginTop: 2,
   },
   content: {
     flex: 1,
