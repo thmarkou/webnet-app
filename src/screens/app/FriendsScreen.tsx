@@ -6,7 +6,8 @@ import {
   FlatList, 
   StyleSheet, 
   SafeAreaView, 
-  StatusBar 
+  StatusBar,
+  TextInput 
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { triggerFriendRequestNotification } from '../../services/notifications/mockNotifications';
@@ -20,6 +21,8 @@ export default function FriendsScreen() {
   const [friends, setFriends] = useState([]);
   const [suggestions, setSuggestions] = useState([]);
   const [unreadCounts, setUnreadCounts] = useState({});
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
 
   // Fetch unread message counts for each friend
   useEffect(() => {
@@ -132,6 +135,71 @@ export default function FriendsScreen() {
       console.log('Friend added successfully:', suggestion.name);
     } catch (error) {
       console.error('Error adding friend:', error);
+    }
+  };
+
+  const handleSearch = (query) => {
+    setSearchQuery(query);
+    if (query.trim() === '') {
+      setSearchResults([]);
+      return;
+    }
+
+    // Mock search results - in real app, this would be an API call
+    const mockSearchResults = [
+      {
+        id: 'search1',
+        name: 'Μαρία Παπαδοπούλου',
+        profession: 'Γιατρός',
+        avatar: '👩‍⚕️',
+        status: 'not_friend'
+      },
+      {
+        id: 'search2',
+        name: 'Νίκος Κωνσταντίνου',
+        profession: 'Μηχανικός',
+        avatar: '👨‍🔧',
+        status: 'not_friend'
+      },
+      {
+        id: 'search3',
+        name: 'Άννα Δημητρίου',
+        profession: 'Δικηγόρος',
+        avatar: '👩‍⚖️',
+        status: 'not_friend'
+      }
+    ].filter(person => 
+      person.name.toLowerCase().includes(query.toLowerCase()) ||
+      person.profession.toLowerCase().includes(query.toLowerCase())
+    );
+
+    setSearchResults(mockSearchResults);
+  };
+
+  const handleAddSearchResult = async (searchResultId) => {
+    try {
+      const searchResult = searchResults.find(s => s.id === searchResultId);
+      if (!searchResult) return;
+
+      const newFriend = {
+        id: searchResultId,
+        name: searchResult.name,
+        profession: searchResult.profession,
+        status: 'friend',
+        avatar: searchResult.avatar
+      };
+
+      setFriends(prevFriends => [...prevFriends, newFriend]);
+      setSearchResults(prevResults => 
+        prevResults.filter(s => s.id !== searchResultId)
+      );
+
+      // Trigger friend request notification
+      await triggerFriendRequestNotification(searchResultId, user.id, user.name);
+
+      console.log('Friend added from search:', searchResult.name);
+    } catch (error) {
+      console.error('Error adding friend from search:', error);
     }
   };
 
@@ -297,9 +365,67 @@ export default function FriendsScreen() {
       {activeTab === 'search' && (
         <View style={styles.content}>
           <Text style={styles.sectionTitle}>Αναζήτηση</Text>
-          <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText}>Αναζήτηση φίλων</Text>
+          
+          {/* Search Input */}
+          <View style={styles.searchContainer}>
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Αναζήτηση φίλων..."
+              value={searchQuery}
+              onChangeText={handleSearch}
+              placeholderTextColor="#9ca3af"
+            />
           </View>
+
+          {/* Search Results */}
+          {searchQuery.trim() !== '' && (
+            <View style={styles.searchResultsContainer}>
+              <Text style={styles.searchResultsTitle}>
+                Αποτελέσματα Αναζήτησης ({searchResults.length})
+              </Text>
+              
+              {searchResults.length > 0 ? (
+                <FlatList
+                  data={searchResults}
+                  keyExtractor={(item) => item.id}
+                  renderItem={({ item }) => (
+                    <View style={styles.searchResultCard}>
+                      <View style={styles.searchResultInfo}>
+                        <Text style={styles.searchResultAvatar}>{item.avatar}</Text>
+                        <View style={styles.searchResultDetails}>
+                          <Text style={styles.searchResultName}>{item.name}</Text>
+                          <Text style={styles.searchResultProfession}>{item.profession}</Text>
+                        </View>
+                      </View>
+                      <TouchableOpacity
+                        style={styles.addFriendButton}
+                        onPress={() => handleAddSearchResult(item.id)}
+                      >
+                        <Text style={styles.addFriendButtonText}>Προσθήκη</Text>
+                      </TouchableOpacity>
+                    </View>
+                  )}
+                  showsVerticalScrollIndicator={false}
+                />
+              ) : (
+                <View style={styles.noResultsContainer}>
+                  <Text style={styles.noResultsText}>
+                    Δεν βρέθηκαν αποτελέσματα για "{searchQuery}"
+                  </Text>
+                </View>
+              )}
+            </View>
+          )}
+
+          {/* Empty State */}
+          {searchQuery.trim() === '' && (
+            <View style={styles.emptyContainer}>
+              <Text style={styles.emptyText}>Αναζήτηση φίλων</Text>
+              <Text style={styles.emptySubtext}>
+                Εισάγετε όνομα ή επάγγελμα για να βρείτε φίλους
+              </Text>
+            </View>
+          )}
         </View>
       )}
     </SafeAreaView>
@@ -539,5 +665,90 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 16,
     color: '#6b7280',
+  },
+  emptySubtext: {
+    fontSize: 14,
+    color: '#9ca3af',
+    marginTop: 8,
+    textAlign: 'center',
+  },
+  searchContainer: {
+    marginBottom: 16,
+  },
+  searchInput: {
+    backgroundColor: '#f9fafb',
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    fontSize: 16,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+  },
+  searchResultsContainer: {
+    marginTop: 8,
+  },
+  searchResultsTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#374151',
+    marginBottom: 12,
+  },
+  searchResultCard: {
+    backgroundColor: '#ffffff',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  searchResultInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  searchResultAvatar: {
+    fontSize: 24,
+    marginRight: 12,
+  },
+  searchResultDetails: {
+    flex: 1,
+  },
+  searchResultName: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1f2937',
+    marginBottom: 2,
+  },
+  searchResultProfession: {
+    fontSize: 14,
+    color: '#6b7280',
+  },
+  addFriendButton: {
+    backgroundColor: '#10b981',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 8,
+  },
+  addFriendButtonText: {
+    color: '#ffffff',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  noResultsContainer: {
+    padding: 32,
+    alignItems: 'center',
+  },
+  noResultsText: {
+    fontSize: 16,
+    color: '#6b7280',
+    textAlign: 'center',
   },
 });
