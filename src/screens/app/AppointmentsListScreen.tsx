@@ -9,9 +9,11 @@ import {
   StatusBar 
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { useAuthStore } from '../../store/auth/authStore';
 
 export default function AppointmentsListScreen() {
   const navigation = useNavigation();
+  const { user } = useAuthStore();
   const [activeTab, setActiveTab] = useState('upcoming');
   const [appointments, setAppointments] = useState([]);
 
@@ -195,7 +197,10 @@ export default function AppointmentsListScreen() {
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
           <Text style={styles.backButtonText}>←</Text>
         </TouchableOpacity>
-        <Text style={styles.title}>Τα Ραντεβού Μου</Text>
+        <View style={styles.headerContent}>
+          <Text style={styles.title}>Τα Ραντεβού Μου</Text>
+          <Text style={styles.userName}>{user?.name || 'Χρήστη'}</Text>
+        </View>
       </View>
 
       <View style={styles.tabContainer}>
@@ -264,12 +269,21 @@ const styles = StyleSheet.create({
     color: '#007AFF',
     fontWeight: '600',
   },
+  headerContent: {
+    flex: 1,
+    alignItems: 'center',
+  },
   title: {
     fontSize: 18,
     fontWeight: '600',
     color: '#1f2937',
-    flex: 1,
     textAlign: 'center',
+  },
+  userName: {
+    fontSize: 14,
+    color: '#6b7280',
+    fontWeight: '500',
+    marginTop: 2,
   },
   tabContainer: {
     backgroundColor: '#ffffff',

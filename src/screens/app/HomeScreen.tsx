@@ -117,6 +117,12 @@ export default function HomeScreen() {
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
       
+      {/* User Header */}
+      <View style={styles.userHeader}>
+        <Text style={styles.welcomeText}>Καλώς ήρθατε,</Text>
+        <Text style={styles.userName}>{user?.name || 'Χρήστη'}</Text>
+      </View>
+      
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         {/* Action Cards */}
         <View style={styles.actionCardsContainer}>
@@ -188,6 +194,24 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#ffffff',
+  },
+  userHeader: {
+    paddingHorizontal: 16,
+    paddingVertical: 20,
+    backgroundColor: '#ffffff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#f1f3f4',
+  },
+  welcomeText: {
+    fontSize: 16,
+    color: '#6b7280',
+    fontWeight: '500',
+    marginBottom: 4,
+  },
+  userName: {
+    fontSize: 24,
+    color: '#1f2937',
+    fontWeight: '700',
   },
   scrollView: {
     flex: 1,
