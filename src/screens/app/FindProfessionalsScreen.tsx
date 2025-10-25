@@ -267,6 +267,16 @@ export default function FindProfessionalsScreen() {
     filterProfessionals();
   }, [searchQuery, selectedCategory, selectedCity, minRating, sortBy]);
 
+  const clearAllFilters = () => {
+    setSearchQuery('');
+    setSelectedCategory('');
+    setSelectedCity('');
+    setMinRating(0);
+    setSortBy('rating');
+    setShowCategoryDropdown(false);
+    setShowCityDropdown(false);
+  };
+
   const filterProfessionals = () => {
     setIsLoading(true);
     
@@ -396,6 +406,15 @@ export default function FindProfessionalsScreen() {
             <Text style={styles.searchButtonText}>🔍</Text>
           </TouchableOpacity>
         </View>
+
+        {/* Clear Filters Button */}
+        <TouchableOpacity 
+          style={styles.clearFiltersButton}
+          onPress={clearAllFilters}
+        >
+          <Text style={styles.clearFiltersIcon}>🗑️</Text>
+          <Text style={styles.clearFiltersText}>Καθαρισμός Φίλτρων</Text>
+        </TouchableOpacity>
 
         {/* Categories Dropdown */}
         <View style={styles.section}>
@@ -1002,6 +1021,27 @@ const styles = StyleSheet.create({
   fabText: {
     color: '#ffffff',
     fontSize: 14,
+    fontWeight: '600',
+  },
+  clearFiltersButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#f3f4f6',
+    borderWidth: 1,
+    borderColor: '#d1d5db',
+    borderRadius: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    marginBottom: 20,
+  },
+  clearFiltersIcon: {
+    fontSize: 16,
+    marginRight: 8,
+  },
+  clearFiltersText: {
+    fontSize: 14,
+    color: '#6b7280',
     fontWeight: '600',
   },
 });
