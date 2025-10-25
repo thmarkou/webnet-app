@@ -15,7 +15,20 @@ export default function ProfessionalDetailsScreen() {
   const route = useRoute();
   const { professional } = route.params || {};
 
-  const mockProfessional = {
+  // Use the professional data passed from navigation, or fallback to mock data
+  const professionalData = professional ? {
+    name: professional.name,
+    profession: professional.profession,
+    rating: professional.rating,
+    reviews: professional.reviewCount,
+    location: professional.city === 'athens' ? 'Αθήνα, Ελλάδα' : 
+              professional.city === 'thessaloniki' ? 'Θεσσαλονίκη, Ελλάδα' :
+              professional.city === 'patras' ? 'Πάτρα, Ελλάδα' : 'Ελλάδα',
+    phone: '+30 6923456789',
+    email: `${professional.name.toLowerCase().replace(/\s+/g, '.')}@example.com`,
+    about: professional.description,
+    verified: professional.verified
+  } : {
     name: 'Γιάννη Σμιθ',
     profession: 'Ηλεκτρολόγος',
     rating: 5.0,
@@ -59,11 +72,11 @@ export default function ProfessionalDetailsScreen() {
   };
 
   const handleAddReview = () => {
-    navigation.navigate('AddReview', { professional: mockProfessional });
+    navigation.navigate('AddReview', { professional: professionalData });
   };
 
   const handleBookAppointment = () => {
-    navigation.navigate('BookAppointment', { professional: mockProfessional });
+    navigation.navigate('BookAppointment', { professional: professionalData });
   };
 
   return (
@@ -85,13 +98,13 @@ export default function ProfessionalDetailsScreen() {
           </View>
           
           <View style={styles.profileInfo}>
-            <Text style={styles.professionalName}>{mockProfessional.name}</Text>
-            <Text style={styles.professionalProfession}>{mockProfessional.profession}</Text>
+            <Text style={styles.professionalName}>{professionalData.name}</Text>
+            <Text style={styles.professionalProfession}>{professionalData.profession}</Text>
             
             <View style={styles.ratingContainer}>
-              {renderStars(mockProfessional.rating)}
-              <Text style={styles.ratingText}>{mockProfessional.rating}</Text>
-              <Text style={styles.reviewsText}>({mockProfessional.reviews})</Text>
+              {renderStars(professionalData.rating)}
+              <Text style={styles.ratingText}>{professionalData.rating}</Text>
+              <Text style={styles.reviewsText}>({professionalData.reviews})</Text>
             </View>
           </View>
         </View>
@@ -100,24 +113,24 @@ export default function ProfessionalDetailsScreen() {
         <View style={styles.contactSection}>
           <View style={styles.contactItem}>
             <Text style={styles.contactIcon}>📍</Text>
-            <Text style={styles.contactText}>{mockProfessional.location}</Text>
+            <Text style={styles.contactText}>{professionalData.location}</Text>
           </View>
           
           <View style={styles.contactItem}>
             <Text style={styles.contactIcon}>📞</Text>
-            <Text style={styles.contactText}>{mockProfessional.phone}</Text>
+            <Text style={styles.contactText}>{professionalData.phone}</Text>
           </View>
           
           <View style={styles.contactItem}>
             <Text style={styles.contactIcon}>✉️</Text>
-            <Text style={styles.contactText}>{mockProfessional.email}</Text>
+            <Text style={styles.contactText}>{professionalData.email}</Text>
           </View>
         </View>
 
         {/* About Section */}
         <View style={styles.aboutSection}>
           <Text style={styles.sectionTitle}>Σχετικά</Text>
-          <Text style={styles.aboutText}>{mockProfessional.about}</Text>
+          <Text style={styles.aboutText}>{professionalData.about}</Text>
         </View>
 
         {/* Reviews Section */}
