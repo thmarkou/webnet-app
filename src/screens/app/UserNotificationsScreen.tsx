@@ -56,8 +56,7 @@ export default function UserNotificationsScreen() {
   const filters = [
     { id: 'pending', title: 'Εκκρεμεί', icon: '⏳', color: '#f59e0b' },
     { id: 'confirmed', title: 'Επιβεβαιωμένα', icon: '✅', color: '#10b981' },
-    { id: 'rejected', title: 'Απορριφθέντα', icon: '❌', color: '#ef4444' },
-    { id: 'new_request', title: 'Νέα Αίτηση', icon: '➕', color: '#3b82f6' }
+    { id: 'rejected', title: 'Απορριφθέντα', icon: '❌', color: '#ef4444' }
   ];
 
   const getFilteredNotifications = () => {
@@ -177,30 +176,45 @@ export default function UserNotificationsScreen() {
       </View>
 
       {/* Filter Pills */}
-      <ScrollView 
-        horizontal 
-        showsHorizontalScrollIndicator={false}
-        style={styles.filterPillsContainer}
-        contentContainerStyle={styles.filterPillsContent}
-      >
-        {filters.map((filter, index) => (
+      <View style={styles.filterPillsContainer}>
+        {/* First Row - 3 Filter Pills */}
+        <ScrollView 
+          horizontal 
+          showsHorizontalScrollIndicator={false}
+          style={styles.filterPillsRow}
+          contentContainerStyle={styles.filterPillsContent}
+        >
+          {filters.map((filter, index) => (
+            <TouchableOpacity
+              key={filter.id}
+              style={[
+                styles.filterPill, 
+                { 
+                  backgroundColor: filter.color + '20',
+                  marginRight: index === filters.length - 1 ? 16 : 8
+                }
+              ]}
+              onPress={() => setActiveFilter(filter.id)}
+            >
+              <Text style={[styles.filterPillText, { color: filter.color }]}>
+                {filter.icon} {filter.title}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+        
+        {/* Second Row - New Request Button */}
+        <View style={styles.newRequestRow}>
           <TouchableOpacity
-            key={filter.id}
-            style={[
-              styles.filterPill, 
-              { 
-                backgroundColor: filter.color + '20',
-                marginRight: index === filters.length - 1 ? 16 : 8
-              }
-            ]}
-            onPress={filter.id === 'new_request' ? handleNewRequest : () => setActiveFilter(filter.id)}
+            style={styles.newRequestButton}
+            onPress={handleNewRequest}
           >
-            <Text style={[styles.filterPillText, { color: filter.color }]}>
-              {filter.icon} {filter.title}
+            <Text style={styles.newRequestButtonText}>
+              ➕ Νέα Αίτηση
             </Text>
           </TouchableOpacity>
-        ))}
-      </ScrollView>
+        </View>
+      </View>
 
       {/* Filter Buttons */}
       <View style={styles.filterContainer}>
@@ -288,13 +302,31 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
     borderBottomWidth: 1,
     borderBottomColor: '#f1f3f4',
-    maxHeight: 50,
+  },
+  filterPillsRow: {
+    paddingVertical: 8,
   },
   filterPillsContent: {
     paddingHorizontal: 16,
-    paddingVertical: 12,
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  newRequestRow: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    alignItems: 'center',
+  },
+  newRequestButton: {
+    backgroundColor: '#3b82f6',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 20,
+    alignItems: 'center',
+  },
+  newRequestButtonText: {
+    color: '#ffffff',
+    fontSize: 14,
+    fontWeight: '600',
   },
   filterPill: {
     paddingHorizontal: 12,
