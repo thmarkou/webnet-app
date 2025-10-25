@@ -77,23 +77,23 @@ export default function FriendsScreen() {
   const mockSuggestions = [
     {
       id: '1',
-      name: 'Anna Petrou',
-      profession: 'Nurse',
-      reason: 'Mutual friends: John Smith, Maria Papadopoulou, Alex Johnson',
+      name: 'Άννα Πετρού',
+      profession: 'Νοσοκόμα',
+      reason: 'Κοινός φίλος: Μιχάλης Σκαλτσουνάκης, Μαρία Παπαδοπούλου, Αλέξης Ιωάννου',
       avatar: '👤'
     },
     {
       id: '2',
-      name: 'Tom Wilson',
-      profession: 'Sales Manager',
-      reason: 'You live in the same city',
+      name: 'Θωμάς Γουίλσον',
+      profession: 'Διευθυντής Πωλήσεων',
+      reason: 'Ζείτε στην ίδια πόλη',
       avatar: '👤'
     },
     {
       id: '3',
-      name: 'Lisa Brown',
-      profession: 'Project Manager',
-      reason: 'Mutual friends: John Smith, Maria Papadopoulou, Alex Johnson, Sarah Wilson, Mike Chen',
+      name: 'Λίζα Μπράουν',
+      profession: 'Διευθύντρια Έργων',
+      reason: 'Κοινός φίλος: Μιχάλης Σκαλτσουνάκης, Μαρία Παπαδοπούλου, Αλέξης Ιωάννου, Σάρα Γουίλσον, Μάικ Τσεν',
       avatar: '👤'
     }
   ];
@@ -103,9 +103,36 @@ export default function FriendsScreen() {
     setSuggestions(mockSuggestions);
   }, []);
 
-  const handleAddFriend = (suggestionId) => {
-    // Add friend logic here
-    console.log('Adding friend:', suggestionId);
+  const handleAddFriend = async (suggestionId) => {
+    try {
+      // Find the suggestion to add
+      const suggestion = mockSuggestions.find(s => s.id === suggestionId);
+      if (!suggestion) return;
+
+      // Create new friend from suggestion
+      const newFriend = {
+        id: suggestionId,
+        name: suggestion.name,
+        profession: suggestion.profession,
+        status: 'friend',
+        avatar: suggestion.avatar
+      };
+
+      // Add to friends list
+      setFriends(prevFriends => [...prevFriends, newFriend]);
+      
+      // Remove from suggestions
+      setSuggestions(prevSuggestions => 
+        prevSuggestions.filter(s => s.id !== suggestionId)
+      );
+
+      // Trigger friend request notification
+      await triggerFriendRequestNotification(user.id, suggestionId, suggestion.name);
+
+      console.log('Friend added successfully:', suggestion.name);
+    } catch (error) {
+      console.error('Error adding friend:', error);
+    }
   };
 
   const renderFriend = ({ item }) => {
