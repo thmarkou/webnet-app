@@ -188,10 +188,9 @@ export default function FriendsScreen() {
       !friends.some(friend => friend.name === person.name)
     );
 
-    // Apply search query filter
+    // Apply search query filter - search only by name
     const mockSearchResults = availableResults.filter(person => 
-      person.name.toLowerCase().includes(query.toLowerCase()) ||
-      person.profession.toLowerCase().includes(query.toLowerCase())
+      person.name.toLowerCase().includes(query.toLowerCase())
     );
 
     setSearchResults(mockSearchResults);
