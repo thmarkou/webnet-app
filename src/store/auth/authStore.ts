@@ -59,7 +59,7 @@ export const useAuthStore = create<AuthState & AuthActions>((set, get) => ({
       } else if (email === 'admin@demo.com') {
         mockUser = {
           id: 'admin1',
-          name: 'Θεοφάης Μάρκου',
+          name: 'Fabio Marcoulini',
           email: email,
           phone: '+30 210 1234567',
           role: 'admin',
