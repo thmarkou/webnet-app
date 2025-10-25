@@ -425,22 +425,17 @@ export default function FindProfessionalsScreen() {
       // Get friend recommendations for current search
       const mockFriendsList = ['user2', 'user3', '1', '3']; // Mock friends list (Μαρία, Γιάννης, Άννα, Λίζα)
       
-      // Only get friend recommendations if there are actual filters applied
-      let friendRecs = [];
-      if (selectedCategory || selectedCity || searchQuery) {
-        friendRecs = recommendationService.getRecommendationsForSearch(
-          user?.id || 'user1',
-          mockFriendsList,
-          selectedCategory || searchQuery,
-          selectedCity || ''
-        );
-      } else {
-        // When no filters, get ALL friend recommendations (not filtered by profession/city)
-        friendRecs = recommendationService.getFriendsRecommendationsForUser(
-          user?.id || 'user1',
-          mockFriendsList
-        );
-      }
+      // Always get ALL friend recommendations first
+      const allFriendRecs = recommendationService.getFriendsRecommendationsForUser(
+        user?.id || 'user1',
+        mockFriendsList
+      );
+      
+      // Then filter them based on the current search results
+      const friendRecs = allFriendRecs.filter(rec => 
+        filtered.some(prof => prof.id === rec.professionalId)
+      );
+      
       setFriendRecommendations(friendRecs);
       
       // Debug logging
