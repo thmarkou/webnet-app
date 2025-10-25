@@ -102,6 +102,20 @@ export default function UserNotificationsScreen() {
     navigation.navigate('FindProfessionals');
   };
 
+  const handleMarkAllAsRead = async () => {
+    try {
+      // Mark all notifications as read in the backend
+      await markAllNotificationsAsRead(user.id);
+      
+      // Update local state to mark all as read
+      notifications.forEach(notif => {
+        markAsRead(notif.id);
+      });
+    } catch (error) {
+      console.error('Error marking all notifications as read:', error);
+    }
+  };
+
   const handleNotificationPress = async (notification) => {
     // Mark as read in Firebase
     try {
@@ -234,7 +248,10 @@ export default function UserNotificationsScreen() {
             Διαβάστηκαν ({unreadCount})
           </Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.markAllButton}>
+        <TouchableOpacity 
+          style={styles.markAllButton}
+          onPress={handleMarkAllAsRead}
+        >
           <Text style={styles.markAllText}>Σημείωση όλων ως διαβασμένες</Text>
           <Text style={styles.markAllIcon}>✓</Text>
         </TouchableOpacity>
