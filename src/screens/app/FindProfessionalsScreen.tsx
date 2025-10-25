@@ -469,7 +469,7 @@ export default function FindProfessionalsScreen() {
       </View>
     </TouchableOpacity>
   );
-
+};
 
   return (
     <SafeAreaView style={styles.container}>
