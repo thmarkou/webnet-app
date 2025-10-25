@@ -278,6 +278,7 @@ export default function FindProfessionalsScreen() {
   ];
 
   useEffect(() => {
+    console.log('Categories available:', categories.map(c => c.name));
     filterProfessionals();
   }, [searchQuery, selectedCategory, selectedCity, minRating, sortBy]);
 
