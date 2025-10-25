@@ -191,31 +191,26 @@ export default function UserNotificationsScreen() {
 
       {/* Filter Pills */}
       <View style={styles.filterPillsContainer}>
-        {/* First Row - 3 Filter Pills */}
-        <ScrollView 
-          horizontal 
-          showsHorizontalScrollIndicator={false}
-          style={styles.filterPillsRow}
-          contentContainerStyle={styles.filterPillsContent}
-        >
+        {/* First Row - 3 Filter Pills - Aligned with blue buttons */}
+        <View style={styles.filterPillsRow}>
           {filters.map((filter, index) => (
             <TouchableOpacity
               key={filter.id}
               style={[
                 styles.filterPill, 
-                { 
-                  backgroundColor: filter.color + '20',
-                  marginRight: index === filters.length - 1 ? 16 : 8
-                }
+                { backgroundColor: filter.color + '20' }
               ]}
               onPress={() => setActiveFilter(filter.id)}
             >
-              <Text style={[styles.filterPillText, { color: filter.color }]}>
+              <Text 
+                style={[styles.filterPillText, { color: filter.color }]}
+                numberOfLines={1}
+              >
                 {filter.icon} {filter.title}
               </Text>
             </TouchableOpacity>
           ))}
-        </ScrollView>
+        </View>
         
         {/* Second Row - New Request Button */}
         <View style={styles.newRequestRow}>
@@ -323,11 +318,10 @@ const styles = StyleSheet.create({
     borderBottomColor: '#f1f3f4',
   },
   filterPillsRow: {
-    paddingVertical: 8,
-  },
-  filterPillsContent: {
-    paddingHorizontal: 16,
     flexDirection: 'row',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    justifyContent: 'space-between',
     alignItems: 'center',
   },
   newRequestRow: {
@@ -348,14 +342,21 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   filterPill: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 16,
-    marginRight: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flex: 1,
+    marginHorizontal: 4,
+    minHeight: 36,
+    width: '30%',
   },
   filterPillText: {
     fontSize: 12,
     fontWeight: '600',
+    textAlign: 'center',
+    numberOfLines: 1,
   },
   filterContainer: {
     backgroundColor: '#ffffff',
