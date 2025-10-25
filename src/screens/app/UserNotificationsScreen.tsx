@@ -53,6 +53,7 @@ export default function UserNotificationsScreen() {
   }, [user?.id]);
 
   const filters = [
+    { id: 'pending', title: 'Εκκρεμεί', icon: '⏳', color: '#f59e0b' },
     { id: 'confirmed', title: 'Επιβεβαιωμένα', icon: '✅', color: '#10b981' },
     { id: 'rejected', title: 'Απορριφθέντα', icon: '❌', color: '#ef4444' },
     { id: 'new_request', title: 'Νέα Αίτηση', icon: '➕', color: '#3b82f6' }
@@ -68,6 +69,15 @@ export default function UserNotificationsScreen() {
         );
       case 'friends':
         return notifications.filter(notif => notif.type.includes('friend'));
+      case 'pending':
+        return notifications.filter(notif => 
+          notif.type === 'appointment_request' || 
+          notif.type === 'friend_request' ||
+          notif.title.toLowerCase().includes('αίτημα') ||
+          notif.title.toLowerCase().includes('request') ||
+          notif.title.toLowerCase().includes('εκκρεμεί') ||
+          notif.title.toLowerCase().includes('pending')
+        );
       case 'confirmed':
         return notifications.filter(notif => 
           notif.type === 'appointment_confirmed' || 
