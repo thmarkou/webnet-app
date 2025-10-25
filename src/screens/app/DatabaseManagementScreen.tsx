@@ -261,6 +261,26 @@ export default function DatabaseManagementScreen() {
           {managementActions.map(renderAction)}
         </View>
 
+        {/* Admin Management */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Διαχείριση Περιεχομένου</Text>
+          <TouchableOpacity
+            style={styles.adminManagementCard}
+            onPress={() => navigation.navigate('AdminManagement')}
+          >
+            <View style={styles.adminManagementContent}>
+              <Text style={styles.adminManagementIcon}>⚙️</Text>
+              <View style={styles.adminManagementInfo}>
+                <Text style={styles.adminManagementTitle}>Διαχείριση Επαγγελμάτων & Πόλεων</Text>
+                <Text style={styles.adminManagementDescription}>
+                  Προσθήκη, επεξεργασία και διαγραφή επαγγελμάτων και πόλεων
+                </Text>
+              </View>
+              <Text style={styles.adminManagementArrow}>→</Text>
+            </View>
+          </TouchableOpacity>
+        </View>
+
         {/* Information Section */}
         <View style={styles.infoSection}>
           <Text style={styles.infoTitle}>Πληροφορίες</Text>
@@ -519,5 +539,46 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: '#1f2937',
+  },
+  adminManagementCard: {
+    backgroundColor: '#ffffff',
+    borderRadius: 12,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
+    borderLeftWidth: 4,
+    borderLeftColor: '#3b82f6',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  adminManagementContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  adminManagementIcon: {
+    fontSize: 24,
+    marginRight: 12,
+  },
+  adminManagementInfo: {
+    flex: 1,
+  },
+  adminManagementTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1f2937',
+    marginBottom: 4,
+  },
+  adminManagementDescription: {
+    fontSize: 14,
+    color: '#6b7280',
+    lineHeight: 20,
+  },
+  adminManagementArrow: {
+    fontSize: 18,
+    color: '#3b82f6',
+    fontWeight: '600',
   },
 });

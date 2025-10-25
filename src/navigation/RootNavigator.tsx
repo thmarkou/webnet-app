@@ -26,6 +26,7 @@ import RateProfessionalScreen from '../screens/app/RateProfessionalScreen';
 import UpdateServiceDetailsScreen from '../screens/app/UpdateServiceDetailsScreen';
 import DatabaseManagementScreen from '../screens/app/DatabaseManagementScreen';
 import AdminDashboardScreen from '../screens/app/AdminDashboardScreen';
+import AdminManagementScreen from '../screens/app/AdminManagementScreen';
 import FindProfessionalsScreen from '../screens/app/FindProfessionalsScreen';
 import FriendsScreen from '../screens/app/FriendsScreen';
 
@@ -153,16 +154,21 @@ export default function RootNavigator() {
             component={UpdateServiceDetailsScreen}
             options={{ headerShown: false }}
           />
-          <Stack.Screen 
-            name="DatabaseManagement" 
-            component={DatabaseManagementScreen}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen 
-            name="AdminDashboard" 
-            component={AdminDashboardScreen}
-            options={{ headerShown: false }}
-          />
+        <Stack.Screen
+          name="DatabaseManagement"
+          component={DatabaseManagementScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="AdminDashboard"
+          component={AdminDashboardScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="AdminManagement"
+          component={AdminManagementScreen}
+          options={{ headerShown: false }}
+        />
           <Stack.Screen 
             name="FindProfessionals" 
             component={FindProfessionalsScreen}
