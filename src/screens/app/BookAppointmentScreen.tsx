@@ -2,24 +2,41 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, TextInput, StyleSheet, SafeAreaView, ScrollView, Alert } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { triggerAppointmentNotification } from '../../services/notifications/mockNotifications';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 export default function BookAppointmentScreen() {
   const navigation = useNavigation();
   const route = useRoute();
   const { professional } = route.params || {};
   
-  const [selectedDate, setSelectedDate] = useState('');
+  const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedTime, setSelectedTime] = useState('');
   const [service, setService] = useState('');
   const [repair, setRepair] = useState('');
   const [notes, setNotes] = useState('');
+  const [showDatePicker, setShowDatePicker] = useState(false);
 
   const timeSlots = [
     '09:00', '10:00', '11:00', '12:00', '14:00', '15:00', '16:00', '17:00'
   ];
 
+  const handleDateChange = (event, selectedDate) => {
+    setShowDatePicker(false);
+    if (selectedDate) {
+      setSelectedDate(selectedDate);
+    }
+  };
+
+  const formatDate = (date) => {
+    return date.toLocaleDateString('el-GR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
+  };
+
   const handleBookAppointment = async () => {
-    if (!selectedDate || !selectedTime || !service || !repair) {
+    if (!selectedTime || !service || !repair) {
       Alert.alert('Σφάλμα', 'Παρακαλώ συμπληρώστε όλα τα απαραίτητα πεδία');
       return;
     }
@@ -31,7 +48,7 @@ export default function BookAppointmentScreen() {
         id: Date.now().toString(),
         professionalName: professional?.name || 'Επαγγελματίας',
         serviceName: service,
-        date: `${selectedDate} στις ${selectedTime}`
+        date: `${formatDate(selectedDate)} στις ${selectedTime}`
       },
       professional?.id || 'pro1', // Professional's ID
       'user1' // User's ID
@@ -53,7 +70,7 @@ export default function BookAppointmentScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Text style={styles.backButtonText}>← Πίσω</Text>
+          <Text style={styles.backButtonText}>←</Text>
         </TouchableOpacity>
         <Text style={styles.title}>Κλείσε Ραντεβού</Text>
       </View>
@@ -74,12 +91,24 @@ export default function BookAppointmentScreen() {
             
             <View style={styles.inputGroup}>
               <Text style={styles.label}>Ημερομηνία *</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="Επιλέξτε ημερομηνία"
-                value={selectedDate}
-                onChangeText={setSelectedDate}
-              />
+              <TouchableOpacity 
+                style={styles.dateButton}
+                onPress={() => setShowDatePicker(true)}
+              >
+                <Text style={styles.dateButtonText}>
+                  {formatDate(selectedDate)}
+                </Text>
+                <Text style={styles.dateButtonIcon}>📅</Text>
+              </TouchableOpacity>
+              {showDatePicker && (
+                <DateTimePicker
+                  value={selectedDate}
+                  mode="date"
+                  display="default"
+                  onChange={handleDateChange}
+                  minimumDate={new Date()}
+                />
+              )}
             </View>
 
             <View style={styles.inputGroup}>
@@ -153,7 +182,7 @@ export default function BookAppointmentScreen() {
               </View>
               <View style={styles.summaryRow}>
                 <Text style={styles.summaryLabel}>Ημερομηνία:</Text>
-                <Text style={styles.summaryValue}>{selectedDate || 'Δεν επιλέχθηκε'}</Text>
+                <Text style={styles.summaryValue}>{formatDate(selectedDate)}</Text>
               </View>
               <View style={styles.summaryRow}>
                 <Text style={styles.summaryLabel}>Ώρα:</Text>
@@ -344,5 +373,23 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 18,
     fontWeight: 'bold',
+  },
+  dateButton: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    paddingHorizontal: 15,
+    paddingVertical: 12,
+    backgroundColor: '#f9f9f9',
+  },
+  dateButtonText: {
+    fontSize: 16,
+    color: '#333',
+  },
+  dateButtonIcon: {
+    fontSize: 18,
   },
 });
