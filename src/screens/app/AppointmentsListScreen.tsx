@@ -16,9 +16,9 @@ export default function AppointmentsListScreen() {
   const [appointments, setAppointments] = useState([]);
 
   const tabs = [
-    { id: 'upcoming', title: 'Upcoming' },
-    { id: 'pending', title: 'Pending' },
-    { id: 'past', title: 'Past' }
+    { id: 'upcoming', title: 'Επερχόμενα' },
+    { id: 'pending', title: 'Εκκρεμή' },
+    { id: 'past', title: 'Παρελθόντα' }
   ];
 
   const mockAppointments = [
@@ -26,33 +26,33 @@ export default function AppointmentsListScreen() {
       id: '1',
       professional: 'George Papadopoulos',
       phone: '+30 123 456 7890',
-      profession: 'Plumber',
-      day: 'Monday, 2024-01-15',
+      profession: 'Υδραυλικός',
+      day: 'Δευτέρα, 15/01/2024',
       time: '10:00',
-      service: 'Plumbing Repair',
-      repair: 'Kitchen sink leak repair',
-      town: 'Athens',
-      country: 'Greece',
-      duration: '60 minutes',
+      service: 'Επισκευή Υδραυλικών',
+      repair: 'Επισκευή διαρροής νεροχύτη κουζίνας',
+      town: 'Αθήνα',
+      country: 'Ελλάδα',
+      duration: '60 λεπτά',
       price: '€80',
       status: 'pending',
-      notes: 'Kitchen sink leak'
+      notes: 'Διαρροή νεροχύτη κουζίνας'
     },
     {
       id: '2',
       professional: 'Maria Konstantinou',
       phone: '+30 987 654 3210',
-      profession: 'Electrician',
-      day: 'Tuesday, 2024-01-16',
+      profession: 'Ηλεκτρολόγος',
+      day: 'Τρίτη, 16/01/2024',
       time: '14:00',
-      service: 'Electrical Installation',
-      repair: 'Smart home system installation',
-      town: 'Athens',
-      country: 'Greece',
-      duration: '120 minutes',
+      service: 'Ηλεκτρικές Εγκαταστάσεις',
+      repair: 'Εγκατάσταση έξυπνου συστήματος σπιτιού',
+      town: 'Αθήνα',
+      country: 'Ελλάδα',
+      duration: '120 λεπτά',
       price: '€150',
       status: 'confirmed',
-      notes: 'Need to install smart switches'
+      notes: 'Χρειάζεται εγκατάσταση έξυπνων διακοπτών'
     }
   ];
 
@@ -80,7 +80,7 @@ export default function AppointmentsListScreen() {
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>PROFESSIONAL DETAILS</Text>
+        <Text style={styles.sectionTitle}>ΣΤΟΙΧΕΙΑ ΕΠΑΓΓΕΛΜΑΤΙΑ</Text>
         <View style={styles.detailRow}>
           <Text style={styles.detailIcon}>👤</Text>
           <Text style={styles.detailValue}>{item.professional}</Text>
@@ -96,7 +96,7 @@ export default function AppointmentsListScreen() {
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>APPOINTMENT DETAILS</Text>
+        <Text style={styles.sectionTitle}>ΣΤΟΙΧΕΙΑ ΡΑΝΤΕΒΟΥ</Text>
         <View style={styles.detailRow}>
           <Text style={styles.detailIcon}>📅</Text>
           <Text style={styles.detailValue}>{item.day}</Text>
@@ -116,7 +116,7 @@ export default function AppointmentsListScreen() {
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>LOCATION</Text>
+        <Text style={styles.sectionTitle}>ΤΟΠΟΘΕΣΙΑ</Text>
         <View style={styles.detailRow}>
           <Text style={styles.detailIcon}>📍</Text>
           <Text style={styles.detailValue}>{item.town}, {item.country}</Text>
@@ -124,7 +124,7 @@ export default function AppointmentsListScreen() {
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>SERVICE DETAILS</Text>
+        <Text style={styles.sectionTitle}>ΣΤΟΙΧΕΙΑ ΥΠΗΡΕΣΙΑΣ</Text>
         <View style={styles.detailRow}>
           <Text style={styles.detailIcon}>⏱️</Text>
           <Text style={styles.detailValue}>{item.duration}</Text>
@@ -137,7 +137,7 @@ export default function AppointmentsListScreen() {
 
       {item.notes && (
         <View style={styles.notesSection}>
-          <Text style={styles.notesLabel}>Notes:</Text>
+          <Text style={styles.notesLabel}>Σημειώσεις:</Text>
           <Text style={styles.notesText}>{item.notes}</Text>
         </View>
       )}
@@ -145,7 +145,7 @@ export default function AppointmentsListScreen() {
       {item.status === 'pending' && (
         <View style={styles.statusBanner}>
           <Text style={styles.statusBannerIcon}>⏳</Text>
-          <Text style={styles.statusBannerText}>Waiting for professional to confirm your appointment.</Text>
+          <Text style={styles.statusBannerText}>Αναμονή επιβεβαίωσης ραντεβού από τον επαγγελματία.</Text>
         </View>
       )}
     </View>
@@ -162,10 +162,10 @@ export default function AppointmentsListScreen() {
 
   const getStatusText = (status) => {
     switch (status) {
-      case 'pending': return 'Pending';
-      case 'confirmed': return 'Confirmed';
-      case 'completed': return 'Completed';
-      default: return 'Unknown';
+      case 'pending': return 'Εκκρεμές';
+      case 'confirmed': return 'Επιβεβαιωμένο';
+      case 'completed': return 'Ολοκληρωμένο';
+      default: return 'Άγνωστο';
     }
   };
 
@@ -177,7 +177,7 @@ export default function AppointmentsListScreen() {
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
           <Text style={styles.backButtonText}>←</Text>
         </TouchableOpacity>
-        <Text style={styles.title}>My Appointments</Text>
+        <Text style={styles.title}>Τα Ραντεβού Μου</Text>
       </View>
 
       <View style={styles.tabContainer}>
@@ -202,8 +202,8 @@ export default function AppointmentsListScreen() {
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
             <Text style={styles.emptyIcon}>📅</Text>
-            <Text style={styles.emptyTitle}>No upcoming appointments.</Text>
-            <Text style={styles.emptySubtitle}>You have no upcoming appointments.</Text>
+            <Text style={styles.emptyTitle}>Δεν υπάρχουν επερχόμενα ραντεβού.</Text>
+            <Text style={styles.emptySubtitle}>Δεν έχετε επερχόμενα ραντεβού.</Text>
           </View>
         }
       />
