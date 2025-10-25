@@ -53,9 +53,9 @@ export default function UserNotificationsScreen() {
   }, [user?.id]);
 
   const filters = [
-    { id: 'confirmed', title: 'Confirmed', icon: '✅', color: '#10b981' },
-    { id: 'rejected', title: 'Rejected', icon: '❌', color: '#ef4444' },
-    { id: 'new_request', title: 'New Request', icon: '➕', color: '#3b82f6' }
+    { id: 'confirmed', title: 'Επιβεβαιωμένα', icon: '✅', color: '#10b981' },
+    { id: 'rejected', title: 'Απορριφθέντα', icon: '❌', color: '#ef4444' },
+    { id: 'new_request', title: 'Νέα Αίτηση', icon: '➕', color: '#3b82f6' }
   ];
 
   const getFilteredNotifications = () => {
@@ -71,6 +71,11 @@ export default function UserNotificationsScreen() {
       default:
         return notifications;
     }
+  };
+
+  const handleNewRequest = () => {
+    // Navigate to Find Professionals screen to make a new request
+    navigation.navigate('FindProfessionals');
   };
 
   const handleNotificationPress = async (notification) => {
@@ -138,7 +143,7 @@ export default function UserNotificationsScreen() {
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
           <Text style={styles.backButtonText}>←</Text>
         </TouchableOpacity>
-        <Text style={styles.title}>Notifications</Text>
+        <Text style={styles.title}>Ειδοποιήσεις</Text>
         {unreadCount > 0 && (
           <View style={styles.badge}>
             <Text style={styles.badgeText}>{unreadCount}</Text>
@@ -152,7 +157,7 @@ export default function UserNotificationsScreen() {
           <TouchableOpacity
             key={filter.id}
             style={[styles.filterPill, { backgroundColor: filter.color + '20' }]}
-            onPress={() => setActiveFilter(filter.id)}
+            onPress={filter.id === 'new_request' ? handleNewRequest : () => setActiveFilter(filter.id)}
           >
             <Text style={[styles.filterPillText, { color: filter.color }]}>
               {filter.icon} {filter.title}
@@ -168,7 +173,7 @@ export default function UserNotificationsScreen() {
           onPress={() => setActiveFilter('all')}
         >
           <Text style={[styles.filterText, activeFilter === 'all' && styles.activeFilterText]}>
-            All
+            Όλες
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
@@ -176,11 +181,11 @@ export default function UserNotificationsScreen() {
           onPress={() => setActiveFilter('unread')}
         >
           <Text style={[styles.filterText, activeFilter === 'unread' && styles.activeFilterText]}>
-            Unread ({unreadCount})
+            Διαβάστηκαν ({unreadCount})
           </Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.markAllButton}>
-          <Text style={styles.markAllText}>Mark all as read</Text>
+          <Text style={styles.markAllText}>Σημείωση όλων ως διαβασμένες</Text>
           <Text style={styles.markAllIcon}>✓</Text>
         </TouchableOpacity>
       </View>
@@ -192,7 +197,7 @@ export default function UserNotificationsScreen() {
         contentContainerStyle={styles.listContainer}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText}>No notifications</Text>
+            <Text style={styles.emptyText}>Δεν υπάρχουν ειδοποιήσεις</Text>
           </View>
         }
       />
