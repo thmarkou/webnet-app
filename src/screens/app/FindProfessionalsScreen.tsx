@@ -443,26 +443,44 @@ export default function FindProfessionalsScreen() {
       }
       setFriendRecommendations(friendRecs);
       
-      // Sort results with friend recommendations first
+      // Sort results with friend recommendations first, then by selected criteria
       filtered.sort((a, b) => {
         const aIsRecommended = friendRecs.some(rec => rec.professionalId === a.id);
         const bIsRecommended = friendRecs.some(rec => rec.professionalId === b.id);
         
-        // Friend recommendations come first
+        // Friend recommendations ALWAYS come first (regardless of sorting)
         if (aIsRecommended && !bIsRecommended) return -1;
         if (!aIsRecommended && bIsRecommended) return 1;
         
-        // Then sort by selected criteria
-        switch (sortBy) {
-          case 'rating':
-            return b.rating - a.rating;
-          case 'distance':
-            return parseFloat(a.distance) - parseFloat(b.distance);
-          case 'price':
-            return parseFloat(a.price.replace(/[€-]/g, '')) - parseFloat(b.price.replace(/[€-]/g, ''));
-          default:
-            return 0;
+        // If both are friend recommendations, sort them by selected criteria
+        if (aIsRecommended && bIsRecommended) {
+          switch (sortBy) {
+            case 'rating':
+              return b.rating - a.rating;
+            case 'distance':
+              return parseFloat(a.distance) - parseFloat(b.distance);
+            case 'price':
+              return parseFloat(a.price.replace(/[€-]/g, '')) - parseFloat(b.price.replace(/[€-]/g, ''));
+            default:
+              return 0;
+          }
         }
+        
+        // If neither are friend recommendations, sort by selected criteria
+        if (!aIsRecommended && !bIsRecommended) {
+          switch (sortBy) {
+            case 'rating':
+              return b.rating - a.rating;
+            case 'distance':
+              return parseFloat(a.distance) - parseFloat(b.distance);
+            case 'price':
+              return parseFloat(a.price.replace(/[€-]/g, '')) - parseFloat(b.price.replace(/[€-]/g, ''));
+            default:
+              return 0;
+          }
+        }
+        
+        return 0;
       });
       
       setProfessionals(filtered);
