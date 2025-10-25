@@ -213,9 +213,12 @@ export default function AppointmentsListScreen() {
               ]}
               onPress={() => setActiveTab(tab.id)}
             >
-              <Text style={[styles.tabPillText, { color: getTabColor(tab.id) }]}>
-                {getTabIcon(tab.id)} {tab.title}
-              </Text>
+              <View style={styles.tabPillContent}>
+                <Text style={styles.tabPillIcon}>{getTabIcon(tab.id)}</Text>
+                <Text style={[styles.tabPillText, { color: getTabColor(tab.id) }]}>
+                  {tab.title}
+                </Text>
+              </View>
             </TouchableOpacity>
           ))}
         </View>
@@ -289,8 +292,16 @@ const styles = StyleSheet.create({
     flex: 1,
     marginHorizontal: 4,
   },
+  tabPillContent: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  tabPillIcon: {
+    fontSize: 16,
+    marginBottom: 2,
+  },
   tabPillText: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: '600',
     textAlign: 'center',
     numberOfLines: 1,
