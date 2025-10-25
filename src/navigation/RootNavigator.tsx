@@ -27,6 +27,7 @@ import UpdateServiceDetailsScreen from '../screens/app/UpdateServiceDetailsScree
 import DatabaseManagementScreen from '../screens/app/DatabaseManagementScreen';
 import AdminDashboardScreen from '../screens/app/AdminDashboardScreen';
 import FindProfessionalsScreen from '../screens/app/FindProfessionalsScreen';
+import FriendsScreen from '../screens/app/FriendsScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -170,6 +171,11 @@ export default function RootNavigator() {
           <Stack.Screen 
             name="ProfessionalRegistration" 
             component={ProfessionalRegistrationForm}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen 
+            name="Friends" 
+            component={FriendsScreen}
             options={{ headerShown: false }}
           />
         </>
