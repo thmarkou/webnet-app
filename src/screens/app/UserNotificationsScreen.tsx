@@ -68,6 +68,20 @@ export default function UserNotificationsScreen() {
         );
       case 'friends':
         return notifications.filter(notif => notif.type.includes('friend'));
+      case 'confirmed':
+        return notifications.filter(notif => 
+          notif.type === 'appointment_confirmed' || 
+          notif.type === 'friend_request_accepted' ||
+          notif.title.toLowerCase().includes('επιβεβαιωμένο') ||
+          notif.title.toLowerCase().includes('confirmed')
+        );
+      case 'rejected':
+        return notifications.filter(notif => 
+          notif.type === 'appointment_rejected' || 
+          notif.type === 'friend_request_rejected' ||
+          notif.title.toLowerCase().includes('απορριφθέν') ||
+          notif.title.toLowerCase().includes('rejected')
+        );
       default:
         return notifications;
     }
