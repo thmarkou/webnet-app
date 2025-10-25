@@ -13,6 +13,7 @@ import { useAuthStore } from '../../store/auth/authStore';
 import { useNotificationStore } from '../../store/notifications/notificationStore';
 import { getUnreadMessageCount } from '../../services/messaging/mockMessaging';
 import { fetchUserNotifications } from '../../services/notifications/mockNotifications';
+import { isSubscriptionEnabled } from '../../config/subscription';
 import TrialNotification from '../../components/TrialNotification';
 
 export default function HomeScreen() {
@@ -124,8 +125,10 @@ export default function HomeScreen() {
         <Text style={styles.userName}>{user?.name || 'Χρήστη'}</Text>
       </View>
       
-      {/* Trial Notification */}
-      <TrialNotification onUpgradePress={() => navigation.navigate('Subscription')} />
+      {/* Trial Notification - Only show if subscription system is enabled */}
+      {isSubscriptionEnabled() && (
+        <TrialNotification onUpgradePress={() => navigation.navigate('Subscription')} />
+      )}
       
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         {/* Action Cards */}

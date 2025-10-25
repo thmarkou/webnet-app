@@ -1,5 +1,6 @@
 import { trialService } from './trialService';
 import { useSubscriptionStore } from '../../store/subscription/subscriptionStore';
+import { isSubscriptionEnabled } from '../../config/subscription';
 
 class TrialBackgroundService {
   private intervalId: NodeJS.Timeout | null = null;
@@ -7,6 +8,12 @@ class TrialBackgroundService {
 
   // Start the background service
   start() {
+    // Check if subscription system is enabled
+    if (!isSubscriptionEnabled()) {
+      console.log('Subscription system is disabled - trial background service not started');
+      return;
+    }
+
     if (this.isRunning) {
       console.log('Trial background service is already running');
       return;
@@ -147,4 +154,5 @@ export const trialBackgroundService = new TrialBackgroundService();
 
 // Auto-start the service when the module is imported
 // In a real app, you would start this in your app initialization
-trialBackgroundService.start();
+// DISABLED FOR DEVELOPMENT - Will be enabled for production deployment
+// trialBackgroundService.start();
