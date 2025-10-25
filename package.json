@@ -10,6 +10,7 @@
     "android:install": "./scripts/buildAndroid.sh --install",
     "android:clean": "./scripts/buildAndroid.sh --clean",
     "android:setup": "./scripts/setupAndroid.sh",
+    "fix:metro": "./scripts/fixMetro.sh",
     "ios": "expo run:ios",
     "web": "expo start --web",
     "db:init": "ts-node scripts/initRealData.ts",
