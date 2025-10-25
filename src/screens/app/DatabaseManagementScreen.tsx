@@ -41,7 +41,7 @@ export default function DatabaseManagementScreen() {
           </Text>
           <TouchableOpacity 
             style={styles.backToHomeButton}
-            onPress={() => navigation.navigate('Home')}
+            onPress={() => navigation.navigate('MainTabs', { screen: 'Home' })}
           >
             <Text style={styles.backToHomeButtonText}>Επιστροφή στην Αρχική</Text>
           </TouchableOpacity>
