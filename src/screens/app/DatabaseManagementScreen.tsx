@@ -187,6 +187,22 @@ export default function DatabaseManagementScreen() {
       color: '#f59e0b',
       onPress: handleResetApp,
     },
+    {
+      id: 'trial',
+      title: 'Διαχείριση Δοκιμών',
+      description: 'Διαχείριση δωρεάν δοκιμών χρηστών',
+      icon: '⏰',
+      color: '#10b981',
+      onPress: () => navigation.navigate('TrialManagement'),
+    },
+    {
+      id: 'recommendations',
+      title: 'Διαχείριση Συστάσεων',
+      description: 'Διαχείριση συστάσεων επαγγελματιών από φίλους',
+      icon: '👥',
+      color: '#8b5cf6',
+      onPress: () => navigation.navigate('RecommendationManagement'),
+    },
   ];
 
   const renderAction = (action) => (

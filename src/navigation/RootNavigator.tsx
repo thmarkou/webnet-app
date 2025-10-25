@@ -27,6 +27,8 @@ import UpdateServiceDetailsScreen from '../screens/app/UpdateServiceDetailsScree
 import DatabaseManagementScreen from '../screens/app/DatabaseManagementScreen';
 import AdminDashboardScreen from '../screens/app/AdminDashboardScreen';
 import AdminManagementScreen from '../screens/app/AdminManagementScreen';
+import TrialManagementScreen from '../screens/app/TrialManagementScreen';
+import RecommendationManagementScreen from '../screens/app/RecommendationManagementScreen';
 import SubscriptionScreen from '../screens/app/SubscriptionScreen';
 import PaymentMethodsScreen from '../screens/app/PaymentMethodsScreen';
 import FindProfessionalsScreen from '../screens/app/FindProfessionalsScreen';
@@ -169,6 +171,16 @@ export default function RootNavigator() {
         <Stack.Screen
           name="AdminManagement"
           component={AdminManagementScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="TrialManagement"
+          component={TrialManagementScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="RecommendationManagement"
+          component={RecommendationManagementScreen}
           options={{ headerShown: false }}
         />
         <Stack.Screen

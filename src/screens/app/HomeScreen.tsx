@@ -13,6 +13,7 @@ import { useAuthStore } from '../../store/auth/authStore';
 import { useNotificationStore } from '../../store/notifications/notificationStore';
 import { getUnreadMessageCount } from '../../services/messaging/mockMessaging';
 import { fetchUserNotifications } from '../../services/notifications/mockNotifications';
+import TrialNotification from '../../components/TrialNotification';
 
 export default function HomeScreen() {
   const navigation = useNavigation();
@@ -122,6 +123,9 @@ export default function HomeScreen() {
         <Text style={styles.welcomeText}>Καλώς ήρθατε,</Text>
         <Text style={styles.userName}>{user?.name || 'Χρήστη'}</Text>
       </View>
+      
+      {/* Trial Notification */}
+      <TrialNotification onUpgradePress={() => navigation.navigate('Subscription')} />
       
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         {/* Action Cards */}

@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { SubscriptionPlan, UserSubscription, SubscriptionFeature, PaymentMethod, SubscriptionState } from '../../types/subscription';
+import { trialService, TrialUser, TrialNotification } from '../../services/subscription/trialService';
 
 interface SubscriptionActions {
   // Subscription Plans
@@ -21,6 +22,15 @@ interface SubscriptionActions {
   // Features
   fetchFeatures: () => Promise<void>;
   checkFeatureAccess: (featureId: string) => boolean;
+  
+  // Trial Management
+  initializeTrial: (userId: string, email: string, name: string) => UserSubscription;
+  checkTrialExpirations: () => TrialNotification[];
+  getTrialUser: (userId: string) => TrialUser | null;
+  convertTrialToPaid: (userId: string, planId: string, paymentMethodId: string) => UserSubscription;
+  getTrialNotifications: (userId: string) => TrialNotification[];
+  isTrialExpired: (userId: string) => boolean;
+  getTrialDaysRemaining: (userId: string) => number;
   
   // Utility
   setLoading: (loading: boolean) => void;
@@ -48,71 +58,38 @@ export const useSubscriptionStore = create<SubscriptionState & SubscriptionActio
         {
           id: 'free',
           name: 'Δωρεάν',
-          description: 'Βασικές λειτουργίες για προσωπική χρήση',
+          description: '3 μήνες απεριόριστη πρόσβαση',
           price: 0,
           currency: 'EUR',
           interval: 'monthly',
+          duration: 90, // 90 days (3 months)
           features: [
-            'Μέχρι 3 ραντεβού το μήνα',
-            'Βασική αναζήτηση επαγγελματιών',
-            'Αξιολογήσεις και σχόλια',
-            'Ειδοποιήσεις εφαρμογής'
+            'Απεριόριστα ραντεβού',
+            'Αναζήτηση επαγγελματιών',
+            'Αξιολογήσεις και κριτικές',
+            'Ειδοποιήσεις εφαρμογής',
+            '3 μήνες δωρεάν πρόσβαση'
           ],
           icon: '🆓'
         },
         {
           id: 'premium',
           name: 'Premium',
-          description: 'Για ενεργούς χρήστες που χρειάζονται περισσότερα ραντεβού',
+          description: 'Απεριόριστη πρόσβαση με €9.99/μήνα',
           price: 9.99,
           currency: 'EUR',
           interval: 'monthly',
           features: [
             'Απεριόριστα ραντεβού',
-            'Προηγμένη αναζήτηση με φίλτρα',
-            'Προτεραιότητα σε αναζητήσεις',
-            'Αποκλειστικά προσφορές',
-            'Συμβουλευτική υπηρεσία',
-            'Αναφορές και στατιστικά'
+            'Αναζήτηση επαγγελματιών',
+            'Αξιολογήσεις και κριτικές',
+            'Ειδοποιήσεις εφαρμογής',
+            'Προτεραιότητα στην αναζήτηση',
+            'Αποκλειστικές προσφορές',
+            'Συμβουλευτική υποστήριξη'
           ],
           isPopular: true,
           icon: '⭐'
-        },
-        {
-          id: 'professional',
-          name: 'Professional',
-          description: 'Για επαγγελματίες που θέλουν να αναπτύξουν την επιχείρησή τους',
-          price: 19.99,
-          currency: 'EUR',
-          interval: 'monthly',
-          features: [
-            'Όλες οι λειτουργίες Premium',
-            'Διαχείριση πελατών',
-            'Ημερολόγιο ραντεβού',
-            'Αναφορές εσόδων',
-            'Μάρκετινγκ εργαλεία',
-            'Τεχνική υποστήριξη',
-            'Προσαρμοσμένο προφίλ'
-          ],
-          icon: '💼'
-        },
-        {
-          id: 'enterprise',
-          name: 'Enterprise',
-          description: 'Για μεγάλες επιχειρήσεις με πολλαπλούς επαγγελματίες',
-          price: 49.99,
-          currency: 'EUR',
-          interval: 'monthly',
-          features: [
-            'Όλες οι λειτουργίες Professional',
-            'Διαχείριση ομάδας',
-            'API πρόσβαση',
-            'Προσαρμοσμένες αναφορές',
-            'Αφιερωμένη υποστήριξη',
-            'SSO ενοποίηση',
-            'Διαχείριση ρόλων'
-          ],
-          icon: '🏢'
         }
       ];
       
@@ -137,21 +114,54 @@ export const useSubscriptionStore = create<SubscriptionState & SubscriptionActio
     set({ isLoading: true, error: null });
     
     try {
-      // Mock user subscription data
-      const mockSubscription: UserSubscription = {
-        id: 'sub_123',
-        userId: userId,
-        planId: 'premium',
-        status: 'active',
-        startDate: new Date('2024-01-01'),
-        endDate: new Date('2024-12-31'),
-        autoRenew: true,
-        paymentMethod: 'card_123',
-        lastPaymentDate: new Date('2024-01-01'),
-        nextPaymentDate: new Date('2024-02-01'),
-        amount: 9.99,
-        currency: 'EUR'
-      };
+      // Check if user is on trial first
+      const trialUser = trialService.getTrialUser(userId);
+      let mockSubscription: UserSubscription;
+      
+      if (trialUser) {
+        // User is on trial
+        mockSubscription = {
+          id: `trial_${userId}`,
+          userId: userId,
+          planId: 'free',
+          status: trialUser.isExpired ? 'trial_expired' : 'active',
+          startDate: trialUser.trialStartDate,
+          endDate: trialUser.trialEndDate,
+          autoRenew: false,
+          paymentMethod: 'trial',
+          lastPaymentDate: trialUser.trialStartDate,
+          nextPaymentDate: trialUser.trialEndDate,
+          amount: 0,
+          currency: 'EUR',
+          isTrialUser: true,
+          trialStartDate: trialUser.trialStartDate,
+          trialEndDate: trialUser.trialEndDate,
+          trialExpirationNotified: trialUser.expirationNotified,
+        };
+      } else {
+        // Initialize trial for new user
+        const { user } = useAuthStore.getState();
+        if (user) {
+          const trialSubscription = trialService.initializeTrial(userId, user.email, user.name);
+          mockSubscription = trialSubscription;
+        } else {
+          // Fallback for demo users
+          mockSubscription = {
+            id: `sub_${userId}`,
+            userId: userId,
+            planId: 'free',
+            status: 'active',
+            startDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), // 30 days ago
+            endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
+            autoRenew: false,
+            paymentMethod: 'none',
+            lastPaymentDate: new Date(),
+            nextPaymentDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+            amount: 0,
+            currency: 'EUR'
+          };
+        }
+      }
       
       set({ userSubscription: mockSubscription, isLoading: false });
     } catch (error) {
@@ -448,5 +458,40 @@ export const useSubscriptionStore = create<SubscriptionState & SubscriptionActio
 
   clearError: () => {
     set({ error: null });
+  },
+
+  // Trial Management
+  initializeTrial: (userId: string, email: string, name: string) => {
+    const trialSubscription = trialService.initializeTrial(userId, email, name);
+    set({ userSubscription: trialSubscription });
+    return trialSubscription;
+  },
+
+  checkTrialExpirations: () => {
+    return trialService.checkTrialExpirations();
+  },
+
+  getTrialUser: (userId: string) => {
+    return trialService.getTrialUser(userId);
+  },
+
+  convertTrialToPaid: (userId: string, planId: string, paymentMethodId: string) => {
+    const paidSubscription = trialService.convertTrialToPaid(userId, planId, paymentMethodId);
+    set({ userSubscription: paidSubscription });
+    return paidSubscription;
+  },
+
+  getTrialNotifications: (userId: string) => {
+    return trialService.getTrialNotifications(userId);
+  },
+
+  isTrialExpired: (userId: string) => {
+    const trialUser = trialService.getTrialUser(userId);
+    return trialUser ? trialUser.isExpired : false;
+  },
+
+  getTrialDaysRemaining: (userId: string) => {
+    const trialUser = trialService.getTrialUser(userId);
+    return trialUser ? trialUser.daysRemaining : 0;
   }
 }));

@@ -1,5 +1,5 @@
 export interface SubscriptionPlan {
-  id: string;
+  id: 'free' | 'premium';
   name: string;
   description: string;
   price: number;
@@ -8,13 +8,14 @@ export interface SubscriptionPlan {
   features: string[];
   isPopular?: boolean;
   icon: string;
+  duration?: number; // Duration in days for free plan
 }
 
 export interface UserSubscription {
   id: string;
   userId: string;
   planId: string;
-  status: 'active' | 'inactive' | 'cancelled' | 'expired' | 'pending';
+  status: 'active' | 'inactive' | 'cancelled' | 'expired' | 'pending' | 'trial_expired';
   startDate: Date;
   endDate: Date;
   autoRenew: boolean;
@@ -23,6 +24,10 @@ export interface UserSubscription {
   nextPaymentDate: Date;
   amount: number;
   currency: string;
+  isTrialUser?: boolean;
+  trialStartDate?: Date;
+  trialEndDate?: Date;
+  trialExpirationNotified?: boolean;
 }
 
 export interface SubscriptionFeature {

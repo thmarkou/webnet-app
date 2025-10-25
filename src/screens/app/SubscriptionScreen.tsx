@@ -13,6 +13,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { useSubscriptionStore } from '../../store/subscription/subscriptionStore';
 import { useAuthStore } from '../../store/auth/authStore';
+import { trialService } from '../../services/subscription/trialService';
 
 export default function SubscriptionScreen() {
   const navigation = useNavigation();
@@ -32,11 +33,20 @@ export default function SubscriptionScreen() {
   } = useSubscriptionStore();
 
   const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
+  const [trialUser, setTrialUser] = useState<any>(null);
+  const [trialDaysRemaining, setTrialDaysRemaining] = useState(0);
 
   useEffect(() => {
     fetchAvailablePlans();
     if (user?.id) {
       fetchUserSubscription(user.id);
+      
+      // Check if user is on trial
+      const trial = trialService.getTrialUser(user.id);
+      if (trial) {
+        setTrialUser(trial);
+        setTrialDaysRemaining(trial.daysRemaining);
+      }
     }
   }, [user?.id]);
 
@@ -187,6 +197,37 @@ export default function SubscriptionScreen() {
         )}
 
         {/* Available Plans */}
+        {/* Trial Information */}
+        {trialUser && (
+          <View style={styles.trialInfoContainer}>
+            <Text style={styles.trialInfoTitle}>
+              {trialUser.isExpired ? 'Η δωρεάν δοκιμή σας έχει λήξει' : 'Δωρεάν Δοκιμή'}
+            </Text>
+            <Text style={styles.trialInfoText}>
+              {trialUser.isExpired 
+                ? 'Παρακαλώ επιλέξτε το πρόγραμμα Premium (€9.99/μήνα) για να συνεχίσετε.'
+                : `Απομένουν ${trialDaysRemaining} ημέρες από τη δωρεάν δοκιμή σας (90 ημέρες).`
+              }
+            </Text>
+            <View style={styles.trialProgressContainer}>
+              <View style={styles.trialProgressBar}>
+                <View 
+                  style={[
+                    styles.trialProgressFill, 
+                    { 
+                      width: `${Math.max(0, (90 - trialDaysRemaining) / 90 * 100)}%`,
+                      backgroundColor: trialUser.isExpired ? '#FF4D4F' : '#007AFF'
+                    }
+                  ]} 
+                />
+              </View>
+              <Text style={styles.trialProgressText}>
+                {trialUser.isExpired ? 'Λήξει' : `${90 - trialDaysRemaining}/90 ημέρες`}
+              </Text>
+            </View>
+          </View>
+        )}
+
         <View style={styles.plansContainer}>
           <Text style={styles.sectionTitle}>Διαθέσιμα Σχέδια</Text>
           
@@ -491,5 +532,45 @@ const styles = StyleSheet.create({
     color: '#ffffff',
     fontSize: 16,
     fontWeight: '600',
+  },
+  trialInfoContainer: {
+    backgroundColor: '#F0F8FF',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: '#91D5FF',
+  },
+  trialInfoTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#0056B3',
+    marginBottom: 8,
+  },
+  trialInfoText: {
+    fontSize: 14,
+    color: '#555',
+    marginBottom: 12,
+    lineHeight: 20,
+  },
+  trialProgressContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  trialProgressBar: {
+    flex: 1,
+    height: 8,
+    backgroundColor: '#E0E0E0',
+    borderRadius: 4,
+    marginRight: 12,
+  },
+  trialProgressFill: {
+    height: '100%',
+    borderRadius: 4,
+  },
+  trialProgressText: {
+    fontSize: 12,
+    color: '#666',
+    fontWeight: '500',
   },
 });

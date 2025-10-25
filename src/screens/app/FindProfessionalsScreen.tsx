@@ -13,6 +13,8 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useAuthStore } from '../../store/auth/authStore';
+import { recommendationService } from '../../services/recommendations/recommendationService';
+import { ProfessionalRecommendation } from '../../types/recommendations';
 
 export default function FindProfessionalsScreen() {
   const navigation = useNavigation();
@@ -23,6 +25,7 @@ export default function FindProfessionalsScreen() {
   const [minRating, setMinRating] = useState(0); // 0 = all, 1-5 stars
   const [sortBy, setSortBy] = useState('rating'); // rating, distance, price
   const [professionals, setProfessionals] = useState([]);
+  const [friendRecommendations, setFriendRecommendations] = useState<ProfessionalRecommendation[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
   const [showCityDropdown, setShowCityDropdown] = useState(false);
@@ -356,8 +359,26 @@ export default function FindProfessionalsScreen() {
         filtered = filtered.filter(prof => prof.rating >= minRating);
       }
       
-      // Sort results
+      // Get friend recommendations for current search
+      const mockFriendsList = ['user2', 'user3']; // Mock friends list
+      const friendRecs = recommendationService.getRecommendationsForSearch(
+        user?.id || 'user1',
+        mockFriendsList,
+        selectedCategory || searchQuery,
+        selectedCity || ''
+      );
+      setFriendRecommendations(friendRecs);
+      
+      // Sort results with friend recommendations first
       filtered.sort((a, b) => {
+        const aIsRecommended = friendRecs.some(rec => rec.professionalId === a.id);
+        const bIsRecommended = friendRecs.some(rec => rec.professionalId === b.id);
+        
+        // Friend recommendations come first
+        if (aIsRecommended && !bIsRecommended) return -1;
+        if (!aIsRecommended && bIsRecommended) return 1;
+        
+        // Then sort by selected criteria
         switch (sortBy) {
           case 'rating':
             return b.rating - a.rating;
@@ -375,31 +396,49 @@ export default function FindProfessionalsScreen() {
     }, 500);
   };
 
-  const renderProfessional = ({ item }) => (
-    <TouchableOpacity
-      style={styles.professionalCard}
-      onPress={() => navigation.navigate('ProfessionalDetails', { professional: item })}
-    >
-      <View style={styles.professionalHeader}>
-        <View style={styles.professionalInfo}>
-          <Text style={styles.professionalImage}>{item.image}</Text>
-          <View style={styles.professionalDetails}>
-            <View style={styles.nameRow}>
-              <Text style={styles.professionalName}>{item.name}</Text>
-              {item.verified && <Text style={styles.verifiedBadge}>✓</Text>}
-            </View>
-            <Text style={styles.professionalProfession}>{item.profession}</Text>
-            <View style={styles.ratingRow}>
-              <Text style={styles.rating}>⭐ {item.rating}</Text>
-              <Text style={styles.reviewCount}>({item.reviewCount} αξιολογήσεις)</Text>
+  const renderProfessional = ({ item }) => {
+    // Check if this professional is recommended by friends
+    const friendRecommendation = friendRecommendations.find(rec => rec.professionalId === item.id);
+    
+    return (
+      <TouchableOpacity
+        style={[styles.professionalCard, friendRecommendation && styles.recommendedCard]}
+        onPress={() => navigation.navigate('ProfessionalDetails', { professional: item })}
+      >
+        {friendRecommendation && (
+          <View style={styles.recommendationBadge}>
+            <Text style={styles.recommendationText}>
+              👥 Συνιστάται από {friendRecommendation.recommenderName}
+            </Text>
+          </View>
+        )}
+        
+        <View style={styles.professionalHeader}>
+          <View style={styles.professionalInfo}>
+            <Text style={styles.professionalImage}>{item.image}</Text>
+            <View style={styles.professionalDetails}>
+              <View style={styles.nameRow}>
+                <Text style={styles.professionalName}>{item.name}</Text>
+                {item.verified && <Text style={styles.verifiedBadge}>✓</Text>}
+                {friendRecommendation && <Text style={styles.friendBadge}>👥</Text>}
+              </View>
+              <Text style={styles.professionalProfession}>{item.profession}</Text>
+              <View style={styles.ratingRow}>
+                <Text style={styles.rating}>⭐ {item.rating}</Text>
+                <Text style={styles.reviewCount}>({item.reviewCount} αξιολογήσεις)</Text>
+              </View>
+              {friendRecommendation && friendRecommendation.reason && (
+                <Text style={styles.recommendationReason}>
+                  💬 "{friendRecommendation.reason}"
+                </Text>
+              )}
             </View>
           </View>
+          <View style={styles.professionalMeta}>
+            <Text style={styles.distance}>📍 {item.distance}</Text>
+            <Text style={styles.price}>{item.price}</Text>
+          </View>
         </View>
-        <View style={styles.professionalMeta}>
-          <Text style={styles.distance}>📍 {item.distance}</Text>
-          <Text style={styles.price}>{item.price}</Text>
-        </View>
-      </View>
       
       <Text style={styles.description}>{item.description}</Text>
       
@@ -1106,5 +1145,36 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#6b7280',
     fontWeight: '600',
+  },
+  // Friend recommendation styles
+  recommendedCard: {
+    borderColor: '#10B981',
+    borderWidth: 2,
+    backgroundColor: '#F0FDF4',
+  },
+  recommendationBadge: {
+    backgroundColor: '#10B981',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderTopLeftRadius: 12,
+    borderTopRightRadius: 12,
+    marginBottom: 8,
+  },
+  recommendationText: {
+    color: '#FFFFFF',
+    fontSize: 12,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
+  friendBadge: {
+    fontSize: 16,
+    marginLeft: 8,
+  },
+  recommendationReason: {
+    fontSize: 12,
+    color: '#059669',
+    fontStyle: 'italic',
+    marginTop: 4,
+    lineHeight: 16,
   },
 });

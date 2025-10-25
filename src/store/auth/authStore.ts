@@ -98,9 +98,12 @@ export const useAuthStore = create<AuthState & AuthActions>((set, get) => ({
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
       
+      // Generate unique user ID
+      const userId = `user_${Date.now()}`;
+      
       // Mock user data
       const mockUser: User = {
-        id: '1',
+        id: userId,
         name: userData.name || 'Νέος Χρήστης',
         email: userData.email,
         phone: userData.phone,
@@ -108,6 +111,10 @@ export const useAuthStore = create<AuthState & AuthActions>((set, get) => ({
       };
       
       const mockToken = 'mock-jwt-token';
+      
+      // Initialize trial for new user
+      // Note: Trial initialization will be handled by the subscription store
+      // when the user first accesses subscription features
       
       set({ 
         user: mockUser, 
