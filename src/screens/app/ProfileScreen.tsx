@@ -36,6 +36,18 @@ export default function ProfileScreen() {
   // Base action items for all users
   const baseActionItems = [
     {
+      id: 'subscription',
+      title: 'Συνδρομές',
+      icon: '⭐',
+      onPress: () => navigation.navigate('Subscription')
+    },
+    {
+      id: 'payment-methods',
+      title: 'Μέθοδοι Πληρωμής',
+      icon: '💳',
+      onPress: () => navigation.navigate('PaymentMethods')
+    },
+    {
       id: 'settings',
       title: 'Ρυθμίσεις',
       icon: '⚙️',
