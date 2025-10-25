@@ -127,7 +127,7 @@ export default function FriendsScreen() {
       );
 
       // Trigger friend request notification
-      await triggerFriendRequestNotification(user.id, suggestionId, suggestion.name);
+      await triggerFriendRequestNotification(suggestionId, user.id, user.name);
 
       console.log('Friend added successfully:', suggestion.name);
     } catch (error) {
