@@ -9,27 +9,27 @@ const config = getDefaultConfig(__dirname);
 config.resolver.sourceExts = ['js', 'jsx', 'json', 'ts', 'tsx'];
 config.resolver.assetExts = ['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg'];
 
-// Add watch folders to include node_modules
+// Add watch folders
 config.watchFolders = [
   path.resolve(__dirname, 'node_modules'),
   path.resolve(__dirname, 'src'),
 ];
 
-// Configure resolver to handle React Native modules properly
+// Configure resolver
 config.resolver.platforms = ['ios', 'android', 'native', 'web'];
-
-// Disable blocklist for problematic modules
 config.resolver.blockList = [];
-
-// Enable symlinks for better module resolution
 config.resolver.unstable_enableSymlinks = true;
-
-// Fix entry point resolution
 config.resolver.resolverMainFields = ['react-native', 'browser', 'main'];
 
 // Ensure proper module resolution
 config.resolver.nodeModulesPaths = [
   path.resolve(__dirname, 'node_modules'),
+];
+
+// Fix Watchman issues
+config.watchFolders = [
+  path.resolve(__dirname, 'node_modules'),
+  path.resolve(__dirname, 'src'),
 ];
 
 module.exports = config;

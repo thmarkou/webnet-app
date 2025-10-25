@@ -12,6 +12,7 @@
     "android:setup": "./scripts/setupAndroid.sh",
     "fix:metro": "./scripts/fixMetro.sh",
     "fix:entry": "./scripts/fixEntryPoint.sh",
+    "fix:watchman": "./scripts/fixWatchman.sh",
     "ios": "expo run:ios",
     "web": "expo start --web",
     "db:init": "ts-node scripts/initRealData.ts",
