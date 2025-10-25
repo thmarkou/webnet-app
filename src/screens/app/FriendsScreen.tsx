@@ -145,30 +145,51 @@ export default function FriendsScreen() {
       return;
     }
 
-    // Mock search results - in real app, this would be an API call
-    const mockSearchResults = [
+    // Combine suggestion users with additional search results
+    const allSearchResults = [
+      // Include suggestion users (if they're not already friends)
+      ...mockSuggestions.map(suggestion => ({
+        id: `suggestion_${suggestion.id}`,
+        name: suggestion.name,
+        profession: suggestion.profession,
+        avatar: suggestion.avatar,
+        status: 'not_friend',
+        source: 'suggestion'
+      })),
+      // Additional search results
       {
         id: 'search1',
         name: 'Μαρία Παπαδοπούλου',
         profession: 'Γιατρός',
         avatar: '👩‍⚕️',
-        status: 'not_friend'
+        status: 'not_friend',
+        source: 'search'
       },
       {
         id: 'search2',
         name: 'Νίκος Κωνσταντίνου',
         profession: 'Μηχανικός',
         avatar: '👨‍🔧',
-        status: 'not_friend'
+        status: 'not_friend',
+        source: 'search'
       },
       {
         id: 'search3',
         name: 'Άννα Δημητρίου',
         profession: 'Δικηγόρος',
         avatar: '👩‍⚖️',
-        status: 'not_friend'
+        status: 'not_friend',
+        source: 'search'
       }
-    ].filter(person => 
+    ];
+
+    // Filter out users who are already friends
+    const availableResults = allSearchResults.filter(person => 
+      !friends.some(friend => friend.name === person.name)
+    );
+
+    // Apply search query filter
+    const mockSearchResults = availableResults.filter(person => 
       person.name.toLowerCase().includes(query.toLowerCase()) ||
       person.profession.toLowerCase().includes(query.toLowerCase())
     );
@@ -193,6 +214,14 @@ export default function FriendsScreen() {
       setSearchResults(prevResults => 
         prevResults.filter(s => s.id !== searchResultId)
       );
+
+      // If it's a suggestion user, also remove from suggestions
+      if (searchResult.source === 'suggestion') {
+        const originalSuggestionId = searchResultId.replace('suggestion_', '');
+        setSuggestions(prevSuggestions => 
+          prevSuggestions.filter(s => s.id !== originalSuggestionId)
+        );
+      }
 
       // Trigger friend request notification
       await triggerFriendRequestNotification(searchResultId, user.id, user.name);
