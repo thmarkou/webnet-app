@@ -6,6 +6,6 @@ const config = getDefaultConfig(__dirname);
 
 // Minimal configuration to ensure TypeScript works
 config.resolver.sourceExts = ['js', 'jsx', 'json', 'ts', 'tsx'];
-config.resolver.assetExts = ['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg'];
+config.resolver.assetExts = ['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg', 'ttf', 'otf', 'woff', 'woff2'];
 
 module.exports = config;
