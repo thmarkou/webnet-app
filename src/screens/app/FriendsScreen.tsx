@@ -74,17 +74,26 @@ export default function FriendsScreen() {
       location: 'Αθήνα',
       status: 'friend',
       avatar: '👨‍💼'
-    }
-  ];
-
-  const mockSuggestions = [
+    },
     {
       id: '1',
       name: 'Άννα Πετρού',
       profession: 'Νοσοκόμα',
-      reason: 'Κοινός φίλος: Μιχάλης Σκαλτσουνάκης, Μαρία Παπαδοπούλου, Αλέξης Ιωάννου',
+      location: 'Αθήνα',
+      status: 'friend',
       avatar: '👤'
     },
+    {
+      id: '3',
+      name: 'Λίζα Μπράουν',
+      profession: 'Διευθύντρια Έργων',
+      location: 'Θεσσαλονίκη',
+      status: 'friend',
+      avatar: '👤'
+    }
+  ];
+
+  const mockSuggestions = [
     {
       id: '2',
       name: 'Θωμάς Γουίλσον',
@@ -93,10 +102,17 @@ export default function FriendsScreen() {
       avatar: '👤'
     },
     {
-      id: '3',
-      name: 'Λίζα Μπράουν',
-      profession: 'Διευθύντρια Έργων',
-      reason: 'Κοινός φίλος: Μιχάλης Σκαλτσουνάκης, Μαρία Παπαδοπούλου, Αλέξης Ιωάννου, Σάρα Γουίλσον, Μάικ Τσεν',
+      id: '4',
+      name: 'Σάρα Γουίλσον',
+      profession: 'Μάρκετινγκ',
+      reason: 'Κοινός φίλος: Θωμάς Γουίλσον',
+      avatar: '👤'
+    },
+    {
+      id: '5',
+      name: 'Μάικ Τσεν',
+      profession: 'Προγραμματιστής',
+      reason: 'Κοινός φίλος: Λίζα Μπράουν',
       avatar: '👤'
     }
   ];

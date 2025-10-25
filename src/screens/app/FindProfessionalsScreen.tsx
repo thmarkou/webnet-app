@@ -360,7 +360,7 @@ export default function FindProfessionalsScreen() {
       }
       
       // Get friend recommendations for current search
-      const mockFriendsList = ['user2', 'user3']; // Mock friends list
+      const mockFriendsList = ['user2', 'user3', '1', '3']; // Mock friends list (Μαρία, Γιάννης, Άννα, Λίζα)
       const friendRecs = recommendationService.getRecommendationsForSearch(
         user?.id || 'user1',
         mockFriendsList,

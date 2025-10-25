@@ -46,12 +46,12 @@ class RecommendationService {
       },
       {
         friendId: 'user3',
-        friendName: 'Κώστας Γεωργίου',
+        friendName: 'Γιάννης Παπαδόπουλος',
         recommendations: [
           {
             id: 'rec3',
             recommenderId: 'user3',
-            recommenderName: 'Κώστας Γεωργίου',
+            recommenderName: 'Γιάννης Παπαδόπουλος',
             professionalId: 'pro3',
             professionalName: 'Αννα Ηλεκτρολόγος',
             profession: 'Ηλεκτρολόγος',
@@ -59,6 +59,44 @@ class RecommendationService {
             rating: 4.7,
             reason: 'Πολύ καλή τιμή και γρήγορη εξυπηρέτηση',
             createdAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000), // 10 days ago
+            isActive: true,
+          },
+        ],
+      },
+      {
+        friendId: '1',
+        friendName: 'Άννα Πετρού',
+        recommendations: [
+          {
+            id: 'rec4',
+            recommenderId: '1',
+            recommenderName: 'Άννα Πετρού',
+            professionalId: 'pro4',
+            professionalName: 'Δημήτρης Γιατρούς',
+            profession: 'Γιατρός',
+            city: 'Αθήνα',
+            rating: 4.9,
+            reason: 'Εξαιρετικός γιατρός, πολύ προσεκτικός και ευγενικός',
+            createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000), // 5 days ago
+            isActive: true,
+          },
+        ],
+      },
+      {
+        friendId: '3',
+        friendName: 'Λίζα Μπράουν',
+        recommendations: [
+          {
+            id: 'rec5',
+            recommenderId: '3',
+            recommenderName: 'Λίζα Μπράουν',
+            professionalId: 'pro5',
+            professionalName: 'Κώστας Αρχιτέκτονας',
+            profession: 'Αρχιτέκτονας',
+            city: 'Θεσσαλονίκη',
+            rating: 4.6,
+            reason: 'Καταπληκτικός αρχιτέκτονας, πολύ δημιουργικός',
+            createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), // 3 days ago
             isActive: true,
           },
         ],
