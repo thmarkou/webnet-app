@@ -58,7 +58,10 @@ export default function ProfessionalRegistrationForm() {
     { name: 'Δικηγόρος', icon: '⚖️' },
     { name: 'Καθαριστής', icon: '🧹' },
     { name: 'Μηχανικός', icon: '🔩' },
-    { name: 'Γιατρός', icon: '🩺' }
+    { name: 'Γιατρός', icon: '🩺' },
+    { name: 'Ξυλουργός', icon: '🔨' },
+    { name: 'Μηχανικός Αυτοκινήτων', icon: '🚗' },
+    { name: 'Δημοσιογράφος', icon: '📺' }
   ];
 
   const cities = [

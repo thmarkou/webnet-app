@@ -35,7 +35,6 @@ export default function FindProfessionalsScreen() {
     { id: 'electrician', name: 'Ηλεκτρολόγος', icon: '⚡' },
     { id: 'plumber', name: 'Υδραυλικός', icon: '🚰' },
     { id: 'painter', name: 'Μαραγκός', icon: '🎨' },
-    { id: 'carpenter', name: 'Ξυλουργός', icon: '🔨' },
     { id: 'cleaner', name: 'Καθαριστής', icon: '🧹' },
     { id: 'gardener', name: 'Κηπουρός', icon: '🌱' },
     { id: 'mechanic', name: 'Μηχανικός', icon: '🔧' },
@@ -51,6 +50,9 @@ export default function FindProfessionalsScreen() {
     { id: 'glass', name: 'Γυαλί', icon: '🪟' },
     { id: 'metalwork', name: 'Μεταλλοτεχνία', icon: '⚒️' },
     { id: 'concrete', name: 'Σκυρόδεμα', icon: '🏗️' },
+    { id: 'carpenter', name: 'Ξυλουργός', icon: '🔨' },
+    { id: 'car_mechanic', name: 'Μηχανικός Αυτοκινήτων', icon: '🚗' },
+    { id: 'journalist', name: 'Δημοσιογράφος', icon: '📺' },
   ];
 
   const cities = [
