@@ -183,10 +183,16 @@ export default function UserNotificationsScreen() {
         style={styles.filterPillsContainer}
         contentContainerStyle={styles.filterPillsContent}
       >
-        {filters.map((filter) => (
+        {filters.map((filter, index) => (
           <TouchableOpacity
             key={filter.id}
-            style={[styles.filterPill, { backgroundColor: filter.color + '20' }]}
+            style={[
+              styles.filterPill, 
+              { 
+                backgroundColor: filter.color + '20',
+                marginRight: index === filters.length - 1 ? 16 : 8
+              }
+            ]}
             onPress={filter.id === 'new_request' ? handleNewRequest : () => setActiveFilter(filter.id)}
           >
             <Text style={[styles.filterPillText, { color: filter.color }]}>
@@ -282,11 +288,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
     borderBottomWidth: 1,
     borderBottomColor: '#f1f3f4',
+    maxHeight: 50,
   },
   filterPillsContent: {
     paddingHorizontal: 16,
     paddingVertical: 12,
     flexDirection: 'row',
+    alignItems: 'center',
   },
   filterPill: {
     paddingHorizontal: 12,
