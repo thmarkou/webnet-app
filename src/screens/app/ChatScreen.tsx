@@ -25,7 +25,7 @@ export default function ChatScreen() {
   const navigation = useNavigation();
   const route = useRoute();
   const { user } = useAuthStore();
-  const { senderId } = route.params as { senderId: string };
+  const { senderId, professionalName } = route.params as { senderId: string; professionalName?: string };
   
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
@@ -157,7 +157,9 @@ export default function ChatScreen() {
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
           <Text style={styles.backButtonText}>←</Text>
         </TouchableOpacity>
-        <Text style={styles.title}>Συνομιλία</Text>
+        <Text style={styles.title}>
+          {professionalName ? `Συνομιλία με ${professionalName}` : 'Συνομιλία'}
+        </Text>
       </View>
 
       <KeyboardAvoidingView 
