@@ -71,12 +71,18 @@ class GeocodingService {
    * @returns Mock coordinates based on city
    */
   private getMockCoordinates(city: string): GeocodingResult {
-    // More precise coordinates for better map accuracy
+    // Specific address coordinates for known addresses
+    const specificAddresses: { [key: string]: { lat: number; lng: number; address: string } } = {
+      'Ιωνίας 71, 54453 Θεσσαλονίκη': { lat: 40.6435, lng: 22.9418, address: 'Ιωνίας 71, 54453 Θεσσαλονίκη, Ελλάδα' },
+      'Μακροχωρίου 7, 11363 Αθήνα': { lat: 37.9945, lng: 23.7305, address: 'Μακροχωρίου 7, 11363 Αθήνα, Ελλάδα' },
+    };
+
+    // City center coordinates as fallback
     const cityCoordinates: { [key: string]: { lat: number; lng: number } } = {
       'Αθήνα': { lat: 37.9755, lng: 23.7348 },
       'athens': { lat: 37.9755, lng: 23.7348 },
-      'Θεσσαλονίκη': { lat: 40.6423, lng: 22.9430 }, // More accurate for Thessaloniki
-      'thessaloniki': { lat: 40.6423, lng: 22.9430 }, // More accurate for Thessaloniki
+      'Θεσσαλονίκη': { lat: 40.6435, lng: 22.9418 },
+      'thessaloniki': { lat: 40.6435, lng: 22.9418 },
       'Πάτρα': { lat: 38.2466, lng: 21.7346 },
       'patras': { lat: 38.2466, lng: 21.7346 },
       'Λάρισα': { lat: 39.6390, lng: 22.4191 },
