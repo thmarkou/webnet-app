@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 
+    Google Maps API Key Configuration
+    
+    To use Google Maps in your Android app, you need to:
+    1. Get a Google Maps API key from Google Cloud Console
+    2. Replace YOUR_GOOGLE_MAPS_API_KEY with your actual API key
+    3. Enable the following APIs in Google Cloud Console:
+       - Maps SDK for Android
+       - Places API
+       - Directions API
+       - Geocoding API
+    
+    Steps to get API key:
+    1. Go to https://console.cloud.google.com/
+    2. Create a new project or select existing
+    3. Enable the required APIs
+    4. Create credentials -> API Key
+    5. Restrict the key to your app's package name: com.fmarkou.webnetapp
+    6. Replace YOUR_GOOGLE_MAPS_API_KEY in AndroidManifest.xml
+    -->
+    
+    <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">
+        YOUR_GOOGLE_MAPS_API_KEY
+    </string>
+</resources>
