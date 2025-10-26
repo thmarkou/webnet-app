@@ -1,6 +1,6 @@
 import React from 'react';
-import { View, StyleSheet, TouchableOpacity, Text, Linking, Alert } from 'react-native';
-import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
+import { View, StyleSheet, TouchableOpacity, Text, Linking, Alert, Platform } from 'react-native';
+import MapView, { Marker, PROVIDER_GOOGLE, PROVIDER_DEFAULT } from 'react-native-maps';
 
 interface ProfessionalMapProps {
   professional: {
@@ -17,6 +17,26 @@ interface ProfessionalMapProps {
 
 export default function ProfessionalMap({ professional }: ProfessionalMapProps) {
   const { name, profession, address, coordinates } = professional;
+
+  // Only show map on iOS for now
+  if (Platform.OS === 'android') {
+    return (
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.title}>📍 Τοποθεσία</Text>
+        </View>
+        <Text style={styles.address}>{address}</Text>
+        <View style={styles.androidPlaceholder}>
+          <Text style={styles.androidPlaceholderText}>
+            🗺️ Χάρτης διαθέσιμος μόνο σε iOS
+          </Text>
+          <Text style={styles.androidPlaceholderSubtext}>
+            Η λειτουργία χάρτη θα είναι διαθέσιμη στο Android σε επόμενη ενημέρωση
+          </Text>
+        </View>
+      </View>
+    );
+  }
 
   const handleGetDirections = () => {
     const url = `https://maps.google.com/maps?daddr=${coordinates.latitude},${coordinates.longitude}`;
@@ -47,7 +67,7 @@ export default function ProfessionalMap({ professional }: ProfessionalMapProps) 
       
       <View style={styles.mapContainer}>
         <MapView
-          provider={PROVIDER_GOOGLE}
+          provider={Platform.OS === 'ios' ? PROVIDER_GOOGLE : PROVIDER_DEFAULT}
           style={styles.map}
           initialRegion={{
             latitude: coordinates.latitude,
@@ -123,5 +143,30 @@ const styles = StyleSheet.create({
   },
   map: {
     flex: 1,
+  },
+  androidPlaceholder: {
+    height: 200,
+    backgroundColor: '#f5f5f5',
+    borderRadius: 8,
+    marginHorizontal: 15,
+    marginBottom: 15,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
+    borderStyle: 'dashed',
+  },
+  androidPlaceholderText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#666',
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  androidPlaceholderSubtext: {
+    fontSize: 14,
+    color: '#999',
+    textAlign: 'center',
+    paddingHorizontal: 20,
   },
 });
