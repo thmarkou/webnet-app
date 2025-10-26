@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useAuthStore } from '../../store/auth/authStore';
+import ProfessionalMap from '../../components/ProfessionalMap';
 
 export default function ProfessionalDetailsScreen() {
   const navigation = useNavigation();
@@ -29,7 +30,12 @@ export default function ProfessionalDetailsScreen() {
     phone: '+30 6923456789',
     email: `${professional.name.toLowerCase().replace(/\s+/g, '.')}@example.com`,
     about: professional.description,
-    verified: professional.verified
+    verified: professional.verified,
+    address: professional.address || 'Διεύθυνση δεν είναι διαθέσιμη',
+    coordinates: professional.coordinates || {
+      latitude: 37.9755,
+      longitude: 23.7348
+    }
   } : {
     name: 'Γιάννη Σμιθ',
     profession: 'Ηλεκτρολόγος',
@@ -39,7 +45,12 @@ export default function ProfessionalDetailsScreen() {
     phone: '+30 6923456789',
     email: 'gianni.smith@example.com',
     about: 'Πιστοποιημένη ηλεκτρολόγος με εξειδίκευση σε οικιακά ηλεκτρικά συστήματα και εγκαταστάσεις έξυπνων σπιτιών.',
-    verified: true
+    verified: true,
+    address: 'Πανεπιστημίου 15, Αθήνα 10679',
+    coordinates: {
+      latitude: 37.9755,
+      longitude: 23.7348
+    }
   };
 
   const mockReviews = [
@@ -131,6 +142,17 @@ export default function ProfessionalDetailsScreen() {
             <Text style={styles.contactText}>{professionalData.email}</Text>
           </View>
         </View>
+
+        {/* Map Section */}
+        <ProfessionalMap 
+          professional={{
+            id: professional?.id || '1',
+            name: professionalData.name,
+            profession: professionalData.profession,
+            address: professionalData.address,
+            coordinates: professionalData.coordinates
+          }}
+        />
 
         {/* About Section */}
         <View style={styles.aboutSection}>

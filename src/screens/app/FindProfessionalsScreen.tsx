@@ -107,7 +107,12 @@ export default function FindProfessionalsScreen() {
       responseTime: '1 ώρα',
       completionRate: '98%',
       phone: '+30 210 1234567',
-      email: 'giannis.papadopoulos@example.com'
+      email: 'giannis.papadopoulos@example.com',
+      address: 'Πανεπιστημίου 15, Αθήνα 10679',
+      coordinates: {
+        latitude: 37.9755,
+        longitude: 23.7348
+      }
     },
     {
       id: '2',
@@ -127,7 +132,12 @@ export default function FindProfessionalsScreen() {
       responseTime: '30 λεπτά',
       completionRate: '100%',
       phone: '+30 210 2345678',
-      email: 'maria.kostopoulou@example.com'
+      email: 'maria.kostopoulou@example.com',
+      address: 'Σταδίου 8, Αθήνα 10564',
+      coordinates: {
+        latitude: 37.9755,
+        longitude: 23.7348
+      }
     },
     {
       id: '3',
@@ -147,7 +157,12 @@ export default function FindProfessionalsScreen() {
       responseTime: '2 ώρες',
       completionRate: '95%',
       phone: '+30 210 3456789',
-      email: 'petros.nikolaou@example.com'
+      email: 'petros.nikolaou@example.com',
+      address: 'Ακαδημίας 12, Αθήνα 10671',
+      coordinates: {
+        latitude: 37.9755,
+        longitude: 23.7348
+      }
     },
     {
       id: '4',
