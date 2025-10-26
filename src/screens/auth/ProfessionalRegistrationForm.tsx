@@ -39,11 +39,12 @@ export default function ProfessionalRegistrationForm() {
     about: '',
     
     // Step 3: Address Information
+    streetName: '',
     number: '',
     area: '',
     postalCode: '',
-    country: 'Ελλάδα',
     city: '',
+    country: 'Ελλάδα',
     
     // Step 4: Service Information
     serviceName: '',
@@ -386,6 +387,16 @@ export default function ProfessionalRegistrationForm() {
       <Text style={styles.stepTitle}>Πληροφορίες Διεύθυνσης</Text>
       
       <View style={styles.inputGroup}>
+        <Text style={styles.label}>Οδός *</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Εισάγετε το όνομα της οδού"
+          value={formData.streetName}
+          onChangeText={(value) => handleInputChange('streetName', value)}
+        />
+      </View>
+
+      <View style={styles.inputGroup}>
         <Text style={styles.label}>Αριθμός *</Text>
         <TextInput
           style={styles.input}
@@ -414,42 +425,6 @@ export default function ProfessionalRegistrationForm() {
           onChangeText={(value) => handleInputChange('postalCode', value)}
           keyboardType="numeric"
         />
-      </View>
-
-      <View style={styles.inputGroup}>
-        <Text style={styles.label}>Χώρα *</Text>
-        <TouchableOpacity 
-          style={styles.dropdown}
-          onPress={() => setShowCountryDropdown(!showCountryDropdown)}
-        >
-          <Text style={styles.dropdownText}>
-            {formData.country}
-          </Text>
-          <Text style={styles.dropdownArrow}>
-            {showCountryDropdown ? '▲' : '▼'}
-          </Text>
-        </TouchableOpacity>
-        {showCountryDropdown && (
-          <View style={styles.dropdownOptions}>
-            <TouchableOpacity
-              style={[
-                styles.option,
-                formData.country === 'Ελλάδα' && styles.selectedOption
-              ]}
-              onPress={() => {
-                handleInputChange('country', 'Ελλάδα');
-                setShowCountryDropdown(false);
-              }}
-            >
-              <Text style={[
-                styles.optionText,
-                formData.country === 'Ελλάδα' && styles.selectedOptionText
-              ]}>
-                Ελλάδα
-              </Text>
-            </TouchableOpacity>
-          </View>
-        )}
       </View>
 
       <View style={styles.inputGroup}>
@@ -487,6 +462,42 @@ export default function ProfessionalRegistrationForm() {
                 </Text>
               </TouchableOpacity>
             ))}
+          </View>
+        )}
+      </View>
+
+      <View style={styles.inputGroup}>
+        <Text style={styles.label}>Χώρα *</Text>
+        <TouchableOpacity 
+          style={styles.dropdown}
+          onPress={() => setShowCountryDropdown(!showCountryDropdown)}
+        >
+          <Text style={styles.dropdownText}>
+            {formData.country}
+          </Text>
+          <Text style={styles.dropdownArrow}>
+            {showCountryDropdown ? '▲' : '▼'}
+          </Text>
+        </TouchableOpacity>
+        {showCountryDropdown && (
+          <View style={styles.dropdownOptions}>
+            <TouchableOpacity
+              style={[
+                styles.option,
+                formData.country === 'Ελλάδα' && styles.selectedOption
+              ]}
+              onPress={() => {
+                handleInputChange('country', 'Ελλάδα');
+                setShowCountryDropdown(false);
+              }}
+            >
+              <Text style={[
+                styles.optionText,
+                formData.country === 'Ελλάδα' && styles.selectedOptionText
+              ]}>
+                Ελλάδα
+              </Text>
+            </TouchableOpacity>
           </View>
         )}
       </View>
