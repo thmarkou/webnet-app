@@ -203,6 +203,14 @@ export default function DatabaseManagementScreen() {
       color: '#8b5cf6',
       onPress: () => navigation.navigate('RecommendationManagement'),
     },
+    {
+      id: 'add-professional',
+      title: 'Προσθήκη Επαγγελματία',
+      description: 'Προσθήκη νέου επαγγελματία με αυτόματη εύρεση συντεταγμένων',
+      icon: '👨‍💼',
+      color: '#059669',
+      onPress: () => navigation.navigate('AddProfessional'),
+    },
   ];
 
   const renderAction = (action) => (
