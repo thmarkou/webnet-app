@@ -371,8 +371,8 @@ export default function FindProfessionalsScreen() {
       email: 'anna.papidou@example.com',
       address: 'Ιωνίας 71, 54453 Θεσσαλονίκη, Ελλάδα',
       coordinates: {
-        latitude: 40.6442, // Different coordinates for Ionias 71, Thessaloniki
-        longitude: 22.9405
+        latitude: 40.608796, // Exact coordinates for Ionias 71, Thessaloniki
+        longitude: 22.970381
       }
     },
     {

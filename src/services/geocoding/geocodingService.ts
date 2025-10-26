@@ -73,7 +73,7 @@ class GeocodingService {
   private getMockCoordinates(city: string): GeocodingResult {
     // Specific address coordinates for known addresses
     const specificAddresses: { [key: string]: { lat: number; lng: number; address: string } } = {
-      'Ιωνίας 71, 54453 Θεσσαλονίκη': { lat: 40.6442, lng: 22.9405, address: 'Ιωνίας 71, 54453 Θεσσαλονίκη, Ελλάδα' },
+      'Ιωνίας 71, 54453 Θεσσαλονίκη': { lat: 40.608796, lng: 22.970381, address: 'Ιωνίας 71, 54453 Θεσσαλονίκη, Ελλάδα' },
       'Μακροχωρίου 7, 11363 Αθήνα': { lat: 37.9945, lng: 23.7305, address: 'Μακροχωρίου 7, 11363 Αθήνα, Ελλάδα' },
     };
 
