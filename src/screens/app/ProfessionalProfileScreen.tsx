@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useAuthStore } from '../../store/auth/authStore';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function ProfessionalProfileScreen() {
   const navigation = useNavigation();
@@ -44,9 +45,53 @@ export default function ProfessionalProfileScreen() {
 
   const [isEditing, setIsEditing] = useState(false);
 
-  const handleSaveProfile = () => {
-    Alert.alert('Επιτυχία', 'Το προφίλ σας ενημερώθηκε επιτυχώς!');
-    setIsEditing(false);
+  const handleSaveProfile = async () => {
+    try {
+      // Save to both app_users and customProfessionals
+      const updatedProfessional = {
+        id: Date.now().toString(),
+        name: `${profileData.firstName} ${profileData.lastName}`,
+        profession: profileData.profession,
+        category: profileData.profession.toLowerCase().replace(/\s+/g, '_'),
+        city: profileData.address.city.toLowerCase(),
+        rating: 0,
+        reviewCount: 0,
+        price: '€0-0',
+        distance: '0 km',
+        availability: 'Διαθέσιμος',
+        services: profileData.services.map(s => s.name),
+        description: profileData.about,
+        image: '👨‍💼',
+        verified: false,
+        responseTime: '2 ώρες',
+        completionRate: '0%',
+        phone: profileData.phone,
+        email: profileData.email,
+        address: `${profileData.address.number} ${profileData.address.area}, ${profileData.address.postalCode} ${profileData.address.city}`,
+        coordinates: {
+          latitude: 0,
+          longitude: 0,
+        },
+        businessName: profileData.businessName,
+      };
+
+      // Update customProfessionals - remove old and add new
+      const AsyncStorage = require('@react-native-async-storage/async-storage').default;
+      const customProfessionalsJson = await AsyncStorage.getItem('customProfessionals');
+      if (customProfessionalsJson) {
+        const customProfessionals = JSON.parse(customProfessionalsJson);
+        // Remove old entries with same email
+        const filtered = customProfessionals.filter((p: any) => p.email !== profileData.email);
+        // Add updated
+        filtered.push(updatedProfessional);
+        await AsyncStorage.setItem('customProfessionals', JSON.stringify(filtered));
+      }
+
+      Alert.alert('Επιτυχία', 'Το προφίλ σας ενημερώθηκε επιτυχώς!');
+      setIsEditing(false);
+    } catch (error) {
+      Alert.alert('Σφάλμα', 'Η ενημέρωση απέτυχε.');
+    }
   };
 
   const handleAddService = () => {

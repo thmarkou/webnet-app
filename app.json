@@ -15,7 +15,10 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.fmarkou.webnetapp"
+      "bundleIdentifier": "com.fmarkou.webnetapp",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -31,7 +34,18 @@
     },
     "plugins": [
       "expo-secure-store",
-      "expo-font"
-    ]
+      "expo-font",
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "This app uses your location to show nearby professionals."
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "21c8d494-7cb4-4d52-b1ac-7aa71bbfe1bd"
+      }
+    }
   }
 }

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   View,
   Text,
@@ -158,13 +159,20 @@ export default function AddProfessionalScreen() {
         },
       };
 
-      // Here you would typically save to your database
-      console.log('New Professional:', newProfessional);
-      console.log('Coordinates:', geocodingResult);
+      // Save to AsyncStorage
+      try {
+        const existingProfessionals = await AsyncStorage.getItem('customProfessionals');
+        const professionalsArray = existingProfessionals ? JSON.parse(existingProfessionals) : [];
+        professionalsArray.push(newProfessional);
+        await AsyncStorage.setItem('customProfessionals', JSON.stringify(professionalsArray));
+        console.log('Professional saved to AsyncStorage:', newProfessional.name);
+      } catch (storageError) {
+        console.error('Error saving to AsyncStorage:', storageError);
+      }
 
       Alert.alert(
-        'Επιτυχία',
-        `Ο επαγγελματίας ${newProfessional.name} προστέθηκε επιτυχώς!\n\nΣυντεταγμένες: ${geocodingResult.latitude}, ${geocodingResult.longitude}`,
+        '✅ Επιτυχής Καταχώρηση',
+        `Ο επαγγελματίας "${newProfessional.name}" καταχωρήθηκε επιτυχώς στη βάση δεδομένων!\n\nΟ επαγγελματίας εμφανίζεται στη λίστα επαγγελματιών.`,
         [
           {
             text: 'OK',
@@ -183,15 +191,18 @@ export default function AddProfessionalScreen() {
                 email: '',
                 description: '',
               });
-              // Navigate back
-              navigation.goBack();
+              // Navigate to FindProfessionalsScreen to see the new professional
+              navigation.navigate('FindProfessionals');
             },
           },
         ]
       );
     } catch (error) {
       console.error('Error adding professional:', error);
-      Alert.alert('Σφάλμα', 'Παρουσιάστηκε σφάλμα κατά την προσθήκη του επαγγελματία.');
+      Alert.alert(
+        '❌ Σφάλμα Καταχώρησης',
+        `Η καταχώρηση του επαγγελματία απέτυχε.\n\nΠαρακαλώ ελέγξτε τα στοιχεία και δοκιμάστε ξανά.`
+      );
     } finally {
       setIsLoading(false);
     }

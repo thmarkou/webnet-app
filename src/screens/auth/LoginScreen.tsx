@@ -33,9 +33,9 @@ export default function LoginScreen() {
 
   const handleDemoLogin = (role: string) => {
     const demoCredentials = {
-      user: { email: 'user@demo.com', password: 'demo123' },
-      professional: { email: 'pro@demo.com', password: 'demo123' },
-      admin: { email: 'admin@demo.com', password: 'demo123' }
+      user: { email: 'user@demo.com', password: 'demo' },
+      professional: { email: 'pro@demo.com', password: 'demo' },
+      admin: { email: 'admin@demo.com', password: 'demo' }
     };
 
     const credentials = demoCredentials[role as keyof typeof demoCredentials];

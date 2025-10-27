@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface User {
   id: string;
@@ -41,51 +42,52 @@ export const useAuthStore = create<AuthState & AuthActions>((set, get) => ({
     set({ isLoading: true, error: null });
     
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, 500));
       
-      // Mock user data based on email
-      let mockUser: User;
-      
-      if (email === 'pro@demo.com') {
-        mockUser = {
-          id: 'pro1',
-          name: 'Χάρης Σκαλτσουνάκης',
-          email: email,
-          phone: '+30 210 1234567',
-          role: 'professional',
-          profession: 'Ασφαλιστής'
-        };
-      } else if (email === 'admin@demo.com') {
-        mockUser = {
-          id: 'admin1',
-          name: 'Fabio Marcoulini',
-          email: email,
-          phone: '+30 210 1234567',
-          role: 'admin',
-          profession: 'Chief Technology Officer'
-        };
-      } else {
-        mockUser = {
-          id: 'user1',
-          name: 'Μιχάλης Σκαλτσουνάκης',
-          email: email,
-          phone: '+30 210 1234567',
-          role: 'user'
-        };
+      // First try AsyncStorage
+      try {
+        const usersJson = await AsyncStorage.getItem('app_users');
+        const users = usersJson ? JSON.parse(usersJson) : [];
+        const foundUser = users.find((u: any) => u.email === email && u.password === password);
+        
+        if (foundUser) {
+          const mockUser: User = {
+            id: foundUser.id,
+            name: foundUser.name,
+            email: foundUser.email,
+            phone: foundUser.phone,
+            role: foundUser.role,
+            profession: foundUser.profession
+          };
+          
+          set({ 
+            user: mockUser, 
+            token: 'mock-jwt-token', 
+            isAuthenticated: true, 
+            isLoading: false 
+          });
+          return;
+        }
+      } catch (storageError) {
+        console.error('Error loading from storage:', storageError);
       }
       
-      const mockToken = 'mock-jwt-token';
+      // Then try demo accounts
+      let mockUser: User;
+      if (email === 'user@demo.com' && password === 'demo') {
+        mockUser = { id: 'user1', name: 'Μιχάλης Σκαλτσουνάκης', email, phone: '+30 210 1234567', role: 'user' };
+      } else if (email === 'pro@demo.com' && password === 'demo') {
+        mockUser = { id: 'pro1', name: 'Χάρης Σκαλτσουνάκης', email, phone: '+30 210 1234567', role: 'professional', profession: 'Ασφαλιστής' };
+      } else if (email === 'admin@demo.com' && password === 'demo') {
+        mockUser = { id: 'admin1', name: 'Fabio Marcoulini', email, phone: '+30 210 1234567', role: 'admin', profession: 'Chief Technology Officer' };
+      } else {
+        throw new Error('Λάθος email ή password');
+      }
       
+      set({ user: mockUser, token: 'mock-jwt-token', isAuthenticated: true, isLoading: false });
+    } catch (error: any) {
       set({ 
-        user: mockUser, 
-        token: mockToken, 
-        isAuthenticated: true, 
-        isLoading: false 
-      });
-    } catch (error) {
-      set({ 
-        error: 'Σφάλμα κατά τη σύνδεση', 
+        error: error.message || 'Σφάλμα κατά τη σύνδεση', 
         isLoading: false 
       });
     }
@@ -95,38 +97,47 @@ export const useAuthStore = create<AuthState & AuthActions>((set, get) => ({
     set({ isLoading: true, error: null });
     
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, 500));
       
       // Generate unique user ID
       const userId = `user_${Date.now()}`;
       
-      // Mock user data
-      const mockUser: User = {
+      // Create user object
+      const newUser: User = {
         id: userId,
-        name: userData.name || 'Νέος Χρήστης',
+        name: `${userData.firstName || ''} ${userData.lastName || ''}`.trim() || 'Νέος Χρήστης',
         email: userData.email,
         phone: userData.phone,
-        role: userData.role || 'user'
+        role: userData.role || 'user',
+        profession: userData.profession
       };
       
-      const mockToken = 'mock-jwt-token';
+      // Save to AsyncStorage
+      try {
+        const existingUsersJson = await AsyncStorage.getItem('app_users');
+        const users = existingUsersJson ? JSON.parse(existingUsersJson) : [];
+        users.push({ ...newUser, password: userData.password }); // Store password for demo
+        await AsyncStorage.setItem('app_users', JSON.stringify(users));
+        console.log('✅ User registered:', newUser.name);
+      } catch (storageError) {
+        console.error('Error saving user:', storageError);
+      }
       
-      // Initialize trial for new user
-      // Note: Trial initialization will be handled by the subscription store
-      // when the user first accesses subscription features
-      
+      // DON'T auto-login after registration
+      // Just mark registration as complete
       set({ 
-        user: mockUser, 
-        token: mockToken, 
-        isAuthenticated: true, 
-        isLoading: false 
+        isLoading: false,
+        error: null
       });
+      
+      // Return the new user object for confirmation message
+      return newUser;
     } catch (error) {
       set({ 
         error: 'Σφάλμα κατά την εγγραφή', 
         isLoading: false 
       });
+      throw error;
     }
   },
 

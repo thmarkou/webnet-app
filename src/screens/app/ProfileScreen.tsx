@@ -147,6 +147,7 @@ export default function ProfileScreen() {
             <Text style={styles.avatarText}>👤</Text>
           </View>
           <Text style={styles.userName}>{user?.name || 'John Doe'}</Text>
+          <Text style={styles.buildVersion}>Build: 40</Text>
           <Text style={styles.userEmail}>{user?.email || 'user@demo.com'}</Text>
           <View style={styles.roleBadge}>
             <Text style={styles.roleText}>
@@ -185,21 +186,33 @@ export default function ProfileScreen() {
           </View>
         </View>
 
-        {/* Actions */}
+        {/* Management Options */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Ενέργειες</Text>
+          <Text style={styles.sectionTitle}>Διαχείριση</Text>
+
+          <TouchableOpacity
+            style={styles.actionItem}
+            onPress={() => navigation.navigate('ProfessionalRegistrationsManagement')}
+          >
+            <Text style={styles.actionIcon}>📋</Text>
+            <Text style={styles.actionText}>Διαχείριση Εγγραφών</Text>
+          </TouchableOpacity>
           
-          {actionItems.map((item) => (
-            <TouchableOpacity
-              key={item.id}
-              style={styles.actionItem}
-              onPress={item.onPress}
-              activeOpacity={0.7}
-            >
-              <Text style={styles.actionIcon}>{item.icon}</Text>
-              <Text style={styles.actionText}>{item.title}</Text>
-            </TouchableOpacity>
-          ))}
+          <TouchableOpacity
+            style={styles.actionItem}
+            onPress={() => navigation.navigate('ProfessionsManagement')}
+          >
+            <Text style={styles.actionIcon}>🔧</Text>
+            <Text style={styles.actionText}>Διαχείριση Επαγγελμάτων</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.actionItem}
+            onPress={() => navigation.navigate('CitiesManagement')}
+          >
+            <Text style={styles.actionIcon}>🏙️</Text>
+            <Text style={styles.actionText}>Διαχείριση Πόλεων</Text>
+          </TouchableOpacity>
         </View>
 
         {/* Logout Button */}
@@ -257,6 +270,12 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#1f2937',
     marginBottom: 4,
+  },
+  buildVersion: {
+    fontSize: 10,
+    color: '#9ca3af',
+    marginBottom: 4,
+    fontWeight: '500',
   },
   userEmail: {
     fontSize: 16,

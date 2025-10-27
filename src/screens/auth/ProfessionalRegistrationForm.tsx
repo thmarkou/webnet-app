@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { getCities, getProfessions } from '../../services/storage/tableManager';
 import {
   View,
   Text,
@@ -14,6 +15,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { useAuthStore } from '../../store/auth/authStore';
 import * as ImagePicker from 'expo-image-picker';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function ProfessionalRegistrationForm() {
   const navigation = useNavigation();
@@ -22,6 +24,8 @@ export default function ProfessionalRegistrationForm() {
   const [showProfessionDropdown, setShowProfessionDropdown] = useState(false);
   const [showCityDropdown, setShowCityDropdown] = useState(false);
   const [showCountryDropdown, setShowCountryDropdown] = useState(false);
+  const [cities, setCities] = useState<string[]>([]);
+  const [professions, setProfessions] = useState<Array<{ name: string; icon: string }>>([]);
   const [formData, setFormData] = useState({
     // Step 1: Personal Information
     firstName: '',
@@ -53,26 +57,45 @@ export default function ProfessionalRegistrationForm() {
     price: '',
   });
 
-  const professions = [
-    { name: 'Ηλεκτρολόγος', icon: '⚡' },
-    { name: 'Υδραυλικός', icon: '🔧' },
-    { name: 'Δικηγόρος', icon: '⚖️' },
-    { name: 'Καθαριστής', icon: '🧹' },
-    { name: 'Μηχανικός Γενικά', icon: '🔩' },
-    { name: 'Γιατρός', icon: '🩺' },
-    { name: 'Ξυλουργός', icon: '🔨' },
-    { name: 'Μηχανικός Αυτοκινήτων', icon: '🚗' },
-    { name: 'Δημοσιογράφος', icon: '📺' }
-  ];
+  // Load professions from AsyncStorage (same as FindProfessionalsScreen)
+  useEffect(() => {
+    const loadProfessions = async () => {
+      try {
+        const professionsData = await getProfessions();
+        // Map to format { name, icon }
+        const formattedProfessions = professionsData.map((p: any) => ({
+          name: p.name,
+          icon: p.icon || '🔧'
+        }));
+        setProfessions(formattedProfessions);
+      } catch (error) {
+        console.error('Error loading professions:', error);
+        // Fallback to basic list
+        setProfessions([
+          { name: 'Ηλεκτρολόγος', icon: '⚡' },
+          { name: 'Υδραυλικός', icon: '🔧' },
+          { name: 'Δικηγόρος', icon: '⚖️' }
+        ]);
+      }
+    };
+    loadProfessions();
+  }, []);
 
-  const cities = [
-    'Αθήνα',
-    'Θεσσαλονίκη',
-    'Πάτρα',
-    'Ηράκλειο',
-    'Λάρισα',
-    'Βόλος'
-  ];
+  // Load cities from AsyncStorage (same as FindProfessionalsScreen)
+  useEffect(() => {
+    const loadCities = async () => {
+      try {
+        const citiesData = await getCities();
+        const cityNames = citiesData.map((c: any) => c.name);
+        setCities(cityNames);
+      } catch (error) {
+        console.error('Error loading cities:', error);
+        // Fallback to basic list
+        setCities(['Αθήνα', 'Θεσσαλονίκη', 'Πάτρα', 'Ηράκλειο', 'Λάρισα', 'Βόλος']);
+      }
+    };
+    loadCities();
+  }, []);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -139,13 +162,95 @@ export default function ProfessionalRegistrationForm() {
     }
 
     try {
+      // Call register without auto-login
       await register({
         ...formData,
         role: 'professional'
       });
-      // Navigation will be handled by RootNavigator
+
+      // Also save professional to customProfessionals list for display
+      // Find the city ID from the name
+      const cityId = cities.find(c => c.name === formData.city)?.id || formData.city.toLowerCase().replace(/\s+/g, '_');
+      
+      const newProfessional = {
+        id: Date.now().toString(),
+        name: `${formData.firstName} ${formData.lastName}`,
+        profession: formData.profession,
+        category: formData.profession.toLowerCase().replace(/\s+/g, '_'),
+        city: cityId,
+        rating: 0,
+        reviewCount: 0,
+        price: formData.price ? `€${formData.price}` : '€0-0',
+        distance: '0 km',
+        availability: 'Διαθέσιμος',
+        services: [formData.serviceName],
+        description: formData.about || formData.serviceDescription || `Επαγγελματίας ${formData.profession}`,
+        image: formData.profilePhoto || '👨‍💼',
+        verified: false,
+        responseTime: '2 ώρες',
+        completionRate: '0%',
+        phone: formData.phone,
+        email: formData.email,
+        address: `${formData.streetName} ${formData.number}, ${formData.postalCode} ${formData.city}, ${formData.country}`,
+        coordinates: {
+          latitude: 0, // Will be set later if geocoding is added
+          longitude: 0,
+        },
+        businessName: formData.businessName,
+        vatNumber: formData.vatNumber,
+        website: formData.website,
+      };
+
+      // Save to AsyncStorage in customProfessionals
+      try {
+        const existingProfessionals = await AsyncStorage.getItem('customProfessionals');
+        const professionalsArray = existingProfessionals ? JSON.parse(existingProfessionals) : [];
+        professionalsArray.push(newProfessional);
+        await AsyncStorage.setItem('customProfessionals', JSON.stringify(professionalsArray));
+        console.log('✅ Professional saved to list:', newProfessional.name);
+      } catch (storageError) {
+        console.error('Error saving professional:', storageError);
+      }
+      
+      // Show success message
+      Alert.alert(
+        '✅ Εγγραφή Επιτυχής',
+        'Ο επαγγελματικός λογαριασμός καταχωρήθηκε επιτυχώς.',
+        [
+          {
+            text: 'OK',
+            onPress: () => {
+              // Reset form and go back to step 1 for new registration
+              setFormData({
+                firstName: '',
+                lastName: '',
+                email: '',
+                phone: '',
+                password: '',
+                profilePhoto: null,
+                businessName: '',
+                profession: '',
+                vatNumber: '',
+                website: '',
+                about: '',
+                streetName: '',
+                number: '',
+                area: '',
+                postalCode: '',
+                city: '',
+                country: 'Ελλάδα',
+                serviceName: '',
+                serviceDescription: '',
+                duration: '',
+                price: '',
+              });
+              setCurrentStep(1);
+            }
+          }
+        ]
+      );
     } catch (error) {
-      Alert.alert('Σφάλμα', 'Η εγγραφή απέτυχε');
+      Alert.alert('Σφάλμα', 'Η εγγραφή απέτυχε. Παρακαλώ προσπαθήστε ξανά.');
     }
   };
 
@@ -442,26 +547,30 @@ export default function ProfessionalRegistrationForm() {
         </TouchableOpacity>
         {showCityDropdown && (
           <View style={styles.dropdownOptions}>
-            {cities.map((city) => (
-              <TouchableOpacity
-                key={city}
-                style={[
-                  styles.option,
-                  formData.city === city && styles.selectedOption
-                ]}
-                onPress={() => {
-                  handleInputChange('city', city);
-                  setShowCityDropdown(false);
-                }}
-              >
-                <Text style={[
-                  styles.optionText,
-                  formData.city === city && styles.selectedOptionText
-                ]}>
-                  {city}
-                </Text>
-              </TouchableOpacity>
-            ))}
+            {cities.length > 0 ? (
+              cities.map((city: string) => (
+                <TouchableOpacity
+                  key={city}
+                  style={[
+                    styles.option,
+                    formData.city === city && styles.selectedOption
+                  ]}
+                  onPress={() => {
+                    handleInputChange('city', city);
+                    setShowCityDropdown(false);
+                  }}
+                >
+                  <Text style={[
+                    styles.optionText,
+                    formData.city === city && styles.selectedOptionText
+                  ]}>
+                    {city}
+                  </Text>
+                </TouchableOpacity>
+              ))
+            ) : (
+              <Text style={styles.loadingText}>Φόρτωση πόλεων...</Text>
+            )}
           </View>
         )}
       </View>

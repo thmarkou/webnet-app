@@ -11,9 +11,10 @@ import RegisterScreen from '../screens/auth/RegisterScreen';
 import ForgotPasswordScreen from '../screens/auth/ForgotPasswordScreen';
 import ProfessionalRegistrationForm from '../screens/auth/ProfessionalRegistrationForm';
 
-// App Screens
 import HomeScreen from '../screens/app/HomeScreen';
 import ProfileScreen from '../screens/app/ProfileScreen';
+import FindProfessionalsScreen from '../screens/app/FindProfessionalsScreen';
+import SearchScreen from '../screens/app/SearchScreen';
 import AppointmentsListScreen from '../screens/app/AppointmentsListScreen';
 import ProfessionalDetailsScreen from '../screens/app/ProfessionalDetailsScreen';
 import BookAppointmentScreen from '../screens/app/BookAppointmentScreen';
@@ -32,8 +33,10 @@ import RecommendationManagementScreen from '../screens/app/RecommendationManagem
 import AddProfessionalScreen from '../screens/app/AddProfessionalScreen';
 import SubscriptionScreen from '../screens/app/SubscriptionScreen';
 import PaymentMethodsScreen from '../screens/app/PaymentMethodsScreen';
-import FindProfessionalsScreen from '../screens/app/FindProfessionalsScreen';
+import ProfessionsManagementScreen from '../screens/app/ProfessionsManagementScreen';
+import CitiesManagementScreen from '../screens/app/CitiesManagementScreen';
 import FriendsScreen from '../screens/app/FriendsScreen';
+import ProfessionalRegistrationsManagementScreen from '../screens/app/ProfessionalRegistrationsManagementScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -185,8 +188,13 @@ export default function RootNavigator() {
           options={{ headerShown: false }}
         />
         <Stack.Screen
-          name="AddProfessional"
-          component={AddProfessionalScreen}
+          name="ProfessionsManagement"
+          component={ProfessionsManagementScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="CitiesManagement"
+          component={CitiesManagementScreen}
           options={{ headerShown: false }}
         />
         <Stack.Screen
@@ -204,16 +212,21 @@ export default function RootNavigator() {
             component={FindProfessionalsScreen}
             options={{ headerShown: false }}
           />
-          <Stack.Screen 
-            name="ProfessionalRegistration" 
-            component={ProfessionalRegistrationForm}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen 
-            name="Friends" 
-            component={FriendsScreen}
-            options={{ headerShown: false }}
-          />
+        <Stack.Screen 
+          name="ProfessionalRegistration" 
+          component={ProfessionalRegistrationForm}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="ProfessionalRegistrationsManagement"
+          component={ProfessionalRegistrationsManagementScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen 
+          name="Friends" 
+          component={FriendsScreen}
+          options={{ headerShown: false }}
+        />
         </>
       )}
     </Stack.Navigator>

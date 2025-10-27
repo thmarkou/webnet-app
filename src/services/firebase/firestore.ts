@@ -12,7 +12,8 @@ import {
   limit,
   Timestamp 
 } from 'firebase/firestore';
-import { db } from './config';
+// Firebase imports commented out due to compatibility issues with React Native
+// import { db } from './realConfig';
 
 // Collections
 export const COLLECTIONS = {

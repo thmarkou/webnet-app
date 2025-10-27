@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, StyleSheet, TouchableOpacity, Text, Linking, Alert, Platform } from 'react-native';
-import MapView, { Marker, PROVIDER_GOOGLE, PROVIDER_DEFAULT } from 'react-native-maps';
+import MapView, { Marker } from 'react-native-maps';
 
 interface ProfessionalMapProps {
   professional: {
@@ -18,39 +18,22 @@ interface ProfessionalMapProps {
 export default function ProfessionalMap({ professional }: ProfessionalMapProps) {
   const { name, profession, address, coordinates } = professional;
 
-  // Only show map on iOS for now
-  if (Platform.OS === 'android') {
-    return (
-      <View style={styles.container}>
-        <View style={styles.header}>
-          <Text style={styles.title}>📍 Τοποθεσία</Text>
-        </View>
-        <Text style={styles.address}>{address}</Text>
-        <View style={styles.androidPlaceholder}>
-          <Text style={styles.androidPlaceholderText}>
-            🗺️ Χάρτης διαθέσιμος μόνο σε iOS
-          </Text>
-          <Text style={styles.androidPlaceholderSubtext}>
-            Η λειτουργία χάρτη θα είναι διαθέσιμη στο Android σε επόμενη ενημέρωση
-          </Text>
-        </View>
-      </View>
-    );
-  }
-
   const handleGetDirections = () => {
-    const url = `https://maps.google.com/maps?daddr=${coordinates.latitude},${coordinates.longitude}`;
+    // Use coordinates for consistent behavior across all locations
+    const url = Platform.OS === 'ios'
+      ? `http://maps.apple.com/?ll=${coordinates.latitude},${coordinates.longitude}&q=${coordinates.latitude},${coordinates.longitude}`
+      : `https://maps.google.com/maps?daddr=${coordinates.latitude},${coordinates.longitude}`;
     
     Linking.canOpenURL(url)
       .then((supported) => {
         if (supported) {
           Linking.openURL(url);
         } else {
-          Alert.alert('Σφάλμα', 'Δεν μπορεί να ανοίξει το Google Maps');
+          Alert.alert('Σφάλμα', 'Δεν μπορεί να ανοίξει το Χάρτες');
         }
       })
       .catch((err) => {
-        Alert.alert('Σφάλμα', 'Παρουσιάστηκε σφάλμα κατά το άνοιγμα του Google Maps');
+        Alert.alert('Σφάλμα', 'Παρουσιάστηκε σφάλμα κατά το άνοιγμα του Χαρτών');
       });
   };
 
@@ -58,16 +41,13 @@ export default function ProfessionalMap({ professional }: ProfessionalMapProps) 
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>📍 Τοποθεσία</Text>
-        <TouchableOpacity style={styles.directionsButton} onPress={handleGetDirections}>
-          <Text style={styles.directionsButtonText}>🚗 Οδηγίες</Text>
-        </TouchableOpacity>
       </View>
       
       <Text style={styles.address}>{address}</Text>
       
+      {/* Native Apple Maps on iOS */}
       <View style={styles.mapContainer}>
         <MapView
-          provider={Platform.OS === 'ios' ? PROVIDER_GOOGLE : PROVIDER_DEFAULT}
           style={styles.map}
           initialRegion={{
             latitude: coordinates.latitude,
@@ -84,7 +64,6 @@ export default function ProfessionalMap({ professional }: ProfessionalMapProps) 
             coordinate={coordinates}
             title={name}
             description={`${profession} - ${address}`}
-            pinColor="#007AFF"
           />
         </MapView>
       </View>
@@ -143,6 +122,24 @@ const styles = StyleSheet.create({
   },
   map: {
     flex: 1,
+  },
+  mapImageContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f0f0f0',
+    borderRadius: 8,
+  },
+  mapInstructionText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#007AFF',
+    marginBottom: 8,
+  },
+  mapSubtext: {
+    fontSize: 12,
+    color: '#666',
+    textAlign: 'center',
   },
   androidPlaceholder: {
     height: 200,

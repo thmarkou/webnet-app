@@ -8,15 +8,12 @@ interface GeocodingResult {
 }
 
 class GeocodingService {
-  private apiKey: string;
-
   constructor() {
-    // In production, this should come from environment variables
-    this.apiKey = 'YOUR_GOOGLE_MAPS_API_KEY'; // Replace with actual API key
+    // Using OpenStreetMap Nominatim API - completely free, no API key needed
   }
 
   /**
-   * Convert address to coordinates using Google Geocoding API
+   * Convert address to coordinates using OpenStreetMap Nominatim API
    * @param address - Full address string
    * @param postalCode - Postal code
    * @param city - City name
@@ -33,30 +30,24 @@ class GeocodingService {
       // Construct full address
       const fullAddress = `${address}, ${postalCode} ${city}, ${country}`;
       
-      // For development/testing, return mock coordinates
-      if (this.apiKey === 'YOUR_GOOGLE_MAPS_API_KEY') {
-        return this.getMockCoordinates(city);
-      }
-
-      // Make API call to Google Geocoding API
+      // Use OpenStreetMap Nominatim API (free, no API key required)
       const response = await fetch(
-        `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(fullAddress)}&key=${this.apiKey}`
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(fullAddress)}&limit=1&countrycodes=gr`
       );
 
       const data = await response.json();
 
-      if (data.status === 'OK' && data.results.length > 0) {
-        const result = data.results[0];
-        const location = result.geometry.location;
+      if (data && data.length > 0) {
+        const result = data[0];
 
         return {
-          latitude: location.lat,
-          longitude: location.lng,
-          formattedAddress: result.formatted_address,
+          latitude: parseFloat(result.lat),
+          longitude: parseFloat(result.lon),
+          formattedAddress: result.display_name,
           success: true,
         };
       } else {
-        console.error('Geocoding failed:', data.status, data.error_message);
+        console.log('OpenStreetMap geocoding failed, using mock coordinates');
         return this.getMockCoordinates(city);
       }
     } catch (error) {
@@ -74,7 +65,7 @@ class GeocodingService {
     // Specific address coordinates for known addresses
     const specificAddresses: { [key: string]: { lat: number; lng: number; address: string } } = {
       'Ιωνίας 71, 54453 Θεσσαλονίκη': { lat: 40.608796, lng: 22.970381, address: 'Ιωνίας 71, 54453 Θεσσαλονίκη, Ελλάδα' },
-      'Μακροχωρίου 7, 11363 Αθήνα': { lat: 37.9945, lng: 23.7305, address: 'Μακροχωρίου 7, 11363 Αθήνα, Ελλάδα' },
+      'Μακροχωρίου 7, 11363 Αθήνα': { lat: 37.99811, lng: 23.74883, address: 'Μακροχωρίου 7, 11363 Αθήνα, Ελλάδα' },
     };
 
     // City center coordinates as fallback
@@ -100,25 +91,21 @@ class GeocodingService {
   }
 
   /**
-   * Reverse geocoding - convert coordinates to address
+   * Reverse geocoding - convert coordinates to address using OpenStreetMap
    * @param latitude - Latitude coordinate
    * @param longitude - Longitude coordinate
    * @returns Promise with formatted address
    */
   async reverseGeocode(latitude: number, longitude: number): Promise<string> {
     try {
-      if (this.apiKey === 'YOUR_GOOGLE_MAPS_API_KEY') {
-        return 'Mock Address, Ελλάδα';
-      }
-
       const response = await fetch(
-        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${this.apiKey}`
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`
       );
 
       const data = await response.json();
 
-      if (data.status === 'OK' && data.results.length > 0) {
-        return data.results[0].formatted_address;
+      if (data && data.display_name) {
+        return data.display_name;
       } else {
         return 'Address not found';
       }
@@ -126,22 +113,6 @@ class GeocodingService {
       console.error('Reverse geocoding error:', error);
       return 'Address not found';
     }
-  }
-
-  /**
-   * Set API key for production use
-   * @param apiKey - Google Maps API key
-   */
-  setApiKey(apiKey: string) {
-    this.apiKey = apiKey;
-  }
-
-  /**
-   * Validate if API key is configured
-   * @returns boolean indicating if API key is set
-   */
-  isApiKeyConfigured(): boolean {
-    return this.apiKey !== 'YOUR_GOOGLE_MAPS_API_KEY' && this.apiKey.length > 0;
   }
 }
 

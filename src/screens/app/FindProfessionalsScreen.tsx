@@ -11,10 +11,12 @@ import {
   FlatList,
   Alert,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { useAuthStore } from '../../store/auth/authStore';
 import { recommendationService } from '../../services/recommendations/recommendationService';
 import { ProfessionalRecommendation } from '../../types/recommendations';
+import { getProfessions, getCities, initializeTables } from '../../services/storage/tableManager';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function FindProfessionalsScreen() {
   const navigation = useNavigation();
@@ -24,69 +26,13 @@ export default function FindProfessionalsScreen() {
   const [selectedCity, setSelectedCity] = useState('');
   const [minRating, setMinRating] = useState(0); // 0 = all, 1-5 stars
   const [sortBy, setSortBy] = useState('rating'); // rating, distance, price
-  const [professionals, setProfessionals] = useState([]);
+  const [professionals, setProfessionals] = useState<any[]>([]);
+  const [categories, setCategories] = useState<any[]>([]);
+  const [cities, setCities] = useState<any[]>([]);
   const [friendRecommendations, setFriendRecommendations] = useState<ProfessionalRecommendation[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
   const [showCityDropdown, setShowCityDropdown] = useState(false);
-
-  const categories = [
-    { id: '', name: 'Όλες οι Κατηγορίες', icon: '🔧' },
-    { id: 'electrician', name: 'Ηλεκτρολόγος', icon: '⚡' },
-    { id: 'plumber', name: 'Υδραυλικός', icon: '🚰' },
-    { id: 'painter', name: 'Μαραγκός', icon: '🎨' },
-    { id: 'cleaner', name: 'Καθαριστής', icon: '🧹' },
-    { id: 'gardener', name: 'Κηπουρός', icon: '🌱' },
-    { id: 'mechanic', name: 'Μηχανικός Γενικά', icon: '🔧' },
-    { id: 'locksmith', name: 'Κλειδαράς', icon: '🔐' },
-    { id: 'hvac', name: 'Θερμοσίφωνας', icon: '🔥' },
-    { id: 'flooring', name: 'Παρκέ', icon: '🏠' },
-    { id: 'roofing', name: 'Στεγές', icon: '🏘️' },
-    { id: 'appliance', name: 'Συσκευές', icon: '🔌' },
-    { id: 'security', name: 'Ασφάλεια', icon: '🛡️' },
-    { id: 'landscaping', name: 'Τοπία', icon: '🌳' },
-    { id: 'pool', name: 'Πισίνα', icon: '🏊' },
-    { id: 'furniture', name: 'Έπιπλα', icon: '🪑' },
-    { id: 'glass', name: 'Γυαλί', icon: '🪟' },
-    { id: 'metalwork', name: 'Μεταλλοτεχνία', icon: '⚒️' },
-    { id: 'concrete', name: 'Σκυρόδεμα', icon: '🏗️' },
-    { id: 'carpenter', name: 'Ξυλουργός', icon: '🔨' },
-    { id: 'car_mechanic', name: 'Μηχανικός Αυτοκινήτων', icon: '🚗' },
-    { id: 'journalist', name: 'Δημοσιογράφος', icon: '📺' },
-  ];
-
-  const cities = [
-    { id: '', name: 'Όλες οι Πόλεις' },
-    { id: 'athens', name: 'Αθήνα' },
-    { id: 'thessaloniki', name: 'Θεσσαλονίκη' },
-    { id: 'patras', name: 'Πάτρα' },
-    { id: 'heraklion', name: 'Ηράκλειο' },
-    { id: 'larissa', name: 'Λάρισα' },
-    { id: 'volos', name: 'Βόλος' },
-    { id: 'ioannina', name: 'Ιωάννινα' },
-    { id: 'kavala', name: 'Καβάλα' },
-    { id: 'komotini', name: 'Κομοτηνή' },
-    { id: 'serres', name: 'Σέρρες' },
-    { id: 'drama', name: 'Δράμα' },
-    { id: 'xanthi', name: 'Ξάνθη' },
-    { id: 'alexandroupoli', name: 'Αλεξανδρούπολη' },
-    { id: 'kalamata', name: 'Καλαμάτα' },
-    { id: 'tripoli', name: 'Τρίπολη' },
-    { id: 'sparti', name: 'Σπάρτη' },
-    { id: 'corinth', name: 'Κόρινθος' },
-    { id: 'argos', name: 'Άργος' },
-    { id: 'nafplio', name: 'Ναύπλιο' },
-    { id: 'mykonos', name: 'Μύκονος' },
-    { id: 'santorini', name: 'Σαντορίνη' },
-    { id: 'rhodes', name: 'Ρόδος' },
-    { id: 'crete', name: 'Κρήτη' },
-    { id: 'lesvos', name: 'Λέσβος' },
-    { id: 'chios', name: 'Χίος' },
-    { id: 'samos', name: 'Σάμος' },
-    { id: 'zakynthos', name: 'Ζάκυνθος' },
-    { id: 'kefalonia', name: 'Κεφαλονιά' },
-    { id: 'corfu', name: 'Κέρκυρα' },
-  ];
 
   const mockProfessionals = [
     {
@@ -396,16 +342,41 @@ export default function FindProfessionalsScreen() {
       email: 'aris.markou@example.com',
       address: 'Μακροχωρίου 7, 11363 Αθήνα, Ελλάδα',
       coordinates: {
-        latitude: 37.9755,
-        longitude: 23.7348
+        latitude: 37.99811,
+        longitude: 23.74883
       }
     }
   ];
 
   useEffect(() => {
-    console.log('Categories available:', categories.map(c => c.name));
-    filterProfessionals();
-  }, [searchQuery, selectedCategory, selectedCity, minRating, sortBy]);
+    initializeTables();
+    loadCategoriesAndCities();
+  }, []);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      filterProfessionals();
+    }, [searchQuery, selectedCategory, selectedCity, minRating, sortBy])
+  );
+
+  const loadCategoriesAndCities = async () => {
+    try {
+      const [professionsData, citiesData] = await Promise.all([
+        getProfessions(),
+        getCities()
+      ]);
+      setCategories(professionsData);
+      setCities(citiesData);
+      
+      // Debug: Check if Νέα Μουδανιά is in the list
+      const hasNeaMoudania = citiesData.some(c => c.name === 'Νέα Μουδανιά');
+      console.log('🔍 Cities loaded:', citiesData.length);
+      console.log(hasNeaMoudania ? '✅ Νέα Μουδανιά IS in the list' : '❌ Νέα Μουδανιά NOT in the list');
+      console.log('Sample cities:', citiesData.slice(0, 5).map(c => c.name));
+    } catch (error) {
+      console.error('Error loading categories and cities:', error);
+    }
+  };
 
   const clearAllFilters = () => {
     setSearchQuery('');
@@ -417,7 +388,7 @@ export default function FindProfessionalsScreen() {
     setShowCityDropdown(false);
   };
 
-  const handleContact = (professional) => {
+  const handleContact = (professional: any) => {
     // For now, we'll show an alert with contact options
     // In a real app, this could open a phone dialer, email client, or chat
     Alert.alert(
@@ -442,10 +413,8 @@ export default function FindProfessionalsScreen() {
           text: '💬 Chat',
           onPress: () => {
             // Navigate to chat screen
-            navigation.navigate('Chat', { 
-              senderId: professional.id,
-              professionalName: professional.name 
-            });
+            // Navigate to chat (disabled for now)
+            Alert.alert('Chat', 'Η λειτουργία chat θα προστεθεί σύντομα');
           }
         },
         {
@@ -456,12 +425,22 @@ export default function FindProfessionalsScreen() {
     );
   };
 
-  const filterProfessionals = () => {
+  const filterProfessionals = async () => {
     setIsLoading(true);
     
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      // Load custom professionals from AsyncStorage
       let filtered = [...mockProfessionals];
+      try {
+        const customProfessionalsJson = await AsyncStorage.getItem('customProfessionals');
+        if (customProfessionalsJson) {
+          const customProfessionals = JSON.parse(customProfessionalsJson);
+          console.log('Loaded custom professionals:', customProfessionals.length);
+          filtered = [...mockProfessionals, ...customProfessionals];
+        }
+      } catch (error) {
+        console.error('Error loading custom professionals:', error);
+      }
       
       // Filter by search query
       if (searchQuery) {
@@ -479,7 +458,15 @@ export default function FindProfessionalsScreen() {
       
       // Filter by city
       if (selectedCity) {
-        filtered = filtered.filter(prof => prof.city === selectedCity);
+        // Normalize city comparison - handle both old format (city names) and new format (city IDs)
+        const selectedCityName = cities.find(c => c.id === selectedCity)?.name.toLowerCase().replace(/\s+/g, '_') || selectedCity;
+        filtered = filtered.filter(prof => {
+          // Try matching by ID first
+          if (prof.city === selectedCity) return true;
+          // Then try matching by normalized name
+          const profCityNormalized = prof.city.toLowerCase().replace(/\s+/g, '_');
+          return profCityNormalized === selectedCityName;
+        });
       }
       
       // Filter by minimum rating
@@ -551,7 +538,11 @@ export default function FindProfessionalsScreen() {
       
       setProfessionals(filtered);
       setIsLoading(false);
-    }, 500);
+    } catch (error) {
+      console.error('Error loading professionals:', error);
+      setProfessionals(mockProfessionals); // Fallback to mock data
+      setIsLoading(false);
+    }
   };
 
   const renderProfessional = ({ item }) => {
