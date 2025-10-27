@@ -213,6 +213,14 @@ export default function ProfileScreen() {
             <Text style={styles.actionIcon}>🏙️</Text>
             <Text style={styles.actionText}>Διαχείριση Πόλεων</Text>
           </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.actionItem}
+            onPress={() => navigation.navigate('DebugStorage')}
+          >
+            <Text style={styles.actionIcon}>🐛</Text>
+            <Text style={styles.actionText}>Debug Storage</Text>
+          </TouchableOpacity>
         </View>
 
         {/* Logout Button */}

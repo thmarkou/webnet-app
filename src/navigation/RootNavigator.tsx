@@ -37,6 +37,7 @@ import ProfessionsManagementScreen from '../screens/app/ProfessionsManagementScr
 import CitiesManagementScreen from '../screens/app/CitiesManagementScreen';
 import FriendsScreen from '../screens/app/FriendsScreen';
 import ProfessionalRegistrationsManagementScreen from '../screens/app/ProfessionalRegistrationsManagementScreen';
+import DebugStorageScreen from '../screens/app/DebugStorageScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -225,6 +226,11 @@ export default function RootNavigator() {
         <Stack.Screen 
           name="Friends" 
           component={FriendsScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="DebugStorage"
+          component={DebugStorageScreen}
           options={{ headerShown: false }}
         />
         </>

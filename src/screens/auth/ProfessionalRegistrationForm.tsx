@@ -12,28 +12,79 @@ import {
   Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { useAuthStore } from '../../store/auth/authStore';
 import * as ImagePicker from 'expo-image-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { geocodingService } from '../../services/geocoding/geocodingService';
 
 export default function ProfessionalRegistrationForm() {
   const navigation = useNavigation();
+  const route = useRoute();
   const { register, isLoading } = useAuthStore();
+  const { editMode = false, professionalData } = (route.params as any) || {};
+  
   const [currentStep, setCurrentStep] = useState(1);
   const [showProfessionDropdown, setShowProfessionDropdown] = useState(false);
   const [showCityDropdown, setShowCityDropdown] = useState(false);
   const [showCountryDropdown, setShowCountryDropdown] = useState(false);
   const [cities, setCities] = useState<string[]>([]);
   const [professions, setProfessions] = useState<Array<{ name: string; icon: string }>>([]);
-  const [formData, setFormData] = useState({
-    // Step 1: Personal Information
-    firstName: '',
-    lastName: '',
-    email: '',
-    phone: '',
-    password: '',
-    profilePhoto: null,
+  
+  // Helper to parse address
+  const parseAddress = (address: string) => {
+    const addressParts = address?.split(', ') || [];
+    const streetParts = addressParts[0]?.split(' ') || [];
+    return {
+      streetName: streetParts.slice(0, -1).join(' ') || '',
+      number: streetParts[streetParts.length - 1] || '',
+      postalCode: addressParts[1]?.split(' ')[0] || '',
+      city: addressParts[1]?.split(' ').slice(1).join(' ') || '',
+    };
+  };
+  
+  const getInitialFormData = () => {
+    if (editMode && professionalData) {
+      const addr = parseAddress(professionalData.address);
+      return {
+        // Step 1: Personal Information
+        firstName: professionalData.name?.split(' ')[0] || '',
+        lastName: professionalData.name?.split(' ').slice(1).join(' ') || '',
+        email: professionalData.email || '',
+        phone: professionalData.phone || '',
+        password: '',
+        profilePhoto: professionalData.image || null,
+        
+        // Step 2: Business Information
+        businessName: professionalData.businessName || '',
+        profession: professionalData.profession || '',
+        vatNumber: professionalData.vatNumber || '',
+        website: professionalData.website || '',
+        about: professionalData.description || '',
+        
+        // Step 3: Address Information
+        streetName: addr.streetName,
+        number: addr.number,
+        area: professionalData.area || '',
+        postalCode: addr.postalCode,
+        city: professionalData.cityName || professionalData.city || '',
+        country: 'Ελλάδα',
+        
+        // Step 4: Service Information
+        serviceName: professionalData.services?.[0] || '',
+        serviceDescription: professionalData.description || '',
+        duration: professionalData.serviceDuration || '',
+        price: professionalData.price?.replace('€', '') || '',
+      };
+    }
+    return {
+      // Step 1: Personal Information
+      firstName: '',
+      lastName: '',
+      email: '',
+      phone: '',
+      password: '',
+      profilePhoto: null,
     
     // Step 2: Business Information
     businessName: '',
@@ -55,7 +106,10 @@ export default function ProfessionalRegistrationForm() {
     serviceDescription: '',
     duration: '',
     price: '',
-  });
+    };
+  };
+  
+  const [formData, setFormData] = useState(getInitialFormData());
 
   // Load professions from AsyncStorage (same as FindProfessionalsScreen)
   useEffect(() => {
@@ -168,22 +222,39 @@ export default function ProfessionalRegistrationForm() {
         role: 'professional'
       });
 
+      // Get coordinates from address using geocoding
+      const fullAddress = `${formData.streetName} ${formData.number}`;
+      const geocodingResult = await geocodingService.geocodeAddress(
+        fullAddress,
+        formData.postalCode,
+        formData.city,
+        formData.country
+      );
+
+      if (!geocodingResult.success) {
+        Alert.alert('Σφάλμα', 'Δεν ήταν δυνατή η εύρεση των συντεταγμένων της διεύθυνσης.');
+        setIsLoading(false);
+        return;
+      }
+
       // Also save professional to customProfessionals list for display
       // Find the city ID from the name
       const cityId = cities.find(c => c.name === formData.city)?.id || formData.city.toLowerCase().replace(/\s+/g, '_');
       
       const newProfessional = {
-        id: Date.now().toString(),
+        id: editMode && professionalData ? professionalData.id : Date.now().toString(),
         name: `${formData.firstName} ${formData.lastName}`,
         profession: formData.profession,
         category: formData.profession.toLowerCase().replace(/\s+/g, '_'),
         city: cityId,
+        cityName: formData.city, // Save original city name
         rating: 0,
         reviewCount: 0,
         price: formData.price ? `€${formData.price}` : '€0-0',
         distance: '0 km',
         availability: 'Διαθέσιμος',
         services: [formData.serviceName],
+        serviceDuration: formData.duration,
         description: formData.about || formData.serviceDescription || `Επαγγελματίας ${formData.profession}`,
         image: formData.profilePhoto || '👨‍💼',
         verified: false,
@@ -191,10 +262,11 @@ export default function ProfessionalRegistrationForm() {
         completionRate: '0%',
         phone: formData.phone,
         email: formData.email,
+        area: formData.area, // Save area
         address: `${formData.streetName} ${formData.number}, ${formData.postalCode} ${formData.city}, ${formData.country}`,
         coordinates: {
-          latitude: 0, // Will be set later if geocoding is added
-          longitude: 0,
+          latitude: geocodingResult.latitude,
+          longitude: geocodingResult.longitude,
         },
         businessName: formData.businessName,
         vatNumber: formData.vatNumber,
@@ -205,50 +277,52 @@ export default function ProfessionalRegistrationForm() {
       try {
         const existingProfessionals = await AsyncStorage.getItem('customProfessionals');
         const professionalsArray = existingProfessionals ? JSON.parse(existingProfessionals) : [];
-        professionalsArray.push(newProfessional);
-        await AsyncStorage.setItem('customProfessionals', JSON.stringify(professionalsArray));
-        console.log('✅ Professional saved to list:', newProfessional.name);
-      } catch (storageError) {
-        console.error('Error saving professional:', storageError);
-      }
-      
-      // Show success message
-      Alert.alert(
-        '✅ Εγγραφή Επιτυχής',
-        'Ο επαγγελματικός λογαριασμός καταχωρήθηκε επιτυχώς.',
-        [
-          {
-            text: 'OK',
-            onPress: () => {
+        
+        if (editMode && professionalData) {
+          // Update existing professional
+          const index = professionalsArray.findIndex((p: any) => p.id === professionalData.id);
+          if (index !== -1) {
+            professionalsArray[index] = { ...newProfessional, id: professionalData.id };
+            await AsyncStorage.setItem('customProfessionals', JSON.stringify(professionalsArray));
+            console.log('✅ Professional updated:', newProfessional.name);
+            
+            // Show success message for update
+            Alert.alert(
+              '✅ Ενημέρωση Επιτυχής',
+              'Ο επαγγελματίας ενημερώθηκε επιτυχώς!',
+              [
+                {
+                  text: 'OK',
+                  onPress: () => navigation.goBack()
+                }
+              ]
+            );
+          }
+        } else {
+          // Add new professional
+          professionalsArray.push(newProfessional);
+          await AsyncStorage.setItem('customProfessionals', JSON.stringify(professionalsArray));
+          console.log('✅ Professional saved to list:', newProfessional.name);
+          
+          // Show success message for new registration
+          Alert.alert(
+            '✅ Εγγραφή Επιτυχής',
+            'Ο επαγγελματικός λογαριασμός καταχωρήθηκε επιτυχώς.',
+            [
+              {
+                text: 'OK',
+                onPress: () => {
               // Reset form and go back to step 1 for new registration
-              setFormData({
-                firstName: '',
-                lastName: '',
-                email: '',
-                phone: '',
-                password: '',
-                profilePhoto: null,
-                businessName: '',
-                profession: '',
-                vatNumber: '',
-                website: '',
-                about: '',
-                streetName: '',
-                number: '',
-                area: '',
-                postalCode: '',
-                city: '',
-                country: 'Ελλάδα',
-                serviceName: '',
-                serviceDescription: '',
-                duration: '',
-                price: '',
-              });
+              setFormData(getInitialFormData());
               setCurrentStep(1);
             }
           }
         ]
       );
+        }
+      } catch (storageError) {
+        console.error('Error saving professional:', storageError);
+      }
     } catch (error) {
       Alert.alert('Σφάλμα', 'Η εγγραφή απέτυχε. Παρακαλώ προσπαθήστε ξανά.');
     }
@@ -704,7 +778,7 @@ export default function ProfessionalRegistrationForm() {
           disabled={isLoading}
         >
           <Text style={styles.nextButtonText}>
-            {currentStep === 4 ? 'Δημιουργ. Λογαριασμού' : 'Επόμενο →'}
+            {currentStep === 4 ? (editMode ? 'Ενημερ. Λογαριασμού' : 'Δημιουργ. Λογαριασμού') : 'Επόμενο →'}
           </Text>
         </TouchableOpacity>
       </View>

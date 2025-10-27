@@ -6,17 +6,74 @@ import {
   StyleSheet, 
   SafeAreaView, 
   StatusBar,
-  ScrollView 
+  ScrollView,
+  Alert
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useAuthStore } from '../../store/auth/authStore';
 import ProfessionalMap from '../../components/ProfessionalMap';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function ProfessionalDetailsScreen() {
   const navigation = useNavigation();
   const route = useRoute();
   const { user } = useAuthStore();
   const { professional } = route.params || {};
+
+  const handleDeleteProfessional = () => {
+    // First confirmation
+    Alert.alert(
+      '⚠️ Επιβεβαίωση Διαγραφής',
+      'Είστε σίγουροι ότι θέλετε να διαγράψετε αυτόν τον επαγγελματία;\n\nΗ ενέργεια αυτή είναι μη αναστρέψιμη.',
+      [
+        { text: 'Ακύρωση', style: 'cancel' },
+        {
+          text: 'Συνέχεια',
+          style: 'destructive',
+          onPress: () => {
+            // Second confirmation
+            Alert.alert(
+              '⚠️ Τελική Επιβεβαίωση',
+              'Θέλετε ΟΝΤΩΣ να διαγράψετε τον επαγγελματία;\n\nΤο όνομα θα αφαιρεθεί μόνιμα.',
+              [
+                { text: 'Όχι', style: 'cancel' },
+                {
+                  text: 'ΝΑΙ, ΔΙΑΓΡΑΦΗ',
+                  style: 'destructive',
+                  onPress: async () => {
+                    try {
+                      const customProfessionalsJson = await AsyncStorage.getItem('customProfessionals');
+                      if (customProfessionalsJson) {
+                        const customProfessionals = JSON.parse(customProfessionalsJson);
+                        const filtered = customProfessionals.filter((p: any) => p.id !== professional?.id);
+                        await AsyncStorage.setItem('customProfessionals', JSON.stringify(filtered));
+                        
+                        // Success message
+                        Alert.alert(
+                          '✅ Διαγραφή Επιτυχής',
+                          'Ο επαγγελματίας διαγράφηκε με επιτυχία.',
+                          [{ text: 'OK', onPress: () => navigation.goBack() }]
+                        );
+                      }
+                    } catch (error) {
+                      Alert.alert('Σφάλμα', 'Η διαγραφή απέτυχε.');
+                    }
+                  }
+                }
+              ]
+            );
+          }
+        }
+      ]
+    );
+  };
+
+  const handleEditProfessional = () => {
+    navigation.navigate('ProfessionalRegistration', { 
+      editMode: true, 
+      professionalData: professional 
+    });
+  };
 
   // Use the professional data passed from navigation, or fallback to mock data
   const professionalData = professional ? {
@@ -27,8 +84,8 @@ export default function ProfessionalDetailsScreen() {
     location: professional.city === 'athens' ? 'Αθήνα, Ελλάδα' : 
               professional.city === 'thessaloniki' ? 'Θεσσαλονίκη, Ελλάδα' :
               professional.city === 'patras' ? 'Πάτρα, Ελλάδα' : 'Ελλάδα',
-    phone: '+30 6923456789',
-    email: `${professional.name.toLowerCase().replace(/\s+/g, '.')}@example.com`,
+    phone: professional.phone || '+30 6923456789',
+    email: professional.email || `${professional.name.toLowerCase().replace(/\s+/g, '.')}@example.com`,
     about: professional.description,
     verified: professional.verified,
     address: professional.address || 'Διεύθυνση δεν είναι διαθέσιμη',
@@ -199,10 +256,20 @@ export default function ProfessionalDetailsScreen() {
           ))}
         </View>
 
-        {/* Book Appointment Button */}
-        <TouchableOpacity style={styles.bookButton} onPress={handleBookAppointment}>
-          <Text style={styles.bookButtonText}>Κλείστε Ραντεβού</Text>
-        </TouchableOpacity>
+        {/* Action Buttons */}
+        <View style={styles.actionButtonsContainer}>
+          <TouchableOpacity style={styles.bookButton} onPress={handleBookAppointment}>
+            <Text style={styles.bookButtonText}>Κλείστε Ραντεβού</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity style={styles.editButton} onPress={handleEditProfessional}>
+            <Text style={styles.editButtonText}>✏️ Επεξεργασία</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity style={styles.deleteButton} onPress={handleDeleteProfessional}>
+            <Text style={styles.deleteButtonText}>🗑️ Διαγραφή</Text>
+          </TouchableOpacity>
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -447,17 +514,44 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#6b7280',
   },
+  actionButtonsContainer: {
+    marginBottom: 32,
+    gap: 12,
+  },
   bookButton: {
     backgroundColor: '#3b82f6',
     borderRadius: 12,
     paddingVertical: 16,
     alignItems: 'center',
-    marginBottom: 32,
     shadowColor: '#3b82f6',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 6,
+  },
+  editButton: {
+    backgroundColor: '#10b981',
+    borderRadius: 12,
+    paddingVertical: 16,
+    alignItems: 'center',
+    marginTop: 8,
+  },
+  editButtonText: {
+    color: '#ffffff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  deleteButton: {
+    backgroundColor: '#ef4444',
+    borderRadius: 12,
+    paddingVertical: 16,
+    alignItems: 'center',
+    marginTop: 8,
+  },
+  deleteButtonText: {
+    color: '#ffffff',
+    fontSize: 16,
+    fontWeight: '600',
   },
   bookButtonText: {
     color: '#ffffff',
