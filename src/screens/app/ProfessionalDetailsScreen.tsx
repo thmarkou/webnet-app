@@ -110,24 +110,8 @@ export default function ProfessionalDetailsScreen() {
     }
   };
 
-  const mockReviews = [
-    {
-      id: '1',
-      reviewer: 'Γιώργος Δημητρίου',
-      rating: 5,
-      comment: 'Η Γιάννη έκανε εξαιρετική δουλειά στην εγκατάσταση του νέου συστήματος φωτισμού μας. Πολύ επαγγελματική και γνώστης.',
-      date: '5.7.2023',
-      type: 'positive'
-    },
-    {
-      id: '2',
-      reviewer: 'Μαρία Παπαδοπούλου',
-      rating: 5,
-      comment: 'Εξαιρετική εξυπηρέτηση και πολύ αξιόπιστη. Συνιστώ ανεπιφύλακτα!',
-      date: '3.7.2023',
-      type: 'positive'
-    }
-  ];
+  // No mock reviews - only show real reviews from database
+  const reviews = [];
 
   const renderStars = (rating) => {
     const stars = [];
@@ -227,7 +211,13 @@ export default function ProfessionalDetailsScreen() {
             </TouchableOpacity>
           </View>
 
-          {mockReviews.map((review) => (
+          {reviews.length === 0 ? (
+            <View style={styles.emptyReviews}>
+              <Text style={styles.emptyReviewsText}>
+                Δεν υπάρχουν αξιολογήσεις ακόμα. Κάντε την πρώτη αξιολόγηση!
+              </Text>
+            </View>
+          ) : reviews.map((review) => (
             <View key={review.id} style={styles.reviewCard}>
               <View style={styles.reviewHeader}>
                 <View style={styles.reviewerAvatar}>
@@ -513,6 +503,19 @@ const styles = StyleSheet.create({
   reviewDate: {
     fontSize: 12,
     color: '#6b7280',
+  },
+  emptyReviews: {
+    padding: 24,
+    backgroundColor: '#f9fafb',
+    borderRadius: 8,
+    alignItems: 'center',
+    marginVertical: 12,
+  },
+  emptyReviewsText: {
+    fontSize: 14,
+    color: '#6b7280',
+    textAlign: 'center',
+    fontStyle: 'italic',
   },
   actionButtonsContainer: {
     marginBottom: 32,

@@ -189,14 +189,6 @@ export default function ProfileScreen() {
         {/* Management Options */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Διαχείριση</Text>
-
-          <TouchableOpacity
-            style={styles.actionItem}
-            onPress={() => navigation.navigate('ProfessionalRegistrationsManagement')}
-          >
-            <Text style={styles.actionIcon}>📋</Text>
-            <Text style={styles.actionText}>Διαχείριση Εγγραφών</Text>
-          </TouchableOpacity>
           
           <TouchableOpacity
             style={styles.actionItem}
