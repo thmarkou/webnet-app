@@ -7,12 +7,14 @@ import {
   StyleSheet, 
   SafeAreaView, 
   StatusBar,
-  TextInput 
+  TextInput,
+  Alert
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { triggerFriendRequestNotification } from '../../services/notifications/mockNotifications';
 import { getUnreadChatCount } from '../../services/messaging/mockMessaging';
 import { useAuthStore } from '../../store/auth/authStore';
+import { sendFriendRequest } from '../../services/firebase/firestore';
 
 export default function FriendsScreen() {
   const navigation = useNavigation();
@@ -29,7 +31,7 @@ export default function FriendsScreen() {
     const fetchUnreadCounts = async () => {
       if (user?.id) {
         const counts = {};
-        for (const friend of mockFriends) {
+        for (const friend of friends) {
           try {
             const count = await getUnreadChatCount(user.id, friend.id);
             counts[friend.id] = count;
@@ -81,23 +83,27 @@ export default function FriendsScreen() {
 
   const handleAddFriend = async (suggestionId) => {
     try {
+      if (!user?.id) {
+        Alert.alert('Σφάλμα', 'Πρέπει να είστε συνδεδεμένος');
+        return;
+      }
+
       // Find the suggestion to add
       const suggestion = suggestions.find(s => s.id === suggestionId);
-      if (!suggestion) return;
+      if (!suggestion) {
+        Alert.alert('Σφάλμα', 'Δεν βρέθηκε ο χρήστης');
+        return;
+      }
 
-      // Create new friend from suggestion
-      const newFriend = {
-        id: suggestionId,
-        name: suggestion.name,
-        profession: suggestion.profession,
-        status: 'friend',
-        avatar: suggestion.avatar
-      };
+      // Send friend request to Firestore
+      await sendFriendRequest({
+        fromUserId: user.id,
+        toUserId: suggestionId,
+        fromUserName: user.name || 'Χρήστης',
+        toUserName: suggestion.name,
+      });
 
-      // Add to friends list
-      setFriends(prevFriends => [...prevFriends, newFriend]);
-      
-      // Remove from suggestions
+      // Remove from suggestions (request sent, waiting for acceptance)
       setSuggestions(prevSuggestions => 
         prevSuggestions.filter(s => s.id !== suggestionId)
       );
@@ -105,9 +111,11 @@ export default function FriendsScreen() {
       // Trigger friend request notification
       await triggerFriendRequestNotification(suggestionId, user.id, user.name);
 
-      console.log('Friend added successfully:', suggestion.name);
+      Alert.alert('Επιτυχία', `Αίτημα φιλίας στάλθηκε στον ${suggestion.name}`);
+      console.log('Friend request sent successfully:', suggestion.name);
     } catch (error) {
-      console.error('Error adding friend:', error);
+      console.error('Error sending friend request:', error);
+      Alert.alert('Σφάλμα', 'Δεν ήταν δυνατή η αποστολή αιτήματος φιλίας. Παρακαλώ δοκιμάστε ξανά.');
     }
   };
 
@@ -132,18 +140,29 @@ export default function FriendsScreen() {
 
   const handleAddSearchResult = async (searchResultId) => {
     try {
+      if (!user?.id) {
+        Alert.alert('Σφάλμα', 'Πρέπει να είστε συνδεδεμένος');
+        return;
+      }
+
       const searchResult = searchResults.find(s => s.id === searchResultId);
-      if (!searchResult) return;
+      if (!searchResult) {
+        Alert.alert('Σφάλμα', 'Δεν βρέθηκε ο χρήστης');
+        return;
+      }
 
-      const newFriend = {
-        id: searchResultId,
-        name: searchResult.name,
-        profession: searchResult.profession,
-        status: 'friend',
-        avatar: searchResult.avatar
-      };
+      // Extract actual user ID (remove 'suggestion_' prefix if exists)
+      const actualUserId = searchResultId.replace('suggestion_', '') || searchResultId;
 
-      setFriends(prevFriends => [...prevFriends, newFriend]);
+      // Send friend request to Firestore
+      await sendFriendRequest({
+        fromUserId: user.id,
+        toUserId: actualUserId,
+        fromUserName: user.name || 'Χρήστης',
+        toUserName: searchResult.name,
+      });
+
+      // Remove from search results (request sent, waiting for acceptance)
       setSearchResults(prevResults => 
         prevResults.filter(s => s.id !== searchResultId)
       );
@@ -157,11 +176,13 @@ export default function FriendsScreen() {
       }
 
       // Trigger friend request notification
-      await triggerFriendRequestNotification(searchResultId, user.id, user.name);
+      await triggerFriendRequestNotification(actualUserId, user.id, user.name);
 
-      console.log('Friend added from search:', searchResult.name);
+      Alert.alert('Επιτυχία', `Αίτημα φιλίας στάλθηκε στον ${searchResult.name}`);
+      console.log('Friend request sent from search:', searchResult.name);
     } catch (error) {
-      console.error('Error adding friend from search:', error);
+      console.error('Error sending friend request from search:', error);
+      Alert.alert('Σφάλμα', 'Δεν ήταν δυνατή η αποστολή αιτήματος φιλίας. Παρακαλώ δοκιμάστε ξανά.');
     }
   };
 

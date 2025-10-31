@@ -79,7 +79,6 @@ export default function AdminManagementScreen() {
     );
   }
 
-  // Mock data - in real app, this would come from Firebase
   useEffect(() => {
     loadData();
   }, []);
@@ -87,29 +86,41 @@ export default function AdminManagementScreen() {
   const loadData = async () => {
     setIsLoading(true);
     try {
-      // Mock categories data
-      const mockCategories: Category[] = [
-        { id: '1', name: 'Υδραυλικός', icon: '🔧', description: 'Επισκευές υδραυλικών, σωλήνες, μπάνια' },
-        { id: '2', name: 'Ηλεκτρολόγος', icon: '⚡', description: 'Ηλεκτρικές εγκαταστάσεις, επισκευές' },
-        { id: '3', name: 'Ελαιοχρωματιστής', icon: '🎨', description: 'Βάψιμο σπιτιών, εξωτερικά, εσωτερικά' },
-        { id: '4', name: 'Κηπουρός', icon: '🌱', description: 'Κηπουρικές εργασίες, φύτευση, κλάδεμα' },
-        { id: '5', name: 'Ξυλουργός', icon: '🔨', description: 'Ξύλινα έπιπλα, επισκευές, κατασκευές' }
-      ];
+      // Load from Firestore (via tableManager which uses Firestore)
+      const { getProfessions, getCities } = await import('../../services/storage/tableManager');
+      
+      const [professionsData, citiesData] = await Promise.all([
+        getProfessions(),
+        getCities()
+      ]);
 
-      // Mock cities data
-      const mockCities: City[] = [
-        { id: '1', name: 'Αθήνα', country: 'Ελλάδα', region: 'Αττική' },
-        { id: '2', name: 'Θεσσαλονίκη', country: 'Ελλάδα', region: 'Κεντρική Μακεδονία' },
-        { id: '3', name: 'Πάτρα', country: 'Ελλάδα', region: 'Δυτική Ελλάδα' },
-        { id: '4', name: 'Ηράκλειο', country: 'Ελλάδα', region: 'Κρήτη' },
-        { id: '5', name: 'Λάρισα', country: 'Ελλάδα', region: 'Θεσσαλία' }
-      ];
+      // Map professions to Category format
+      const categoriesData: Category[] = professionsData
+        .filter(prof => prof.id) // Filter out empty/default entries
+        .map(prof => ({
+          id: prof.id || '',
+          name: prof.name || '',
+          icon: prof.icon || '🔧',
+          description: '' // Add description field if needed in future
+        }));
 
-      setCategories(mockCategories);
-      setCities(mockCities);
+      // Map cities to City format
+      const citiesMapped: City[] = citiesData
+        .filter(city => city.id && city.name) // Filter out default "Όλες οι Πόλεις"
+        .map(city => ({
+          id: city.id || '',
+          name: city.name || '',
+          country: 'Ελλάδα', // Default, can be extended later
+          region: '' // Can be added to cities collection if needed
+        }));
+
+      setCategories(categoriesData);
+      setCities(citiesMapped);
     } catch (error) {
       console.error('Error loading data:', error);
       Alert.alert('Σφάλμα', 'Δεν ήταν δυνατή η φόρτωση των δεδομένων');
+      setCategories([]);
+      setCities([]);
     } finally {
       setIsLoading(false);
     }
@@ -139,7 +150,7 @@ export default function AdminManagementScreen() {
     setShowAddModal(true);
   };
 
-  const handleDelete = (item: Category | City) => {
+  const handleDelete = async (item: Category | City) => {
     Alert.alert(
       'Διαγραφή',
       `Είστε σίγουροι ότι θέλετε να διαγράψετε το "${item.name}";`,
@@ -148,69 +159,90 @@ export default function AdminManagementScreen() {
         {
           text: 'Διαγραφή',
           style: 'destructive',
-          onPress: () => {
-            if (activeTab === 'professions') {
-              setCategories(prev => prev.filter(cat => cat.id !== item.id));
-            } else {
-              setCities(prev => prev.filter(city => city.id !== item.id));
+          onPress: async () => {
+            try {
+              const { deleteProfession, deleteCity } = await import('../../services/storage/tableManager');
+              
+              if (activeTab === 'professions') {
+                await deleteProfession(item.id);
+              } else {
+                await deleteCity(item.id);
+              }
+              
+              // Reload data from Firestore
+              await loadData();
+              
+              Alert.alert('Επιτυχία', 'Το στοιχείο διαγράφηκε επιτυχώς');
+            } catch (error) {
+              console.error('Error deleting:', error);
+              Alert.alert('Σφάλμα', 'Δεν ήταν δυνατή η διαγραφή. Παρακαλώ δοκιμάστε ξανά.');
             }
-            Alert.alert('Επιτυχία', 'Το στοιχείο διαγράφηκε επιτυχώς');
           }
         }
       ]
     );
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!formData.name.trim()) {
       Alert.alert('Σφάλμα', 'Το όνομα είναι υποχρεωτικό');
       return;
     }
 
-    if (activeTab === 'professions') {
-      if (!formData.icon.trim()) {
-        Alert.alert('Σφάλμα', 'Το εικονίδιο είναι υποχρεωτικό');
-        return;
-      }
+    try {
+      const { addProfession, updateProfession, addCity, updateCity } = await import('../../services/storage/tableManager');
 
-      const newCategory: Category = {
-        id: editingItem ? editingItem.id : Date.now().toString(),
-        name: formData.name,
-        icon: formData.icon,
-        description: formData.description
-      };
+      if (activeTab === 'professions') {
+        if (!formData.icon.trim()) {
+          Alert.alert('Σφάλμα', 'Το εικονίδιο είναι υποχρεωτικό');
+          return;
+        }
 
-      if (editingItem) {
-        setCategories(prev => prev.map(cat => cat.id === editingItem.id ? newCategory : cat));
-        Alert.alert('Επιτυχία', 'Η κατηγορία ενημερώθηκε επιτυχώς');
+        if (editingItem) {
+          // Update existing profession
+          await updateProfession(editingItem.id, {
+            name: formData.name,
+            icon: formData.icon
+          });
+          Alert.alert('Επιτυχία', 'Η κατηγορία ενημερώθηκε επιτυχώς');
+        } else {
+          // Add new profession
+          await addProfession({
+            name: formData.name,
+            icon: formData.icon
+          });
+          Alert.alert('Επιτυχία', 'Η κατηγορία προστέθηκε επιτυχώς');
+        }
       } else {
-        setCategories(prev => [...prev, newCategory]);
-        Alert.alert('Επιτυχία', 'Η κατηγορία προστέθηκε επιτυχώς');
-      }
-    } else {
-      if (!formData.country.trim()) {
-        Alert.alert('Σφάλμα', 'Η χώρα είναι υποχρεωτική');
-        return;
+        if (!formData.country.trim()) {
+          Alert.alert('Σφάλμα', 'Η χώρα είναι υποχρεωτική');
+          return;
+        }
+
+        if (editingItem) {
+          // Update existing city
+          await updateCity(editingItem.id, {
+            name: formData.name
+          });
+          Alert.alert('Επιτυχία', 'Η πόλη ενημερώθηκε επιτυχώς');
+        } else {
+          // Add new city
+          await addCity({
+            name: formData.name
+          });
+          Alert.alert('Επιτυχία', 'Η πόλη προστέθηκε επιτυχώς');
+        }
       }
 
-      const newCity: City = {
-        id: editingItem ? editingItem.id : Date.now().toString(),
-        name: formData.name,
-        country: formData.country,
-        region: formData.region
-      };
-
-      if (editingItem) {
-        setCities(prev => prev.map(city => city.id === editingItem.id ? newCity : city));
-        Alert.alert('Επιτυχία', 'Η πόλη ενημερώθηκε επιτυχώς');
-      } else {
-        setCities(prev => [...prev, newCity]);
-        Alert.alert('Επιτυχία', 'Η πόλη προστέθηκε επιτυχώς');
-      }
+      // Reload data from Firestore
+      await loadData();
+      
+      setShowAddModal(false);
+      setEditingItem(null);
+    } catch (error) {
+      console.error('Error saving:', error);
+      Alert.alert('Σφάλμα', 'Δεν ήταν δυνατή η αποθήκευση. Παρακαλώ δοκιμάστε ξανά.');
     }
-
-    setShowAddModal(false);
-    setEditingItem(null);
   };
 
   const renderCategory = ({ item }: { item: Category }) => (

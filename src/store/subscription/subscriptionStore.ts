@@ -53,47 +53,10 @@ export const useSubscriptionStore = create<SubscriptionState & SubscriptionActio
     set({ isLoading: true, error: null });
     
     try {
-      // Mock subscription plans
-      const mockPlans: SubscriptionPlan[] = [
-        {
-          id: 'free',
-          name: 'Δωρεάν',
-          description: '3 μήνες απεριόριστη πρόσβαση',
-          price: 0,
-          currency: 'EUR',
-          interval: 'monthly',
-          duration: 90, // 90 days (3 months)
-          features: [
-            'Απεριόριστα ραντεβού',
-            'Αναζήτηση επαγγελματιών',
-            'Αξιολογήσεις και κριτικές',
-            'Ειδοποιήσεις εφαρμογής',
-            '3 μήνες δωρεάν πρόσβαση'
-          ],
-          icon: '🆓'
-        },
-        {
-          id: 'premium',
-          name: 'Premium',
-          description: 'Απεριόριστη πρόσβαση με €9.99/μήνα',
-          price: 9.99,
-          currency: 'EUR',
-          interval: 'monthly',
-          features: [
-            'Απεριόριστα ραντεβού',
-            'Αναζήτηση επαγγελματιών',
-            'Αξιολογήσεις και κριτικές',
-            'Ειδοποιήσεις εφαρμογής',
-            'Προτεραιότητα στην αναζήτηση',
-            'Αποκλειστικές προσφορές',
-            'Συμβουλευτική υποστήριξη'
-          ],
-          isPopular: true,
-          icon: '⭐'
-        }
-      ];
-      
-      set({ availablePlans: mockPlans, isLoading: false });
+      // TODO: Load subscription plans from Firestore
+      // const plans = await getSubscriptionPlans();
+      // set({ availablePlans: plans, isLoading: false });
+      set({ availablePlans: [], isLoading: false }); // Empty for now - no mock data
     } catch (error) {
       set({ 
         error: 'Σφάλμα κατά τη φόρτωση των συνδρομών', 
@@ -114,13 +77,14 @@ export const useSubscriptionStore = create<SubscriptionState & SubscriptionActio
     set({ isLoading: true, error: null });
     
     try {
-      // Check if user is on trial first
-      const trialUser = trialService.getTrialUser(userId);
-      let mockSubscription: UserSubscription;
+      // TODO: Load user subscription from Firestore
+      // const subscription = await getUserSubscription(userId);
+      // set({ userSubscription: subscription, isLoading: false });
       
+      // Check if user is on trial first (trialService is still used for trial management)
+      const trialUser = trialService.getTrialUser(userId);
       if (trialUser) {
-        // User is on trial
-        mockSubscription = {
+        const trialSubscription: UserSubscription = {
           id: `trial_${userId}`,
           userId: userId,
           planId: 'free',
@@ -138,32 +102,18 @@ export const useSubscriptionStore = create<SubscriptionState & SubscriptionActio
           trialEndDate: trialUser.trialEndDate,
           trialExpirationNotified: trialUser.expirationNotified,
         };
+        set({ userSubscription: trialSubscription, isLoading: false });
       } else {
-        // Initialize trial for new user
+        // Initialize trial for new user if no subscription exists
         const { user } = useAuthStore.getState();
         if (user) {
           const trialSubscription = trialService.initializeTrial(userId, user.email, user.name);
-          mockSubscription = trialSubscription;
+          set({ userSubscription: trialSubscription, isLoading: false });
         } else {
-          // Fallback for demo users
-          mockSubscription = {
-            id: `sub_${userId}`,
-            userId: userId,
-            planId: 'free',
-            status: 'active',
-            startDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), // 30 days ago
-            endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
-            autoRenew: false,
-            paymentMethod: 'none',
-            lastPaymentDate: new Date(),
-            nextPaymentDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-            amount: 0,
-            currency: 'EUR'
-          };
+          // No subscription found
+          set({ userSubscription: null, isLoading: false });
         }
       }
-      
-      set({ userSubscription: mockSubscription, isLoading: false });
     } catch (error) {
       set({ 
         error: 'Σφάλμα κατά τη φόρτωση της συνδρομής', 
@@ -264,29 +214,10 @@ export const useSubscriptionStore = create<SubscriptionState & SubscriptionActio
     set({ isLoading: true, error: null });
     
     try {
-      // Mock payment methods
-      const mockPaymentMethods: PaymentMethod[] = [
-        {
-          id: 'card_123',
-          type: 'card',
-          last4: '4242',
-          brand: 'Visa',
-          expiryMonth: 12,
-          expiryYear: 2025,
-          isDefault: true
-        },
-        {
-          id: 'card_456',
-          type: 'card',
-          last4: '5555',
-          brand: 'Mastercard',
-          expiryMonth: 8,
-          expiryYear: 2026,
-          isDefault: false
-        }
-      ];
-      
-      set({ paymentMethods: mockPaymentMethods, isLoading: false });
+      // TODO: Load payment methods from Firestore
+      // const paymentMethods = await getPaymentMethods(userId);
+      // set({ paymentMethods, isLoading: false });
+      set({ paymentMethods: [], isLoading: false }); // Empty for now - no mock data
     } catch (error) {
       set({ 
         error: 'Σφάλμα κατά τη φόρτωση των μεθόδων πληρωμής', 
@@ -365,53 +296,10 @@ export const useSubscriptionStore = create<SubscriptionState & SubscriptionActio
     set({ isLoading: true, error: null });
     
     try {
-      // Mock subscription features
-      const mockFeatures: SubscriptionFeature[] = [
-        {
-          id: 'unlimited_appointments',
-          name: 'Απεριόριστα Ραντεβού',
-          description: 'Κλείστε όσα ραντεβού θέλετε χωρίς περιορισμούς',
-          icon: '📅',
-          isPremium: true
-        },
-        {
-          id: 'advanced_search',
-          name: 'Προηγμένη Αναζήτηση',
-          description: 'Φίλτρα αναζήτησης για να βρείτε τον ιδανικό επαγγελματία',
-          icon: '🔍',
-          isPremium: true
-        },
-        {
-          id: 'priority_support',
-          name: 'Προτεραιότητα Υποστήριξης',
-          description: 'Γρήγορη και αποκλειστική υποστήριξη',
-          icon: '🎯',
-          isPremium: true
-        },
-        {
-          id: 'exclusive_offers',
-          name: 'Αποκλειστικές Προσφορές',
-          description: 'Ειδικές εκπτώσεις και προσφορές μόνο για εσάς',
-          icon: '🎁',
-          isPremium: true
-        },
-        {
-          id: 'analytics',
-          name: 'Αναλυτικά Στοιχεία',
-          description: 'Στατιστικά και αναφορές για τη χρήση σας',
-          icon: '📊',
-          isPremium: true
-        },
-        {
-          id: 'customer_management',
-          name: 'Διαχείριση Πελατών',
-          description: 'Οργανώστε τους πελάτες σας και τα ραντεβού τους',
-          icon: '👥',
-          isPremium: true
-        }
-      ];
-      
-      set({ features: mockFeatures, isLoading: false });
+      // TODO: Load subscription features from Firestore
+      // const features = await getSubscriptionFeatures();
+      // set({ features, isLoading: false });
+      set({ features: [], isLoading: false }); // Empty for now - no mock data
     } catch (error) {
       set({ 
         error: 'Σφάλμα κατά τη φόρτωση των λειτουργιών', 

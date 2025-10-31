@@ -1,20 +1,24 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, TextInput, StyleSheet, SafeAreaView, ScrollView, Alert } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import { createReview } from '../../services/firebase/firestore';
+import { useAuthStore } from '../../store/auth/authStore';
 
 export default function AddReviewScreen() {
   const navigation = useNavigation();
   const route = useRoute();
   const { professional } = route.params || {};
+  const { user } = useAuthStore();
   
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleRatingPress = (selectedRating) => {
     setRating(selectedRating);
   };
 
-  const handleSubmitReview = () => {
+  const handleSubmitReview = async () => {
     if (rating === 0) {
       Alert.alert('Σφάλμα', 'Παρακαλώ επιλέξτε αξιολόγηση');
       return;
@@ -25,22 +29,51 @@ export default function AddReviewScreen() {
       return;
     }
 
-    Alert.alert(
-      'Επιτυχία',
-      'Η αξιολόγησή σας υποβλήθηκε επιτυχώς!',
-      [
-        {
-          text: 'Εντάξει',
-          onPress: () => {
-            if (navigation.canGoBack()) {
-              navigation.goBack();
-            } else {
-              navigation.navigate('FindProfessionals');
+    if (!professional?.id) {
+      Alert.alert('Σφάλμα', 'Δεν βρέθηκε ο επαγγελματίας');
+      return;
+    }
+
+    if (!user?.id) {
+      Alert.alert('Σφάλμα', 'Πρέπει να είστε συνδεδεμένος');
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      // Save review to Firestore
+      await createReview({
+        professionalId: professional.id,
+        userId: user.id,
+        userName: user.name || 'Χρήστης',
+        rating: rating,
+        comment: comment.trim(),
+      });
+
+      setIsSubmitting(false);
+      
+      Alert.alert(
+        'Επιτυχία',
+        'Η αξιολόγησή σας υποβλήθηκε επιτυχώς!',
+        [
+          {
+            text: 'Εντάξει',
+            onPress: () => {
+              if (navigation.canGoBack()) {
+                navigation.goBack();
+              } else {
+                navigation.navigate('FindProfessionals');
+              }
             }
           }
-        }
-      ]
-    );
+        ]
+      );
+    } catch (error) {
+      console.error('Error submitting review:', error);
+      setIsSubmitting(false);
+      Alert.alert('Σφάλμα', 'Δεν ήταν δυνατή η υποβολή της αξιολόγησης. Παρακαλώ δοκιμάστε ξανά.');
+    }
   };
 
   const renderStars = () => {
@@ -134,10 +167,13 @@ export default function AddReviewScreen() {
         </View>
 
         <TouchableOpacity 
-          style={styles.submitButton}
+          style={[styles.submitButton, isSubmitting && styles.submitButtonDisabled]}
           onPress={handleSubmitReview}
+          disabled={isSubmitting}
         >
-          <Text style={styles.submitButtonText}>Υποβολή Αξιολόγησης</Text>
+          <Text style={styles.submitButtonText}>
+            {isSubmitting ? 'Υποβολή...' : 'Υποβολή Αξιολόγησης'}
+          </Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>

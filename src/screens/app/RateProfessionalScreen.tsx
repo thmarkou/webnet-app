@@ -11,11 +11,14 @@ import {
   Alert,
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import { createReview } from '../../services/firebase/firestore';
+import { useAuthStore } from '../../store/auth/authStore';
 
 export default function RateProfessionalScreen() {
   const navigation = useNavigation();
   const route = useRoute();
   const { professional, appointment } = route.params || {};
+  const { user } = useAuthStore();
   
   const [rating, setRating] = useState(0);
   const [review, setReview] = useState('');
@@ -38,11 +41,31 @@ export default function RateProfessionalScreen() {
       return;
     }
 
+    if (!professional?.id) {
+      Alert.alert('Σφάλμα', 'Δεν βρέθηκε ο επαγγελματίας');
+      return;
+    }
+
+    if (!user?.id) {
+      Alert.alert('Σφάλμα', 'Πρέπει να είστε συνδεδεμένος');
+      return;
+    }
+
     setIsSubmitting(true);
 
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      // Save review to Firestore
+      await createReview({
+        professionalId: professional.id,
+        userId: user.id,
+        userName: user.name || 'Χρήστης',
+        rating: rating,
+        comment: review.trim(),
+        appointmentId: appointment?.id || null,
+      });
+
       setIsSubmitting(false);
+      
       Alert.alert(
         'Επιτυχία',
         'Η αξιολόγησή σας υποβλήθηκε επιτυχώς!',
@@ -59,7 +82,11 @@ export default function RateProfessionalScreen() {
           }
         ]
       );
-    }, 1500);
+    } catch (error) {
+      console.error('Error submitting review:', error);
+      setIsSubmitting(false);
+      Alert.alert('Σφάλμα', 'Δεν ήταν δυνατή η υποβολή της αξιολόγησης. Παρακαλώ δοκιμάστε ξανά.');
+    }
   };
 
   const renderStar = (starNumber) => (
