@@ -1,0 +1,76 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Admin authentication - check if user has admin code
+    function isAdmin() {
+      // Admin code is stored in a secret document
+      // Only the admin knows this code
+      let adminDoc = get(/databases/$(database)/documents/admin/auth);
+      return adminDoc != null && adminDoc.data.adminCode == request.auth.token.adminCode;
+    }
+    
+    // Helper to check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Users collection - only admins can delete, users can read/update their own
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated() && request.auth.uid == userId;
+      allow delete: if isAdmin(); // Only admin can delete users
+    }
+    
+    // Professionals collection - all can read, authenticated can create/update, only admin can delete
+    match /professionals/{professionalId} {
+      allow read: if true; // Everyone can read professionals
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated();
+      allow delete: if isAdmin(); // Only admin can delete professionals
+    }
+    
+    // Categories collection - all can read, authenticated can create/update, only admin can delete
+    match /categories/{categoryId} {
+      allow read: if true;
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated();
+      allow delete: if isAdmin(); // Only admin can delete categories
+    }
+    
+    // Cities collection - all can read, authenticated can create/update, only admin can delete
+    match /cities/{cityId} {
+      allow read: if true;
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated();
+      allow delete: if isAdmin(); // Only admin can delete cities
+    }
+    
+    // Appointments, Reviews, Notifications - standard rules
+    match /appointments/{appointmentId} {
+      allow read, write: if isAuthenticated();
+    }
+    
+    match /reviews/{reviewId} {
+      allow read: if true;
+      allow create, update: if isAuthenticated();
+      allow delete: if isAdmin();
+    }
+    
+    match /notifications/{notificationId} {
+      allow read, write: if isAuthenticated() && request.auth.uid == resource.data.userId;
+    }
+    
+    // Admin authentication document - only readable by admin
+    match /admin/auth {
+      allow read, write: if isAdmin();
+    }
+    
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
+

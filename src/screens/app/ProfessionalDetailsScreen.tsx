@@ -13,12 +13,16 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { useAuthStore } from '../../store/auth/authStore';
 import ProfessionalMap from '../../components/ProfessionalMap';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { deleteProfessional } from '../../services/firebase/firestore';
+import AdminAuthModal from '../../components/AdminAuthModal';
 
 export default function ProfessionalDetailsScreen() {
   const navigation = useNavigation();
   const route = useRoute();
   const { user } = useAuthStore();
   const { professional } = route.params || {};
+  const [showAdminModal, setShowAdminModal] = useState(false);
+  const [pendingDelete, setPendingDelete] = useState(false);
 
   const handleDeleteProfessional = () => {
     // First confirmation
@@ -41,21 +45,53 @@ export default function ProfessionalDetailsScreen() {
                   text: 'ΝΑΙ, ΔΙΑΓΡΑΦΗ',
                   style: 'destructive',
                   onPress: async () => {
+                    // Check admin auth before delete
+                    const { isAdminAuthenticated } = await import('../../services/auth/adminAuth');
+                    const isAuth = await isAdminAuthenticated();
+                    
+                    if (!isAuth) {
+                      setPendingDelete(true);
+                      setShowAdminModal(true);
+                      return;
+                    }
+                    
+                    // Proceed with delete
                     try {
-                      const customProfessionalsJson = await AsyncStorage.getItem('customProfessionals');
-                      if (customProfessionalsJson) {
-                        const customProfessionals = JSON.parse(customProfessionalsJson);
-                        const filtered = customProfessionals.filter((p: any) => p.id !== professional?.id);
-                        await AsyncStorage.setItem('customProfessionals', JSON.stringify(filtered));
+                      if (professional?.id) {
+                        // Delete from Firestore (common database)
+                        // Pass current user ID to check ownership and usage
+                        await deleteProfessional(professional.id, user?.id);
+                        console.log('✅ Professional deleted from Firestore:', professional.id);
                         
                         // Success message
                         Alert.alert(
                           '✅ Διαγραφή Επιτυχής',
                           'Ο επαγγελματίας διαγράφηκε με επιτυχία.',
-                          [{ text: 'OK', onPress: () => navigation.goBack() }]
+                          [{ text: 'OK', onPress: () => {
+                            if (navigation.canGoBack()) {
+                              navigation.goBack();
+                            } else {
+                              navigation.navigate('FindProfessionals');
+                            }
+                          } }]
                         );
+                      } else {
+                        // Fallback: Delete from AsyncStorage (for old data during migration)
+                        const customProfessionalsJson = await AsyncStorage.getItem('customProfessionals');
+                        if (customProfessionalsJson) {
+                          const customProfessionals = JSON.parse(customProfessionalsJson);
+                          const filtered = customProfessionals.filter((p: any) => p.id !== professional?.id);
+                          await AsyncStorage.setItem('customProfessionals', JSON.stringify(filtered));
+                          
+                          Alert.alert(
+                            '✅ Διαγραφή Επιτυχής',
+                            'Ο επαγγελματίας διαγράφηκε με επιτυχία.',
+                            [{ text: 'OK', onPress: () => navigation.goBack() }]
+                          );
+                        }
                       }
                     } catch (error) {
+                      console.error('Error deleting professional:', error);
                       Alert.alert('Σφάλμα', 'Η διαγραφή απέτυχε.');
                     }
                   }
@@ -261,6 +297,41 @@ export default function ProfessionalDetailsScreen() {
           </TouchableOpacity>
         </View>
       </ScrollView>
+      
+      <AdminAuthModal
+        visible={showAdminModal}
+        onClose={() => {
+          setShowAdminModal(false);
+          setPendingDelete(false);
+        }}
+        onSuccess={async () => {
+          if (pendingDelete && professional?.id) {
+            try {
+              // Pass current user ID to check ownership and usage
+              await deleteProfessional(professional.id, user?.id);
+              Alert.alert(
+                '✅ Διαγραφή Επιτυχής',
+                'Ο επαγγελματίας διαγράφηκε με επιτυχία.',
+                [{ text: 'OK', onPress: () => {
+                  if (navigation.canGoBack()) {
+                    navigation.goBack();
+                  } else {
+                    navigation.navigate('FindProfessionals');
+                  }
+                } }]
+              );
+            } catch (error: any) {
+              console.error('Error deleting professional:', error);
+              // Show specific error message from canDeleteProfessional
+              Alert.alert('Σφάλμα', error.message || 'Η διαγραφή απέτυχε.');
+            }
+          }
+          setShowAdminModal(false);
+          setPendingDelete(false);
+        }}
+        title="Admin Authentication"
+        message="Η διαγραφή επαγγελματία απαιτεί admin κωδικό. Παρακαλώ εισάγετε τον κωδικό:"
+      />
     </SafeAreaView>
   );
 }

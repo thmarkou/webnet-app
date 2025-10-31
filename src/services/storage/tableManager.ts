@@ -1,4 +1,14 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { 
+  getCategories as getCategoriesFirestore, 
+  addCategory as addCategoryFirestore,
+  updateCategory as updateCategoryFirestore,
+  deleteCategory as deleteCategoryFirestore,
+  getCities as getCitiesFirestore,
+  addCity as addCityFirestore,
+  updateCity as updateCityFirestore,
+  deleteCity as deleteCityFirestore
+} from '../firebase/firestore';
 
 // Storage keys
 const PROFESSIONS_KEY = 'app_professions';
@@ -8,7 +18,7 @@ const CITIES_KEY = 'app_cities';
 const DEFAULT_PROFESSIONS = [
   { id: 'plumber', name: 'Υδραυλικός', icon: '🔧' },
   { id: 'electrician', name: 'Ηλεκτρολόγος', icon: '⚡' },
-  { id: 'mechanic', name: 'Μηχανικός', icon: '🔩' },
+  { id: 'mechanic', name: 'Μηχανικός Αυτοκινήτων', icon: '🔩' },
   { id: 'painter', name: 'Βαφέας', icon: '🎨' },
   { id: 'carpenter', name: 'Ξυλουργός', icon: '🪚' },
   { id: 'gardener', name: 'Κηπουρός', icon: '🌱' },
@@ -20,7 +30,7 @@ const DEFAULT_PROFESSIONS = [
   { id: 'lawyer', name: 'Δικηγόρος', icon: '⚖️' },
   { id: 'accountant', name: 'Λογιστής', icon: '📊' },
   { id: 'architect', name: 'Αρχιτέκτονας', icon: '🏗️' },
-  { id: 'engineer', name: 'Μηχανικός', icon: '⚙️' },
+  { id: 'engineer', name: 'Μηχανικός Πολιτικών Έργων', icon: '⚙️' },
   { id: 'designer', name: 'Σχεδιαστής', icon: '🎨' },
   { id: 'photographer', name: 'Φωτογράφος', icon: '📸' },
   { id: 'hairdresser', name: 'Κομμωτής', icon: '💇‍♂️' },
@@ -102,6 +112,33 @@ export const initializeTables = async () => {
 // Professions CRUD operations
 export const getProfessions = async () => {
   try {
+    // Try Firestore first (common database)
+    const categories = await getCategoriesFirestore();
+    if (categories && categories.length > 0) {
+      // Map categories to professions format
+      // Filter out duplicates by name (keep first occurrence)
+      const seenNames = new Set<string>();
+      const uniqueCategories = categories.filter(cat => {
+        if (seenNames.has(cat.name)) {
+          console.log(`⚠️ Duplicate category name found: ${cat.name}, skipping`);
+          return false;
+        }
+        seenNames.add(cat.name);
+        return true;
+      });
+      
+      return uniqueCategories.map(cat => ({
+        id: cat.id,
+        name: cat.name,
+        icon: cat.icon || '🔧'
+      }));
+    }
+  } catch (error) {
+    console.log('⚠️ Firestore categories not available, using AsyncStorage fallback');
+  }
+  
+  // Fallback to AsyncStorage
+  try {
     const professionsJson = await AsyncStorage.getItem(PROFESSIONS_KEY);
     return professionsJson ? JSON.parse(professionsJson) : DEFAULT_PROFESSIONS;
   } catch (error) {
@@ -112,24 +149,54 @@ export const getProfessions = async () => {
 
 export const addProfession = async (profession: { name: string; icon?: string }) => {
   try {
-    const professions = await getProfessions();
-    const newProfession = {
-      id: `prof_${Date.now()}`,
+    // Try Firestore first (common database)
+    const categoryId = await addCategoryFirestore({
+      name: profession.name,
+      icon: profession.icon
+    });
+    console.log('✅ Profession added to Firestore:', profession.name);
+    return {
+      id: categoryId,
       name: profession.name,
       icon: profession.icon || '🔧'
     };
-    professions.push(newProfession);
-    await AsyncStorage.setItem(PROFESSIONS_KEY, JSON.stringify(professions));
-    console.log('Added new profession:', newProfession.name);
-    return newProfession;
   } catch (error) {
-    console.error('Error adding profession:', error);
-    throw new Error('Αδυναμία προσθήκης επαγγέλματος');
+    console.log('⚠️ Firestore add failed, using AsyncStorage fallback');
+    // Fallback to AsyncStorage
+    try {
+      const professions = await getProfessions();
+      const newProfession = {
+        id: `prof_${Date.now()}`,
+        name: profession.name,
+        icon: profession.icon || '🔧'
+      };
+      professions.push(newProfession);
+      await AsyncStorage.setItem(PROFESSIONS_KEY, JSON.stringify(professions));
+      console.log('Added new profession to AsyncStorage:', newProfession.name);
+      return newProfession;
+    } catch (storageError) {
+      console.error('Error adding profession:', storageError);
+      throw new Error('Αδυναμία προσθήκης επαγγέλματος');
+    }
   }
 };
 
 // Cities CRUD operations
 export const getCities = async () => {
+  try {
+    // Try Firestore first (common database)
+    const cities = await getCitiesFirestore();
+    if (cities && cities.length > 0) {
+      return cities.map(city => ({
+        id: city.id,
+        name: city.name
+      }));
+    }
+  } catch (error) {
+    console.log('⚠️ Firestore cities not available, using AsyncStorage fallback');
+  }
+  
+  // Fallback to AsyncStorage
   try {
     const citiesJson = await AsyncStorage.getItem(CITIES_KEY);
     return citiesJson ? JSON.parse(citiesJson) : DEFAULT_CITIES;
@@ -141,79 +208,129 @@ export const getCities = async () => {
 
 export const addCity = async (city: { name: string }) => {
   try {
-    const cities = await getCities();
-    const newCity = {
-      id: `city_${Date.now()}`,
+    // Try Firestore first (common database)
+    const cityId = await addCityFirestore({
+      name: city.name
+    });
+    console.log('✅ City added to Firestore:', city.name);
+    return {
+      id: cityId,
       name: city.name
     };
-    cities.push(newCity);
-    await AsyncStorage.setItem(CITIES_KEY, JSON.stringify(cities));
-    console.log('Added new city:', newCity.name);
-    return newCity;
   } catch (error) {
-    console.error('Error adding city:', error);
-    throw new Error('Αδυναμία προσθήκης πόλης');
+    console.log('⚠️ Firestore add failed, using AsyncStorage fallback');
+    // Fallback to AsyncStorage
+    try {
+      const cities = await getCities();
+      const newCity = {
+        id: `city_${Date.now()}`,
+        name: city.name
+      };
+      cities.push(newCity);
+      await AsyncStorage.setItem(CITIES_KEY, JSON.stringify(cities));
+      console.log('Added new city to AsyncStorage:', newCity.name);
+      return newCity;
+    } catch (storageError) {
+      console.error('Error adding city:', storageError);
+      throw new Error('Αδυναμία προσθήκης πόλης');
+    }
   }
 };
 
 // Update existing records
 export const updateProfession = async (id: string, updates: { name?: string; icon?: string }) => {
   try {
-    const professions = await getProfessions();
-    const index = professions.findIndex(p => p.id === id);
-    if (index !== -1) {
-      professions[index] = { ...professions[index], ...updates };
-      await AsyncStorage.setItem(PROFESSIONS_KEY, JSON.stringify(professions));
-      console.log('Updated profession:', professions[index].name);
-      return professions[index];
-    }
-    throw new Error('Profession not found');
+    // Try Firestore first (common database)
+    await updateCategoryFirestore(id, updates);
+    console.log('✅ Profession updated in Firestore:', id);
+    return { id, ...updates };
   } catch (error) {
-    console.error('Error updating profession:', error);
-    throw error;
+    console.log('⚠️ Firestore update failed, using AsyncStorage fallback');
+    // Fallback to AsyncStorage
+    try {
+      const professions = await getProfessions();
+      const index = professions.findIndex(p => p.id === id);
+      if (index !== -1) {
+        professions[index] = { ...professions[index], ...updates };
+        await AsyncStorage.setItem(PROFESSIONS_KEY, JSON.stringify(professions));
+        console.log('Updated profession in AsyncStorage:', professions[index].name);
+        return professions[index];
+      }
+      throw new Error('Profession not found');
+    } catch (storageError) {
+      console.error('Error updating profession:', storageError);
+      throw storageError;
+    }
   }
 };
 
 export const updateCity = async (id: string, updates: { name?: string }) => {
   try {
-    const cities = await getCities();
-    const index = cities.findIndex(c => c.id === id);
-    if (index !== -1) {
-      cities[index] = { ...cities[index], ...updates };
-      await AsyncStorage.setItem(CITIES_KEY, JSON.stringify(cities));
-      console.log('Updated city:', cities[index].name);
-      return cities[index];
-    }
-    throw new Error('City not found');
+    // Try Firestore first (common database)
+    await updateCityFirestore(id, updates);
+    console.log('✅ City updated in Firestore:', id);
+    return { id, ...updates };
   } catch (error) {
-    console.error('Error updating city:', error);
-    throw error;
+    console.log('⚠️ Firestore update failed, using AsyncStorage fallback');
+    // Fallback to AsyncStorage
+    try {
+      const cities = await getCities();
+      const index = cities.findIndex(c => c.id === id);
+      if (index !== -1) {
+        cities[index] = { ...cities[index], ...updates };
+        await AsyncStorage.setItem(CITIES_KEY, JSON.stringify(cities));
+        console.log('Updated city in AsyncStorage:', cities[index].name);
+        return cities[index];
+      }
+      throw new Error('City not found');
+    } catch (storageError) {
+      console.error('Error updating city:', storageError);
+      throw storageError;
+    }
   }
 };
 
 // Delete records
 export const deleteProfession = async (id: string) => {
   try {
-    const professions = await getProfessions();
-    const filtered = professions.filter(p => p.id !== id);
-    await AsyncStorage.setItem(PROFESSIONS_KEY, JSON.stringify(filtered));
-    console.log('Deleted profession with id:', id);
+    // Try Firestore first (common database)
+    await deleteCategoryFirestore(id);
+    console.log('✅ Profession deleted from Firestore:', id);
     return true;
   } catch (error) {
-    console.error('Error deleting profession:', error);
-    throw error;
+    console.log('⚠️ Firestore delete failed, using AsyncStorage fallback');
+    // Fallback to AsyncStorage
+    try {
+      const professions = await getProfessions();
+      const filtered = professions.filter(p => p.id !== id);
+      await AsyncStorage.setItem(PROFESSIONS_KEY, JSON.stringify(filtered));
+      console.log('Deleted profession from AsyncStorage with id:', id);
+      return true;
+    } catch (storageError) {
+      console.error('Error deleting profession:', storageError);
+      throw storageError;
+    }
   }
 };
 
 export const deleteCity = async (id: string) => {
   try {
-    const cities = await getCities();
-    const filtered = cities.filter(c => c.id !== id);
-    await AsyncStorage.setItem(CITIES_KEY, JSON.stringify(filtered));
-    console.log('Deleted city with id:', id);
+    // Try Firestore first (common database)
+    await deleteCityFirestore(id);
+    console.log('✅ City deleted from Firestore:', id);
     return true;
   } catch (error) {
-    console.error('Error deleting city:', error);
-    throw error;
+    console.log('⚠️ Firestore delete failed, using AsyncStorage fallback');
+    // Fallback to AsyncStorage
+    try {
+      const cities = await getCities();
+      const filtered = cities.filter(c => c.id !== id);
+      await AsyncStorage.setItem(CITIES_KEY, JSON.stringify(filtered));
+      console.log('Deleted city from AsyncStorage with id:', id);
+      return true;
+    } catch (storageError) {
+      console.error('Error deleting city:', storageError);
+      throw storageError;
+    }
   }
 };

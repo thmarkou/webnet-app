@@ -14,6 +14,9 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { geocodingService } from '../../services/geocoding/geocodingService';
+import { createProfessional } from '../../services/firebase/firestore';
+import { useAuthStore } from '../../store/auth/authStore';
+import { getCities } from '../../services/storage/tableManager';
 
 interface ProfessionalFormData {
   firstName: string;
@@ -31,7 +34,9 @@ interface ProfessionalFormData {
 
 export default function AddProfessionalScreen() {
   const navigation = useNavigation();
+  const { user } = useAuthStore();
   const [isLoading, setIsLoading] = useState(false);
+  const [cities, setCities] = useState<any[]>([]);
   const [formData, setFormData] = useState<ProfessionalFormData>({
     firstName: '',
     lastName: '',
@@ -132,24 +137,29 @@ export default function AddProfessionalScreen() {
         return;
       }
 
-      // Create professional object
-      const newProfessional = {
-        id: Date.now().toString(), // Simple ID generation
+      // Get city ID from name
+      const citiesData = await getCities();
+      const cityId = citiesData.find((c: any) => c.name === formData.city)?.id || formData.city.toLowerCase().replace(/\s+/g, '_');
+
+      // Create professional object for Firestore
+      const professionalDataToSave = {
         name: `${formData.firstName} ${formData.lastName}`,
         profession: formData.profession,
+        createdBy: user?.id || 'unknown', // Track who created this professional
         category: formData.profession.toLowerCase().replace(/\s+/g, '_'),
-        city: formData.city.toLowerCase(),
-        rating: 0, // New professional starts with 0 rating
+        city: cityId,
+        cityName: formData.city,
+        rating: 0,
         reviewCount: 0,
-        price: '€0-0', // To be set later
+        price: '€0-0',
         distance: '0 km',
         availability: 'Διαθέσιμος',
-        services: [formData.profession], // Default service
+        services: [formData.profession],
         description: formData.description || `Επαγγελματίας ${formData.profession}`,
-        image: '👨‍💼', // Default icon
-        verified: false, // New professionals are not verified initially
-        responseTime: '2 ώρες', // Default response time
-        completionRate: '0%', // New professional starts with 0%
+        image: '👨‍💼',
+        verified: false,
+        responseTime: '2 ώρες',
+        completionRate: '0%',
         phone: formData.phone,
         email: formData.email,
         address: `${formData.streetName} ${formData.streetNumber}, ${formData.postalCode} ${formData.city}, ${formData.country}`,
@@ -159,20 +169,18 @@ export default function AddProfessionalScreen() {
         },
       };
 
-      // Save to AsyncStorage
+      // Save to Firestore (common database for all users)
       try {
-        const existingProfessionals = await AsyncStorage.getItem('customProfessionals');
-        const professionalsArray = existingProfessionals ? JSON.parse(existingProfessionals) : [];
-        professionalsArray.push(newProfessional);
-        await AsyncStorage.setItem('customProfessionals', JSON.stringify(professionalsArray));
-        console.log('Professional saved to AsyncStorage:', newProfessional.name);
-      } catch (storageError) {
-        console.error('Error saving to AsyncStorage:', storageError);
+        const professionalId = await createProfessional(professionalDataToSave);
+        console.log('✅ Professional saved to Firestore:', professionalDataToSave.name, 'ID:', professionalId);
+      } catch (firestoreError) {
+        console.error('Error saving to Firestore:', firestoreError);
+        throw firestoreError;
       }
 
       Alert.alert(
         '✅ Επιτυχής Καταχώρηση',
-        `Ο επαγγελματίας "${newProfessional.name}" καταχωρήθηκε επιτυχώς στη βάση δεδομένων!\n\nΟ επαγγελματίας εμφανίζεται στη λίστα επαγγελματιών.`,
+        `Ο επαγγελματίας "${professionalDataToSave.name}" καταχωρήθηκε επιτυχώς στη βάση δεδομένων!\n\nΟ επαγγελματίας εμφανίζεται στη λίστα επαγγελματιών.`,
         [
           {
             text: 'OK',

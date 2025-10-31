@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   View, 
   Text, 
@@ -13,10 +13,33 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useAuthStore } from '../../store/auth/authStore';
+import AdminAuthModal from '../../components/AdminAuthModal';
+import { verifyAdminCode, isAdminAuthenticated, clearAdminAuth } from '../../services/auth/adminAuth';
 
 export default function ProfileScreen() {
   const navigation = useNavigation();
   const { user, logout } = useAuthStore();
+  const [showAdminModal, setShowAdminModal] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  
+  useEffect(() => {
+    checkAdminStatus();
+  }, []);
+  
+  const checkAdminStatus = async () => {
+    const adminStatus = await isAdminAuthenticated();
+    setIsAdmin(adminStatus);
+  };
+  
+  const handleAdminAuth = () => {
+    setShowAdminModal(true);
+  };
+  
+  const handleAdminLogout = async () => {
+    await clearAdminAuth();
+    setIsAdmin(false);
+    Alert.alert('Επιτυχία', 'Admin authentication cleared');
+  };
 
   const handleLogout = () => {
     Alert.alert(
@@ -213,6 +236,20 @@ export default function ProfileScreen() {
             <Text style={styles.actionIcon}>🐛</Text>
             <Text style={styles.actionText}>Debug Storage</Text>
           </TouchableOpacity>
+          
+          {/* Admin Authentication */}
+          <TouchableOpacity
+            style={styles.actionItem}
+            onPress={isAdmin ? handleAdminLogout : handleAdminAuth}
+          >
+            <Text style={styles.actionIcon}>{isAdmin ? '🔐' : '🔓'}</Text>
+            <Text style={styles.actionText}>
+              {isAdmin ? 'Admin: Authenticated' : 'Admin Authentication'}
+            </Text>
+            {isAdmin && (
+              <Text style={styles.adminBadge}>✓</Text>
+            )}
+          </TouchableOpacity>
         </View>
 
         {/* Logout Button */}
@@ -226,6 +263,17 @@ export default function ProfileScreen() {
         </TouchableOpacity>
         </ScrollView>
       </KeyboardAvoidingView>
+      
+      <AdminAuthModal
+        visible={showAdminModal}
+        onClose={() => setShowAdminModal(false)}
+        onSuccess={async () => {
+          setIsAdmin(true);
+          Alert.alert('✅ Επιτυχία', 'Admin authentication successful!');
+        }}
+        title="Admin Authentication"
+        message="Παρακαλώ εισάγετε τον admin κωδικό:"
+      />
     </SafeAreaView>
   );
 }
@@ -343,6 +391,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#1f2937',
     fontWeight: '500',
+  },
+  adminBadge: {
+    marginLeft: 'auto',
+    color: '#10b981',
+    fontSize: 18,
+    fontWeight: 'bold',
   },
   logoutButton: {
     backgroundColor: '#ef4444',

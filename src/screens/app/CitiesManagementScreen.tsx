@@ -96,12 +96,45 @@ export default function CitiesManagementScreen() {
           text: 'Διαγραφή',
           style: 'destructive',
           onPress: async () => {
+            // Check admin auth before delete
+            const { isAdminAuthenticated } = await import('../../services/auth/adminAuth');
+            const isAuth = await isAdminAuthenticated();
+            
+            if (!isAuth) {
+              Alert.alert(
+                'Admin Authentication',
+                'Η διαγραφή πόλης απαιτεί admin κωδικό. Παρακαλώ εισάγετε τον κωδικό:',
+                [
+                  { text: 'Ακύρωση', style: 'cancel' },
+                  {
+                    text: 'Συνέχεια',
+                    onPress: async () => {
+                      // Show admin code input - for now just show error
+                      Alert.alert(
+                        'Admin Required',
+                        'Παρακαλώ χρησιμοποιήστε την Admin Authentication από το Profile για να επαληθεύσετε τον κωδικό σας.',
+                        [{ text: 'OK' }]
+                      );
+                    }
+                  }
+                ]
+              );
+              return;
+            }
+            
             try {
               await deleteCity(city.id);
               loadCities();
               Alert.alert('Επιτυχία', 'Η πόλη διαγράφηκε');
-            } catch (error) {
-              Alert.alert('Σφάλμα', 'Αδυναμία διαγραφής πόλης');
+            } catch (error: any) {
+              if (error.message?.includes('ADMIN_REQUIRED')) {
+                Alert.alert(
+                  'Admin Required',
+                  'Παρακαλώ χρησιμοποιήστε την Admin Authentication από το Profile.'
+                );
+              } else {
+                Alert.alert('Σφάλμα', 'Αδυναμία διαγραφής πόλης');
+              }
             }
           }
         }

@@ -12,8 +12,7 @@ import {
   limit,
   Timestamp 
 } from 'firebase/firestore';
-// Firebase imports commented out due to compatibility issues with React Native
-// import { db } from './realConfig';
+import { db } from './realConfig';
 
 // Collections
 export const COLLECTIONS = {
@@ -22,8 +21,11 @@ export const COLLECTIONS = {
   APPOINTMENTS: 'appointments',
   REVIEWS: 'reviews',
   NOTIFICATIONS: 'notifications',
-  FRIENDS: 'friends',
+  FRIENDS: 'friendRelationships', // Matches existing Firestore collection
   FRIEND_REQUESTS: 'friendRequests',
+  PROFESSIONAL_RECOMMENDATIONS: 'professionalRecommendations', // Matches existing Firestore collection
+  CATEGORIES: 'categories', // Professions/Categories
+  CITIES: 'cities', // Cities
 } as const;
 
 // User operations
@@ -53,6 +55,23 @@ export const getUser = async (userId: string) => {
     }
   } catch (error) {
     console.error('Error getting user:', error);
+    throw error;
+  }
+};
+
+export const getUserByEmail = async (email: string) => {
+  try {
+    const q = query(collection(db, COLLECTIONS.USERS), where('email', '==', email), limit(1));
+    const querySnapshot = await getDocs(q);
+    
+    if (!querySnapshot.empty) {
+      const doc = querySnapshot.docs[0];
+      return { id: doc.id, ...doc.data() };
+    } else {
+      return null;
+    }
+  } catch (error) {
+    console.error('Error getting user by email:', error);
     throw error;
   }
 };
@@ -110,6 +129,116 @@ export const getProfessional = async (professionalId: string) => {
     }
   } catch (error) {
     console.error('Error getting professional:', error);
+    throw error;
+  }
+};
+
+export const updateProfessional = async (professionalId: string, updateData: any) => {
+  try {
+    const docRef = doc(db, COLLECTIONS.PROFESSIONALS, professionalId);
+    await updateDoc(docRef, {
+      ...updateData,
+      updatedAt: Timestamp.now(),
+    });
+    console.log('✅ Professional updated:', professionalId);
+  } catch (error) {
+    console.error('Error updating professional:', error);
+    throw error;
+  }
+};
+
+/**
+ * Check if professional can be deleted by user
+ * Returns error message if cannot be deleted, null if OK
+ */
+export const canDeleteProfessional = async (
+  professionalId: string, 
+  currentUserId: string
+): Promise<string | null> => {
+  try {
+    // Get professional data
+    const professionalDoc = await getDoc(doc(db, COLLECTIONS.PROFESSIONALS, professionalId));
+    if (!professionalDoc.exists()) {
+      return 'Ο επαγγελματίας δεν βρέθηκε';
+    }
+    
+    const professionalData = professionalDoc.data();
+    
+    // Check if current user is the creator
+    if (professionalData.createdBy !== currentUserId) {
+      return 'Δεν μπορείτε να διαγράψετε επαγγελματία που δεν έχετε προσθέσει εσείς';
+    }
+    
+    // Check if professional has ANY recommendations (even from the creator)
+    // Professional cannot be deleted if it has been recommended by anyone
+    const recommendationsQuery = query(
+      collection(db, COLLECTIONS.PROFESSIONAL_RECOMMENDATIONS),
+      where('professionalId', '==', professionalId)
+    );
+    const recommendationsSnapshot = await getDocs(recommendationsQuery);
+    if (!recommendationsSnapshot.empty) {
+      return 'Ο επαγγελματίας έχει προταθεί. Δεν μπορεί να διαγραφεί.';
+    }
+    
+    // Check if professional has ANY appointments (even from the creator)
+    // Professional cannot be deleted if it has appointments
+    const appointmentsQuery = query(
+      collection(db, COLLECTIONS.APPOINTMENTS),
+      where('professionalId', '==', professionalId)
+    );
+    const appointmentsSnapshot = await getDocs(appointmentsQuery);
+    if (!appointmentsSnapshot.empty) {
+      return 'Ο επαγγελματίας έχει ραντεβού. Δεν μπορεί να διαγραφεί.';
+    }
+    
+    // Check if professional has ANY reviews (even from the creator)
+    // Professional cannot be deleted if it has reviews
+    const reviewsQuery = query(
+      collection(db, COLLECTIONS.REVIEWS),
+      where('professionalId', '==', professionalId)
+    );
+    const reviewsSnapshot = await getDocs(reviewsQuery);
+    if (!reviewsSnapshot.empty) {
+      return 'Ο επαγγελματίας έχει αξιολογήσεις. Δεν μπορεί να διαγραφεί.';
+    }
+    
+    // All checks passed - can delete
+    return null;
+  } catch (error) {
+    console.error('Error checking if professional can be deleted:', error);
+    return 'Σφάλμα κατά τον έλεγχο. Παρακαλώ δοκιμάστε ξανά.';
+  }
+};
+
+export const deleteProfessional = async (
+  professionalId: string,
+  currentUserId?: string
+) => {
+  try {
+    // If currentUserId provided, check ownership and usage
+    if (currentUserId) {
+      const canDelete = await canDeleteProfessional(professionalId, currentUserId);
+      if (canDelete) {
+        throw new Error(canDelete);
+      }
+    } else {
+      // No userId provided - require admin authentication
+      const { requireAdminAuth } = await import('../auth/adminAuth');
+      await requireAdminAuth();
+    }
+    
+    const docRef = doc(db, COLLECTIONS.PROFESSIONALS, professionalId);
+    await deleteDoc(docRef);
+    console.log('✅ Professional deleted:', professionalId);
+  } catch (error: any) {
+    if (error.message?.includes('ADMIN_REQUIRED')) {
+      throw new Error('ADMIN_REQUIRED: Αυτή η λειτουργία απαιτεί admin authentication');
+    }
+    // Re-throw the error message from canDeleteProfessional
+    if (error.message && !error.message.includes('Error deleting')) {
+      throw error;
+    }
+    console.error('Error deleting professional:', error);
     throw error;
   }
 };
@@ -317,6 +446,137 @@ export const respondToFriendRequest = async (requestId: string, response: 'accep
     }
   } catch (error) {
     console.error('Error responding to friend request:', error);
+    throw error;
+  }
+};
+
+// Category/Profession operations
+export const getCategories = async () => {
+  try {
+    const q = query(collection(db, COLLECTIONS.CATEGORIES), orderBy('name', 'asc'));
+    const querySnapshot = await getDocs(q);
+    const categories = [];
+    
+    querySnapshot.forEach((doc) => {
+      categories.push({ id: doc.id, ...doc.data() });
+    });
+    
+    return categories;
+  } catch (error) {
+    console.error('Error getting categories:', error);
+    throw error;
+  }
+};
+
+export const addCategory = async (categoryData: { name: string; icon?: string }) => {
+  try {
+    const docRef = await addDoc(collection(db, COLLECTIONS.CATEGORIES), {
+      name: categoryData.name,
+      icon: categoryData.icon || '🔧',
+      createdAt: Timestamp.now(),
+      updatedAt: Timestamp.now(),
+    });
+    console.log('✅ Category added to Firestore:', categoryData.name);
+    return docRef.id;
+  } catch (error) {
+    console.error('Error adding category:', error);
+    throw error;
+  }
+};
+
+export const updateCategory = async (categoryId: string, updateData: { name?: string; icon?: string }) => {
+  try {
+    const docRef = doc(db, COLLECTIONS.CATEGORIES, categoryId);
+    await updateDoc(docRef, {
+      ...updateData,
+      updatedAt: Timestamp.now(),
+    });
+    console.log('✅ Category updated:', categoryId);
+  } catch (error) {
+    console.error('Error updating category:', error);
+    throw error;
+  }
+};
+
+export const deleteCategory = async (categoryId: string) => {
+  try {
+    // Check admin authentication before delete
+    const { requireAdminAuth } = await import('../auth/adminAuth');
+    await requireAdminAuth();
+    
+    const docRef = doc(db, COLLECTIONS.CATEGORIES, categoryId);
+    await deleteDoc(docRef);
+    console.log('✅ Category deleted:', categoryId);
+  } catch (error: any) {
+    if (error.message?.includes('ADMIN_REQUIRED')) {
+      throw new Error('ADMIN_REQUIRED: Αυτή η λειτουργία απαιτεί admin authentication');
+    }
+    console.error('Error deleting category:', error);
+    throw error;
+  }
+};
+
+// City operations
+export const getCities = async () => {
+  try {
+    const q = query(collection(db, COLLECTIONS.CITIES), orderBy('name', 'asc'));
+    const querySnapshot = await getDocs(q);
+    const cities = [];
+    
+    querySnapshot.forEach((doc) => {
+      cities.push({ id: doc.id, ...doc.data() });
+    });
+    
+    return cities;
+  } catch (error) {
+    console.error('Error getting cities:', error);
+    throw error;
+  }
+};
+
+export const addCity = async (cityData: { name: string }) => {
+  try {
+    const docRef = await addDoc(collection(db, COLLECTIONS.CITIES), {
+      name: cityData.name,
+      createdAt: Timestamp.now(),
+      updatedAt: Timestamp.now(),
+    });
+    console.log('✅ City added to Firestore:', cityData.name);
+    return docRef.id;
+  } catch (error) {
+    console.error('Error adding city:', error);
+    throw error;
+  }
+};
+
+export const updateCity = async (cityId: string, updateData: { name?: string }) => {
+  try {
+    const docRef = doc(db, COLLECTIONS.CITIES, cityId);
+    await updateDoc(docRef, {
+      ...updateData,
+      updatedAt: Timestamp.now(),
+    });
+    console.log('✅ City updated:', cityId);
+  } catch (error) {
+    console.error('Error updating city:', error);
+    throw error;
+  }
+};
+
+export const deleteCity = async (cityId: string) => {
+  try {
+    // Check admin authentication before delete
+    const { requireAdminAuth } = await import('../auth/adminAuth');
+    await requireAdminAuth();
+    
+    const docRef = doc(db, COLLECTIONS.CITIES, cityId);
+    await deleteDoc(docRef);
+    console.log('✅ City deleted:', cityId);
+  } catch (error: any) {
+    if (error.message?.includes('ADMIN_REQUIRED')) {
+      throw new Error('ADMIN_REQUIRED: Αυτή η λειτουργία απαιτεί admin authentication');
+    }
+    console.error('Error deleting city:', error);
     throw error;
   }
 };

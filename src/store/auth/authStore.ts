@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { createUser, getUserByEmail } from '../../services/firebase/firestore';
 
 interface User {
   id: string;
@@ -44,7 +45,37 @@ export const useAuthStore = create<AuthState & AuthActions>((set, get) => ({
     try {
       await new Promise(resolve => setTimeout(resolve, 500));
       
-      // First try AsyncStorage
+      // First try Firestore (common database)
+      try {
+        const firestoreUser = await getUserByEmail(email);
+        
+        if (firestoreUser) {
+          // Check password (in production, use proper password hashing!)
+          if (firestoreUser.password === password) {
+            const user: User = {
+              id: firestoreUser.id,
+              name: firestoreUser.name || 'Χρήστης',
+              email: firestoreUser.email,
+              phone: firestoreUser.phone,
+              role: firestoreUser.role || 'user',
+              profession: firestoreUser.profession
+            };
+            
+            set({ 
+              user, 
+              token: 'firestore-jwt-token', 
+              isAuthenticated: true, 
+              isLoading: false 
+            });
+            console.log('✅ User logged in from Firestore:', user.email);
+            return;
+          }
+        }
+      } catch (firestoreError) {
+        console.log('⚠️ Firestore login failed, trying AsyncStorage fallback');
+      }
+      
+      // Fallback to AsyncStorage (for migration period)
       try {
         const usersJson = await AsyncStorage.getItem('app_users');
         const users = usersJson ? JSON.parse(usersJson) : [];
@@ -72,7 +103,7 @@ export const useAuthStore = create<AuthState & AuthActions>((set, get) => ({
         console.error('Error loading from storage:', storageError);
       }
       
-      // Then try demo accounts
+      // Then try demo accounts (for testing)
       let mockUser: User;
       if (email === 'user@demo.com' && password === 'demo') {
         mockUser = { id: 'user1', name: 'Μιχάλης Σκαλτσουνάκης', email, phone: '+30 210 1234567', role: 'user' };
@@ -99,29 +130,76 @@ export const useAuthStore = create<AuthState & AuthActions>((set, get) => ({
     try {
       await new Promise(resolve => setTimeout(resolve, 500));
       
-      // Generate unique user ID
-      const userId = `user_${Date.now()}`;
+      // Check if user already exists in Firestore
+      try {
+        const existingUser = await getUserByEmail(userData.email);
+        if (existingUser) {
+          throw new Error('Το email χρησιμοποιείται ήδη');
+        }
+      } catch (checkError: any) {
+        if (checkError.message === 'Το email χρησιμοποιείται ήδη') {
+          throw checkError;
+        }
+        // Ignore other errors (might be network issue)
+      }
       
-      // Create user object
-      const newUser: User = {
-        id: userId,
+      // Create user object for Firestore
+      const userDataToSave = {
         name: `${userData.firstName || ''} ${userData.lastName || ''}`.trim() || 'Νέος Χρήστης',
         email: userData.email,
         phone: userData.phone,
+        password: userData.password, // ⚠️ In production, hash this password!
         role: userData.role || 'user',
-        profession: userData.profession
+        profession: userData.profession,
+        firstName: userData.firstName,
+        lastName: userData.lastName,
+        occupation: userData.occupation,
+        location: userData.location,
+        notifications: userData.notifications !== false,
       };
       
-      // Save to AsyncStorage
+      // Save to Firestore (common database)
+      let userId: string;
       try {
-        const existingUsersJson = await AsyncStorage.getItem('app_users');
-        const users = existingUsersJson ? JSON.parse(existingUsersJson) : [];
-        users.push({ ...newUser, password: userData.password }); // Store password for demo
-        await AsyncStorage.setItem('app_users', JSON.stringify(users));
-        console.log('✅ User registered:', newUser.name);
-      } catch (storageError) {
-        console.error('Error saving user:', storageError);
+        userId = await createUser(userDataToSave);
+        console.log('✅ User registered in Firestore:', userDataToSave.name, 'ID:', userId);
+      } catch (firestoreError) {
+        console.error('Error saving user to Firestore:', firestoreError);
+        // Fallback to AsyncStorage
+        const userId = `user_${Date.now()}`;
+        const newUser: User = {
+          id: userId,
+          name: userDataToSave.name,
+          email: userDataToSave.email,
+          phone: userDataToSave.phone,
+          role: userDataToSave.role as 'user' | 'professional' | 'admin',
+          profession: userDataToSave.profession
+        };
+        
+        try {
+          const existingUsersJson = await AsyncStorage.getItem('app_users');
+          const users = existingUsersJson ? JSON.parse(existingUsersJson) : [];
+          users.push({ ...newUser, password: userData.password });
+          await AsyncStorage.setItem('app_users', JSON.stringify(users));
+          console.log('⚠️ User saved to AsyncStorage fallback:', newUser.name);
+        } catch (storageError) {
+          console.error('Error saving user to AsyncStorage:', storageError);
+          throw new Error('Αδυναμία αποθήκευσης χρήστη');
+        }
+        
+        set({ isLoading: false, error: null });
+        return newUser;
       }
+      
+      // Create user object for return
+      const newUser: User = {
+        id: userId,
+        name: userDataToSave.name,
+        email: userDataToSave.email,
+        phone: userDataToSave.phone,
+        role: userDataToSave.role as 'user' | 'professional' | 'admin',
+        profession: userDataToSave.profession
+      };
       
       // DON'T auto-login after registration
       // Just mark registration as complete
@@ -132,9 +210,9 @@ export const useAuthStore = create<AuthState & AuthActions>((set, get) => ({
       
       // Return the new user object for confirmation message
       return newUser;
-    } catch (error) {
+    } catch (error: any) {
       set({ 
-        error: 'Σφάλμα κατά την εγγραφή', 
+        error: error.message || 'Σφάλμα κατά την εγγραφή', 
         isLoading: false 
       });
       throw error;

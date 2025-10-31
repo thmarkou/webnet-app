@@ -17,10 +17,12 @@ import { useAuthStore } from '../../store/auth/authStore';
 import * as ImagePicker from 'expo-image-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { geocodingService } from '../../services/geocoding/geocodingService';
+import { createProfessional, updateProfessional } from '../../services/firebase/firestore';
 
 export default function ProfessionalRegistrationForm() {
   const navigation = useNavigation();
   const route = useRoute();
+  const { user } = useAuthStore();
   const { register, isLoading } = useAuthStore();
   const { editMode = false, professionalData } = (route.params as any) || {};
   
@@ -241,10 +243,10 @@ export default function ProfessionalRegistrationForm() {
       // Find the city ID from the name
       const cityId = cities.find(c => c.name === formData.city)?.id || formData.city.toLowerCase().replace(/\s+/g, '_');
       
-      const newProfessional = {
-        id: editMode && professionalData ? professionalData.id : Date.now().toString(),
+      const professionalDataToSave = {
         name: `${formData.firstName} ${formData.lastName}`,
         profession: formData.profession,
+        createdBy: user?.id || 'unknown', // Track who created this professional
         category: formData.profession.toLowerCase().replace(/\s+/g, '_'),
         city: cityId,
         cityName: formData.city, // Save original city name
@@ -273,36 +275,34 @@ export default function ProfessionalRegistrationForm() {
         website: formData.website,
       };
 
-      // Save to AsyncStorage in customProfessionals
+      // Save to Firestore (common database for all users)
       try {
-        const existingProfessionals = await AsyncStorage.getItem('customProfessionals');
-        const professionalsArray = existingProfessionals ? JSON.parse(existingProfessionals) : [];
-        
-        if (editMode && professionalData) {
-          // Update existing professional
-          const index = professionalsArray.findIndex((p: any) => p.id === professionalData.id);
-          if (index !== -1) {
-            professionalsArray[index] = { ...newProfessional, id: professionalData.id };
-            await AsyncStorage.setItem('customProfessionals', JSON.stringify(professionalsArray));
-            console.log('✅ Professional updated:', newProfessional.name);
-            
-            // Show success message for update
-            Alert.alert(
-              '✅ Ενημέρωση Επιτυχής',
-              'Ο επαγγελματίας ενημερώθηκε επιτυχώς!',
-              [
+        if (editMode && professionalData && professionalData.id) {
+          // Update existing professional in Firestore
+          await updateProfessional(professionalData.id, professionalDataToSave);
+          console.log('✅ Professional updated in Firestore:', professionalDataToSave.name);
+          
+          // Show success message for update
+          Alert.alert(
+            '✅ Ενημέρωση Επιτυχής',
+            'Ο επαγγελματίας ενημερώθηκε επιτυχώς!',
+            [
                 {
                   text: 'OK',
-                  onPress: () => navigation.goBack()
+                  onPress: () => {
+                    if (navigation.canGoBack()) {
+                      navigation.goBack();
+                    } else {
+                      navigation.navigate('FindProfessionals');
+                    }
+                  }
                 }
-              ]
-            );
-          }
+            ]
+          );
         } else {
-          // Add new professional
-          professionalsArray.push(newProfessional);
-          await AsyncStorage.setItem('customProfessionals', JSON.stringify(professionalsArray));
-          console.log('✅ Professional saved to list:', newProfessional.name);
+          // Create new professional in Firestore
+          const professionalId = await createProfessional(professionalDataToSave);
+          console.log('✅ Professional saved to Firestore:', professionalDataToSave.name, 'ID:', professionalId);
           
           // Show success message for new registration
           Alert.alert(
@@ -312,16 +312,17 @@ export default function ProfessionalRegistrationForm() {
               {
                 text: 'OK',
                 onPress: () => {
-              // Reset form and go back to step 1 for new registration
-              setFormData(getInitialFormData());
-              setCurrentStep(1);
-            }
-          }
-        ]
-      );
+                  // Reset form and go back to step 1 for new registration
+                  setFormData(getInitialFormData());
+                  setCurrentStep(1);
+                }
+              }
+            ]
+          );
         }
-      } catch (storageError) {
-        console.error('Error saving professional:', storageError);
+      } catch (firestoreError) {
+        console.error('Error saving professional to Firestore:', firestoreError);
+        Alert.alert('Σφάλμα', 'Η αποθήκευση απέτυχε. Παρακαλώ προσπαθήστε ξανά.');
       }
     } catch (error) {
       Alert.alert('Σφάλμα', 'Η εγγραφή απέτυχε. Παρακαλώ προσπαθήστε ξανά.');

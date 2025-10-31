@@ -1,24 +1,60 @@
-import { initializeApp } from 'firebase/app';
-import { getFirestore } from 'firebase/firestore';
-import { getAuth } from 'firebase/auth';
+import { initializeApp, getApps, FirebaseApp } from 'firebase/app';
+import { getFirestore, Firestore } from 'firebase/firestore';
+import { getAuth, Auth } from 'firebase/auth';
 
 // Real Firebase configuration - Replace with your actual Firebase project config
 const firebaseConfig = {
-  apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY || "your-api-key-here",
-  authDomain: process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN || "your-project.firebaseapp.com",
-  projectId: process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID || "your-project-id",
-  storageBucket: process.env.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET || "your-project.appspot.com",
-  messagingSenderId: process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || "123456789",
-  appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID || "your-app-id",
-  measurementId: process.env.EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID || "G-XXXXXXXXXX"
+  apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY || "AIzaSyDtu2OcFaIQ6WbcSuUBjXznZeCZvii-V28",
+  authDomain: process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN || "webnetapp-dev.firebaseapp.com",
+  projectId: process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID || "webnetapp-dev",
+  storageBucket: process.env.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET || "webnetapp-dev.firebasestorage.app",
+  messagingSenderId: process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || "270224209631",
+  appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID || "1:270224209631:web:4148c7d04048a2f1c29b6a",
+  measurementId: process.env.EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID || "G-VBHXL8YDP7"
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
+// Initialize Firebase (only if not already initialized)
+let app: FirebaseApp;
+try {
+  const existingApps = getApps();
+  if (existingApps.length > 0) {
+    app = existingApps[0];
+  } else {
+    app = initializeApp(firebaseConfig);
+  }
+} catch (error) {
+  console.error('Firebase initialization error:', error);
+  // Fallback: try to initialize anyway
+  app = initializeApp(firebaseConfig);
+}
 
-// Initialize Firebase services
-export const db = getFirestore(app);
-export const auth = getAuth(app);
+// Initialize Firebase services (lazy initialization)
+let _db: Firestore | null = null;
+let _auth: Auth | null = null;
+
+export const db: Firestore = (() => {
+  if (!_db) {
+    try {
+      _db = getFirestore(app);
+    } catch (error) {
+      console.error('Firestore initialization error:', error);
+      throw error;
+    }
+  }
+  return _db;
+})();
+
+export const auth: Auth = (() => {
+  if (!_auth) {
+    try {
+      _auth = getAuth(app);
+    } catch (error) {
+      console.error('Auth initialization error:', error);
+      throw error;
+    }
+  }
+  return _auth;
+})();
 
 // Database collections
 export const COLLECTIONS = {

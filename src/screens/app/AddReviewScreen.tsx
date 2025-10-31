@@ -31,7 +31,13 @@ export default function AddReviewScreen() {
       [
         {
           text: 'Εντάξει',
-          onPress: () => navigation.goBack()
+          onPress: () => {
+            if (navigation.canGoBack()) {
+              navigation.goBack();
+            } else {
+              navigation.navigate('FindProfessionals');
+            }
+          }
         }
       ]
     );

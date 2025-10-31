@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "main": "index.ts",
   "scripts": {
+    "postinstall": "node scripts/fix-idb.js",
     "start": "expo start",
     "android": "expo run:android",
     "android:build": "./scripts/buildAndroid.sh",
@@ -20,7 +21,9 @@
     "db:init": "ts-node scripts/initRealData.ts",
     "db:validate": "ts-node scripts/validateDatabase.ts",
     "db:setup": "ts-node scripts/setupDb.ts",
-    "db:check": "node check-db.js"
+    "db:check": "node check-db.js",
+    "migrate:firestore": "node scripts/migrateToFirestore.js",
+    "clean:duplicates": "node scripts/cleanDuplicateCategories.js"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",
@@ -40,6 +43,8 @@
     "expo-location": "~19.0.7",
     "expo-secure-store": "~15.0.7",
     "expo-status-bar": "~3.0.8",
+    "firebase": "^12.5.0",
+    "idb": "^8.0.3",
     "react": "19.1.0",
     "react-native": "0.81.5",
     "react-native-gesture-handler": "~2.28.0",

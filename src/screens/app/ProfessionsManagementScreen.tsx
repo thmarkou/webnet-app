@@ -92,12 +92,44 @@ export default function ProfessionsManagementScreen() {
           text: 'Διαγραφή',
           style: 'destructive',
           onPress: async () => {
+            // Check admin auth before delete
+            const { isAdminAuthenticated } = await import('../../services/auth/adminAuth');
+            const isAuth = await isAdminAuthenticated();
+            
+            if (!isAuth) {
+              Alert.alert(
+                'Admin Authentication',
+                'Η διαγραφή επαγγέλματος απαιτεί admin κωδικό. Παρακαλώ εισάγετε τον κωδικό:',
+                [
+                  { text: 'Ακύρωση', style: 'cancel' },
+                  {
+                    text: 'Συνέχεια',
+                    onPress: async () => {
+                      Alert.alert(
+                        'Admin Required',
+                        'Παρακαλώ χρησιμοποιήστε την Admin Authentication από το Profile για να επαληθεύσετε τον κωδικό σας.',
+                        [{ text: 'OK' }]
+                      );
+                    }
+                  }
+                ]
+              );
+              return;
+            }
+            
             try {
               await deleteProfession(profession.id);
               loadProfessions();
               Alert.alert('Επιτυχία', 'Το επάγγελμα διαγράφηκε');
-            } catch (error) {
-              Alert.alert('Σφάλμα', 'Αδυναμία διαγραφής επαγγέλματος');
+            } catch (error: any) {
+              if (error.message?.includes('ADMIN_REQUIRED')) {
+                Alert.alert(
+                  'Admin Required',
+                  'Παρακαλώ χρησιμοποιήστε την Admin Authentication από το Profile.'
+                );
+              } else {
+                Alert.alert('Σφάλμα', 'Αδυναμία διαγραφής επαγγέλματος');
+              }
             }
           }
         }

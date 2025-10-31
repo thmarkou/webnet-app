@@ -17,6 +17,7 @@ import { recommendationService } from '../../services/recommendations/recommenda
 import { ProfessionalRecommendation } from '../../types/recommendations';
 import { getProfessions, getCities, initializeTables } from '../../services/storage/tableManager';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getProfessionals } from '../../services/firebase/firestore';
 
 export default function FindProfessionalsScreen() {
   const navigation = useNavigation();
@@ -429,17 +430,28 @@ export default function FindProfessionalsScreen() {
     setIsLoading(true);
     
     try {
-      // Load custom professionals from AsyncStorage
+      // Load professionals from Firestore (common database)
       let filtered = [...mockProfessionals];
       try {
-        const customProfessionalsJson = await AsyncStorage.getItem('customProfessionals');
-        if (customProfessionalsJson) {
-          const customProfessionals = JSON.parse(customProfessionalsJson);
-          console.log('Loaded custom professionals:', customProfessionals.length);
-          filtered = [...mockProfessionals, ...customProfessionals];
-        }
+        // Get all professionals from Firestore
+        const firestoreProfessionals = await getProfessionals();
+        console.log('✅ Loaded professionals from Firestore:', firestoreProfessionals.length);
+        
+        // Combine with mock data (for backward compatibility)
+        filtered = [...mockProfessionals, ...firestoreProfessionals];
       } catch (error) {
-        console.error('Error loading custom professionals:', error);
+        console.error('Error loading professionals from Firestore:', error);
+        // Fallback to AsyncStorage if Firestore fails (for migration period)
+        try {
+          const customProfessionalsJson = await AsyncStorage.getItem('customProfessionals');
+          if (customProfessionalsJson) {
+            const customProfessionals = JSON.parse(customProfessionalsJson);
+            console.log('⚠️ Fallback: Loaded from AsyncStorage:', customProfessionals.length);
+            filtered = [...mockProfessionals, ...customProfessionals];
+          }
+        } catch (storageError) {
+          console.error('Error loading from AsyncStorage fallback:', storageError);
+        }
       }
       
       // Filter by search query
@@ -447,7 +459,10 @@ export default function FindProfessionalsScreen() {
         filtered = filtered.filter(prof => 
           prof.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
           prof.profession.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          prof.services.some(service => service.toLowerCase().includes(searchQuery.toLowerCase()))
+          (prof.services || []).some(service => {
+            const serviceName = typeof service === 'string' ? service : (service?.name || service?.id || String(service));
+            return serviceName.toLowerCase().includes(searchQuery.toLowerCase());
+          })
         );
       }
       
@@ -461,10 +476,17 @@ export default function FindProfessionalsScreen() {
         // Normalize city comparison - handle both old format (city names) and new format (city IDs)
         const selectedCityName = cities.find(c => c.id === selectedCity)?.name.toLowerCase().replace(/\s+/g, '_') || selectedCity;
         filtered = filtered.filter(prof => {
+          // Skip if city is missing
+          if (!prof.city) return false;
+          
           // Try matching by ID first
           if (prof.city === selectedCity) return true;
-          // Then try matching by normalized name
-          const profCityNormalized = prof.city.toLowerCase().replace(/\s+/g, '_');
+          
+          // Then try matching by normalized name (handle both string and object formats)
+          const profCityValue = typeof prof.city === 'string' ? prof.city : (prof.cityName || prof.city?.name || String(prof.city));
+          if (!profCityValue) return false;
+          
+          const profCityNormalized = profCityValue.toLowerCase().replace(/\s+/g, '_');
           return profCityNormalized === selectedCityName;
         });
       }
@@ -597,12 +619,16 @@ export default function FindProfessionalsScreen() {
       <Text style={styles.description}>{item.description}</Text>
       
       <View style={styles.servicesContainer}>
-        {item.services.slice(0, 3).map((service, index) => (
-          <View key={index} style={styles.serviceTag}>
-            <Text style={styles.serviceText}>{service}</Text>
-          </View>
-        ))}
-        {item.services.length > 3 && (
+        {(item.services || []).slice(0, 3).map((service, index) => {
+          // Handle both string and object formats
+          const serviceName = typeof service === 'string' ? service : (service?.name || service?.id || String(service));
+          return (
+            <View key={`service-${item.id}-${index}-${serviceName}`} style={styles.serviceTag}>
+              <Text style={styles.serviceText}>{serviceName}</Text>
+            </View>
+          );
+        })}
+        {item.services && item.services.length > 3 && (
           <View style={styles.serviceTag}>
             <Text style={styles.serviceText}>+{item.services.length - 3} άλλα</Text>
           </View>
@@ -630,7 +656,11 @@ export default function FindProfessionalsScreen() {
       <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
       
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+        <TouchableOpacity onPress={() => {
+          if (navigation.canGoBack()) {
+            navigation.goBack();
+          }
+        }} style={styles.backButton}>
           <Text style={styles.backButtonText}>←</Text>
         </TouchableOpacity>
         <View style={styles.headerContent}>
@@ -681,9 +711,9 @@ export default function FindProfessionalsScreen() {
           {showCategoryDropdown && (
             <View style={styles.dropdownList}>
               <ScrollView style={styles.dropdownScrollView} nestedScrollEnabled={true}>
-                {categories.map(category => (
+                {categories.map((category, index) => (
                   <TouchableOpacity
-                    key={category.id}
+                    key={category.id ? `cat-${category.id}` : `cat-${index}-${category.name || ''}`}
                     style={[
                       styles.dropdownItem,
                       selectedCategory === category.id && styles.selectedDropdownItem
@@ -728,9 +758,9 @@ export default function FindProfessionalsScreen() {
           {showCityDropdown && (
             <View style={styles.dropdownList}>
               <ScrollView style={styles.dropdownScrollView} nestedScrollEnabled={true}>
-                {cities.map(city => (
+                {cities.map((city, index) => (
                   <TouchableOpacity
-                    key={city.id}
+                    key={city.id || city.name || `city-${index}`}
                     style={[
                       styles.dropdownItem,
                       selectedCity === city.id && styles.selectedDropdownItem

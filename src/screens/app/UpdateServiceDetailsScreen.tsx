@@ -44,7 +44,13 @@ export default function UpdateServiceDetailsScreen() {
         [
           {
             text: 'Εντάξει',
-            onPress: () => navigation.goBack()
+            onPress: () => {
+              if (navigation.canGoBack()) {
+                navigation.goBack();
+              } else {
+                navigation.navigate('AppointmentsList');
+              }
+            }
           }
         ]
       );
@@ -63,7 +69,13 @@ export default function UpdateServiceDetailsScreen() {
       <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
       
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+        <TouchableOpacity onPress={() => {
+          if (navigation.canGoBack()) {
+            navigation.goBack();
+          } else {
+            navigation.navigate('AppointmentsList');
+          }
+        }} style={styles.backButton}>
           <Text style={styles.backButtonText}>←</Text>
         </TouchableOpacity>
         <Text style={styles.title}>Λεπτομέρειες Υπηρεσίας</Text>
