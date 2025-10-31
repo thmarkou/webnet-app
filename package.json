@@ -26,7 +26,9 @@
     "clean:duplicates": "node scripts/cleanDuplicateCategories.js",
     "seed:demo-users": "node scripts/seedDemoUsers.js",
     "fix:demo-user": "node scripts/checkDemoUser.js",
-    "setup:users": "node scripts/cleanupAndSetupUsers.js"
+    "setup:users": "node scripts/cleanupAndSetupUsers.js",
+    "cleanup:database": "node scripts/cleanupDatabase.js",
+    "add:elpida": "node scripts/addElpidaTsai.js"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",
