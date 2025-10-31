@@ -23,7 +23,10 @@
     "db:setup": "ts-node scripts/setupDb.ts",
     "db:check": "node check-db.js",
     "migrate:firestore": "node scripts/migrateToFirestore.js",
-    "clean:duplicates": "node scripts/cleanDuplicateCategories.js"
+    "clean:duplicates": "node scripts/cleanDuplicateCategories.js",
+    "seed:demo-users": "node scripts/seedDemoUsers.js",
+    "fix:demo-user": "node scripts/checkDemoUser.js",
+    "setup:users": "node scripts/cleanupAndSetupUsers.js"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",

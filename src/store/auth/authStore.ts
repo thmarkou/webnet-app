@@ -103,19 +103,9 @@ export const useAuthStore = create<AuthState & AuthActions>((set, get) => ({
         console.error('Error loading from storage:', storageError);
       }
       
-      // Then try demo accounts (for testing)
-      let mockUser: User;
-      if (email === 'user@demo.com' && password === 'demo') {
-        mockUser = { id: 'user1', name: 'Μιχάλης Σκαλτσουνάκης', email, phone: '+30 210 1234567', role: 'user' };
-      } else if (email === 'pro@demo.com' && password === 'demo') {
-        mockUser = { id: 'pro1', name: 'Χάρης Σκαλτσουνάκης', email, phone: '+30 210 1234567', role: 'professional', profession: 'Ασφαλιστής' };
-      } else if (email === 'admin@demo.com' && password === 'demo') {
-        mockUser = { id: 'admin1', name: 'Fabio Marcoulini', email, phone: '+30 210 1234567', role: 'admin', profession: 'Chief Technology Officer' };
-      } else {
-        throw new Error('Λάθος email ή password');
-      }
-      
-      set({ user: mockUser, token: 'mock-jwt-token', isAuthenticated: true, isLoading: false });
+      // Demo accounts are now in Firestore, so they should be found above
+      // This is only a fallback if Firestore lookup completely fails
+      throw new Error('Λάθος email ή password');
     } catch (error: any) {
       set({ 
         error: error.message || 'Σφάλμα κατά τη σύνδεση', 
