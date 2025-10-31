@@ -46,46 +46,24 @@ export default function SearchScreen() {
     '3.5+'
   ];
 
-  const mockProfessionals = [
-    {
-      id: '1',
-      name: 'Jane Smith',
-      profession: 'Electrician',
-      city: 'Athens',
-      rating: 5.0,
-      reviews: 36,
-      description: 'Certified electrician specializing in home electrical systems and smart home installations.',
-      verified: true,
-      icon: '⚡'
-    },
-    {
-      id: '2', 
-      name: 'Maria Kokkinou',
-      profession: 'Lawyer',
-      city: 'Athens',
-      rating: 4.9,
-      reviews: 42,
-      description: 'Experienced lawyer specializing in family and property law.',
-      verified: true,
-      icon: '⚖️'
-    },
-    {
-      id: '3',
-      name: 'George Papadopoulos',
-      profession: 'Plumber',
-      city: 'Athens',
-      rating: 4.8,
-      reviews: 28,
-      description: 'Professional plumber with 10+ years experience in residential and commercial plumbing.',
-      verified: true,
-      icon: '💧'
-    }
-  ];
-
   useEffect(() => {
-    setProfessionals(mockProfessionals);
-    setFilteredProfessionals(mockProfessionals);
+    loadProfessionals();
   }, []);
+
+  const loadProfessionals = async () => {
+    try {
+      // TODO: Load professionals from Firestore
+      // const professionalsData = await getProfessionals();
+      // setProfessionals(professionalsData);
+      // setFilteredProfessionals(professionalsData);
+      setProfessionals([]); // Empty for now - no mock data
+      setFilteredProfessionals([]);
+    } catch (error) {
+      console.error('Error loading professionals:', error);
+      setProfessionals([]);
+      setFilteredProfessionals([]);
+    }
+  };
 
   useEffect(() => {
     filterProfessionals();

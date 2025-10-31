@@ -50,103 +50,39 @@ export default function FriendsScreen() {
     return () => clearInterval(interval);
   }, [user?.id]);
 
-  const mockFriends = [
-    {
-      id: 'user2',
-      name: 'Μαρία Παπαδοπούλου',
-      profession: 'Δασκάλα',
-      location: 'Θεσσαλονίκη',
-      status: 'friend',
-      avatar: '👩'
-    },
-    {
-      id: 'user3',
-      name: 'Γιάννης Παπαδόπουλος',
-      profession: 'Μηχανικός',
-      location: 'Αθήνα',
-      status: 'friend',
-      avatar: '👨'
-    },
-    {
-      id: 'pro1',
-      name: 'Χάρης Σκαλτσουνάκης',
-      profession: 'Ασφαλιστής',
-      location: 'Αθήνα',
-      status: 'friend',
-      avatar: '👨‍💼'
-    },
-    {
-      id: '1',
-      name: 'Άννα Πετρού',
-      profession: 'Νοσοκόμα',
-      location: 'Αθήνα',
-      status: 'friend',
-      avatar: '👤'
-    },
-    {
-      id: '3',
-      name: 'Λίζα Μπράουν',
-      profession: 'Διευθύντρια Έργων',
-      location: 'Θεσσαλονίκη',
-      status: 'friend',
-      avatar: '👤'
-    }
-  ];
-
-  const mockSuggestions = [
-    {
-      id: '2',
-      name: 'Θωμάς Γουίλσον',
-      profession: 'Διευθυντής Πωλήσεων',
-      reason: 'Ζείτε στην ίδια πόλη',
-      avatar: '👤'
-    },
-    {
-      id: '4',
-      name: 'Σάρα Γουίλσον',
-      profession: 'Μάρκετινγκ',
-      reason: 'Κοινός φίλος: Θωμάς Γουίλσον',
-      avatar: '👤'
-    },
-    {
-      id: '5',
-      name: 'Μάικ Τσεν',
-      profession: 'Προγραμματιστής',
-      reason: 'Κοινός φίλος: Λίζα Μπράουν',
-      avatar: '👤'
-    },
-    {
-      id: '6',
-      name: 'Νίκος Ξυλουργός',
-      profession: 'Ξυλουργός',
-      reason: 'Εργάζεται στην περιοχή σας',
-      avatar: '🔨'
-    },
-    {
-      id: '7',
-      name: 'Πέτρος Μηχανικός',
-      profession: 'Μηχανικός Αυτοκινήτων',
-      reason: 'Ειδικεύεται σε ευρωπαϊκά αυτοκίνητα',
-      avatar: '🔧'
-    },
-    {
-      id: '8',
-      name: 'Ελένη Δημοσιογράφος',
-      profession: 'Δημοσιογράφος',
-      reason: 'Εργάζεται σε τοπικό τηλεοπτικό σταθμό',
-      avatar: '📺'
-    }
-  ];
-
   useEffect(() => {
-    setFriends(mockFriends);
-    setSuggestions(mockSuggestions);
+    loadFriends();
+    loadSuggestions();
   }, []);
+
+  const loadFriends = async () => {
+    try {
+      // TODO: Load friends from Firestore friendRelationships collection
+      // const friendsData = await getFriends(user?.id);
+      // setFriends(friendsData);
+      setFriends([]); // Empty for now - no mock data
+    } catch (error) {
+      console.error('Error loading friends:', error);
+      setFriends([]);
+    }
+  };
+
+  const loadSuggestions = async () => {
+    try {
+      // TODO: Load friend suggestions from Firestore
+      // const suggestionsData = await getFriendSuggestions(user?.id);
+      // setSuggestions(suggestionsData);
+      setSuggestions([]); // Empty for now - no mock data
+    } catch (error) {
+      console.error('Error loading suggestions:', error);
+      setSuggestions([]);
+    }
+  };
 
   const handleAddFriend = async (suggestionId) => {
     try {
       // Find the suggestion to add
-      const suggestion = mockSuggestions.find(s => s.id === suggestionId);
+      const suggestion = suggestions.find(s => s.id === suggestionId);
       if (!suggestion) return;
 
       // Create new friend from suggestion
@@ -182,55 +118,16 @@ export default function FriendsScreen() {
       return;
     }
 
-    // Combine suggestion users with additional search results
-    const allSearchResults = [
-      // Include suggestion users (if they're not already friends)
-      ...mockSuggestions.map(suggestion => ({
-        id: `suggestion_${suggestion.id}`,
-        name: suggestion.name,
-        profession: suggestion.profession,
-        avatar: suggestion.avatar,
-        status: 'not_friend',
-        source: 'suggestion'
-      })),
-      // Additional search results
-      {
-        id: 'search1',
-        name: 'Μαρία Παπαδοπούλου',
-        profession: 'Γιατρός',
-        avatar: '👩‍⚕️',
-        status: 'not_friend',
-        source: 'search'
-      },
-      {
-        id: 'search2',
-        name: 'Νίκος Κωνσταντίνου',
-        profession: 'Μηχανικός',
-        avatar: '👨‍🔧',
-        status: 'not_friend',
-        source: 'search'
-      },
-      {
-        id: 'search3',
-        name: 'Άννα Δημητρίου',
-        profession: 'Δικηγόρος',
-        avatar: '👩‍⚖️',
-        status: 'not_friend',
-        source: 'search'
-      }
-    ];
-
-    // Filter out users who are already friends
-    const availableResults = allSearchResults.filter(person => 
-      !friends.some(friend => friend.name === person.name)
-    );
-
-    // Apply search query filter - search only by name
-    const mockSearchResults = availableResults.filter(person => 
-      person.name.toLowerCase().includes(query.toLowerCase())
-    );
-
-    setSearchResults(mockSearchResults);
+    // TODO: Load search results from Firestore users collection
+    // For now, use empty results - no mock data
+    try {
+      // const searchResultsData = await searchUsers(query, user?.id);
+      // setSearchResults(searchResultsData);
+      setSearchResults([]);
+    } catch (error) {
+      console.error('Error searching users:', error);
+      setSearchResults([]);
+    }
   };
 
   const handleAddSearchResult = async (searchResultId) => {

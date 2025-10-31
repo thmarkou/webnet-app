@@ -23,44 +23,23 @@ export default function AppointmentsListScreen() {
     { id: 'past', title: 'Παρελθόντα' }
   ];
 
-  const mockAppointments = [
-    {
-      id: '1',
-      professional: 'George Papadopoulos',
-      phone: '+30 123 456 7890',
-      profession: 'Υδραυλικός',
-      day: 'Δευτέρα, 15/01/2024',
-      time: '10:00',
-      service: 'Επισκευή Υδραυλικών',
-      repair: 'Επισκευή διαρροής νεροχύτη κουζίνας',
-      town: 'Αθήνα',
-      country: 'Ελλάδα',
-      duration: '60 λεπτά',
-      price: '€80',
-      status: 'pending',
-      notes: 'Διαρροή νεροχύτη κουζίνας'
-    },
-    {
-      id: '2',
-      professional: 'Maria Konstantinou',
-      phone: '+30 987 654 3210',
-      profession: 'Ηλεκτρολόγος',
-      day: 'Τρίτη, 16/01/2024',
-      time: '14:00',
-      service: 'Ηλεκτρικές Εγκαταστάσεις',
-      repair: 'Εγκατάσταση έξυπνου συστήματος σπιτιού',
-      town: 'Αθήνα',
-      country: 'Ελλάδα',
-      duration: '120 λεπτά',
-      price: '€150',
-      status: 'confirmed',
-      notes: 'Χρειάζεται εγκατάσταση έξυπνων διακοπτών'
-    }
-  ];
-
   useEffect(() => {
-    setAppointments(mockAppointments);
+    // TODO: Load appointments from Firestore
+    // For now, load from database instead of mock data
+    loadAppointments();
   }, []);
+
+  const loadAppointments = async () => {
+    try {
+      // TODO: Implement getAppointments from Firestore
+      // const appointmentsData = await getAppointments(user?.id);
+      // setAppointments(appointmentsData);
+      setAppointments([]); // Empty for now - no mock data
+    } catch (error) {
+      console.error('Error loading appointments:', error);
+      setAppointments([]);
+    }
+  };
 
   const filteredAppointments = appointments.filter(apt => {
     if (activeTab === 'upcoming') return apt.status === 'confirmed';

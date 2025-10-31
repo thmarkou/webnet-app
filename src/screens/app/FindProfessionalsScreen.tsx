@@ -35,320 +35,6 @@ export default function FindProfessionalsScreen() {
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
   const [showCityDropdown, setShowCityDropdown] = useState(false);
 
-  const mockProfessionals = [
-    {
-      id: '1',
-      name: 'Γιάννης Παπαδόπουλος',
-      profession: 'Ηλεκτρολόγος',
-      category: 'electrician',
-      city: 'athens',
-      rating: 4.8,
-      reviewCount: 127,
-      price: '€50-80',
-      distance: '2.3 km',
-      availability: 'Διαθέσιμος',
-      services: ['Επισκευή Ηλεκτρικών', 'Εγκατάσταση Φωτισμού', 'Συντήρηση'],
-      description: 'Εξειδικευμένος ηλεκτρολόγος με 15+ χρόνια εμπειρίας. Ειδικεύομαι σε οικιακές και εμπορικές ηλεκτρολογικές εγκαταστάσεις.',
-      image: '👨‍🔧',
-      verified: true,
-      responseTime: '1 ώρα',
-      completionRate: '98%',
-      phone: '+30 210 1234567',
-      email: 'giannis.papadopoulos@example.com',
-      address: 'Πανεπιστημίου 15, Αθήνα 10679',
-      coordinates: {
-        latitude: 37.9755,
-        longitude: 23.7348
-      }
-    },
-    {
-      id: '2',
-      name: 'Μαρία Κωστόπουλου',
-      profession: 'Υδραυλικός',
-      category: 'plumber',
-      city: 'athens',
-      rating: 4.9,
-      reviewCount: 89,
-      price: '€40-70',
-      distance: '1.8 km',
-      availability: 'Διαθέσιμος',
-      services: ['Επισκευή Σωλήνων', 'Εγκατάσταση Μπάνιου', 'Συντήρηση'],
-      description: 'Επαγγελματίας υδραυλικός με εξειδίκευση σε επισκευές και εγκαταστάσεις. Γρήγορη εξυπηρέτηση και ανταγωνιστικές τιμές.',
-      image: '👩‍🔧',
-      verified: true,
-      responseTime: '30 λεπτά',
-      completionRate: '100%',
-      phone: '+30 210 2345678',
-      email: 'maria.kostopoulou@example.com',
-      address: 'Σταδίου 8, Αθήνα 10564',
-      coordinates: {
-        latitude: 37.9755,
-        longitude: 23.7348
-      }
-    },
-    {
-      id: '3',
-      name: 'Πέτρος Νικολάου',
-      profession: 'Μαραγκός',
-      category: 'painter',
-      city: 'athens',
-      rating: 4.7,
-      reviewCount: 156,
-      price: '€35-60',
-      distance: '3.1 km',
-      availability: 'Διαθέσιμος',
-      services: ['Βάψιμο Δωματίων', 'Εξωτερικά Χρώματα', 'Αντισηπτικά'],
-      description: 'Επαγγελματίας μάστορας με εμπειρία σε εσωτερικά και εξωτερικά χρώματα. Χρήση υψηλής ποιότητας υλικών.',
-      image: '👨‍🎨',
-      verified: true,
-      responseTime: '2 ώρες',
-      completionRate: '95%',
-      phone: '+30 210 3456789',
-      email: 'petros.nikolaou@example.com',
-      address: 'Ακαδημίας 12, Αθήνα 10671',
-      coordinates: {
-        latitude: 37.9755,
-        longitude: 23.7348
-      }
-    },
-    {
-      id: '4',
-      name: 'Ελένη Δημητρίου',
-      profession: 'Καθαριστής',
-      category: 'cleaner',
-      city: 'athens',
-      rating: 4.6,
-      reviewCount: 203,
-      price: '€25-45',
-      distance: '1.2 km',
-      availability: 'Διαθέσιμος',
-      services: ['Καθαρισμός Σπιτιού', 'Γραφείου', 'Μετά από Μετακόμιση'],
-      description: 'Επαγγελματικός καθαρισμός σπιτιών και γραφείων. Αξιόπιστη και προσεκτική στην εργασία της.',
-      image: '👩‍💼',
-      verified: true,
-      responseTime: '45 λεπτά',
-      completionRate: '99%'
-    },
-    {
-      id: '5',
-      name: 'Νίκος Αντωνίου',
-      profession: 'Κηπουρός',
-      category: 'gardener',
-      city: 'athens',
-      rating: 4.5,
-      reviewCount: 78,
-      price: '€30-50',
-      distance: '4.2 km',
-      availability: 'Διαθέσιμος',
-      services: ['Κηπουρική', 'Καθαρισμός Κήπου', 'Φυτεύσεις'],
-      description: 'Ειδικευμένος κηπουρός με γνώσεις σε τοπικά φυτά και κηπουρικές τεχνικές. Συντήρηση κήπων και φυτεύσεις.',
-      image: '👨‍🌾',
-      verified: false,
-      responseTime: '1.5 ώρες',
-      completionRate: '92%'
-    },
-    {
-      id: '6',
-      name: 'Σπύρος Δημητρίου',
-      profession: 'Κλειδαράς',
-      category: 'locksmith',
-      city: 'athens',
-      rating: 4.9,
-      reviewCount: 234,
-      price: '€60-120',
-      distance: '1.8 km',
-      availability: 'Διαθέσιμος',
-      services: ['Αντικατάσταση Κλειδιών', 'Ξεκλείδωμα', 'Σύστημα Ασφαλείας'],
-      description: 'Επαγγελματίας κλειδαράς με 20+ χρόνια εμπειρία. Γρήγορη εξυπηρέτηση 24/7 για όλες τις κλειδαρικές ανάγκες.',
-      image: '🔐',
-      verified: true,
-      responseTime: '30 λεπτά',
-      completionRate: '100%'
-    },
-    {
-      id: '7',
-      name: 'Ελένη Παπαδοπούλου',
-      profession: 'Θερμοσίφωνας',
-      category: 'hvac',
-      city: 'thessaloniki',
-      rating: 4.7,
-      reviewCount: 156,
-      price: '€80-150',
-      distance: '3.5 km',
-      availability: 'Διαθέσιμος',
-      services: ['Επισκευή Θερμοσίφωνα', 'Συντήρηση', 'Εγκατάσταση'],
-      description: 'Ειδικευμένη τεχνικός θερμοσίφωνα με πιστοποίηση. Επισκευές και συντήρηση όλων των μοντέλων.',
-      image: '🔥',
-      verified: true,
-      responseTime: '2 ώρες',
-      completionRate: '98%'
-    },
-    {
-      id: '8',
-      name: 'Μιχάλης Κωνσταντίνου',
-      profession: 'Παρκέ',
-      category: 'flooring',
-      city: 'athens',
-      rating: 4.3,
-      reviewCount: 89,
-      price: '€25-45',
-      distance: '2.1 km',
-      availability: 'Διαθέσιμος',
-      services: ['Τοποθέτηση Παρκέ', 'Συντήρηση', 'Ανάκτηση'],
-      description: 'Επαγγελματίας παρκετζής με εμπειρία σε όλα τα είδη ξύλου. Ποιότητα και ακρίβεια στην εργασία.',
-      image: '🏠',
-      verified: false,
-      responseTime: '1 ώρα',
-      completionRate: '95%'
-    },
-    {
-      id: '9',
-      name: 'Αννα Γεωργίου',
-      profession: 'Συσκευές',
-      category: 'appliance',
-      city: 'patras',
-      rating: 4.6,
-      reviewCount: 167,
-      price: '€40-80',
-      distance: '1.9 km',
-      availability: 'Διαθέσιμος',
-      services: ['Επισκευή Ψυγείου', 'Πλυντήριο', 'Φούρνος'],
-      description: 'Ειδικευμένη τεχνικός συσκευών με γνώσεις σε όλες τις μάρκες. Γρήγορη και αξιόπιστη εξυπηρέτηση.',
-      image: '🔌',
-      verified: true,
-      responseTime: '45 λεπτά',
-      completionRate: '97%'
-    },
-    {
-      id: '10',
-      name: 'Γιώργος Παπαγιάννης',
-      profession: 'Ασφάλεια',
-      category: 'security',
-      city: 'athens',
-      rating: 4.8,
-      reviewCount: 198,
-      price: '€100-200',
-      distance: '2.7 km',
-      availability: 'Διαθέσιμος',
-      services: ['Συστήματα Ασφαλείας', 'Καμερες', 'Αντιασφάλεια'],
-      description: 'Ειδικευμένος τεχνικός συστημάτων ασφαλείας. Εγκαταστάσεις και συντήρηση για σπίτια και επιχειρήσεις.',
-      image: '🛡️',
-      verified: true,
-      responseTime: '1 ώρα',
-      completionRate: '99%'
-    },
-    {
-      id: '11',
-      name: 'Νίκος Ξυλουργός',
-      profession: 'Ξυλουργός',
-      category: 'carpenter',
-      city: 'athens',
-      rating: 4.6,
-      reviewCount: 78,
-      price: '€45-75',
-      distance: '3.2 km',
-      availability: 'Διαθέσιμος',
-      services: ['Έπιπλα', 'Συντήρηση', 'Επισκευή'],
-      description: 'Εξειδικευμένος ξυλουργός με 12+ χρόνια εμπειρίας. Ειδικεύομαι σε κατασκευή και επισκευή επίπλων.',
-      image: '🔨',
-      verified: true,
-      responseTime: '2 ώρες',
-      completionRate: '97%',
-      phone: '+30 210 3456789',
-      email: 'nikos.xylourgou@example.com'
-    },
-    {
-      id: '12',
-      name: 'Πέτρος Μηχανικός',
-      profession: 'Υδραυλικός',
-      category: 'plumber',
-      city: 'patras',
-      rating: 4.8,
-      reviewCount: 92,
-      price: '€60-100',
-      distance: '4.1 km',
-      availability: 'Διαθέσιμος',
-      services: ['Επισκευή Σωλήνων', 'Εγκατάσταση Μπάνιου', 'Συντήρηση'],
-      description: 'Επαγγελματίας υδραυλικός με εξειδίκευση σε επισκευές και εγκαταστάσεις. Γρήγορη και αξιόπιστη εξυπηρέτηση στην Πάτρα.',
-      image: '🚰',
-      verified: true,
-      responseTime: '1.5 ώρες',
-      completionRate: '99%',
-      phone: '+30 210 4567890',
-      email: 'petros.ydraulikos@example.com'
-    },
-    {
-      id: '13',
-      name: 'Ελένη Δημοσιογράφος',
-      profession: 'Υδραυλικός',
-      category: 'plumber',
-      city: 'larissa',
-      rating: 4.5,
-      reviewCount: 45,
-      price: '€80-120',
-      distance: '2.8 km',
-      availability: 'Διαθέσιμος',
-      services: ['Επισκευή Σωλήνων', 'Εγκατάσταση Μπάνιου', 'Συντήρηση'],
-      description: 'Επαγγελματίας υδραυλικός με εμπειρία σε επισκευές και εγκαταστάσεις. Εξειδικεύομαι σε υδραυλικές εγκαταστάσεις στην Λάρισα.',
-      image: '🚰',
-      verified: true,
-      responseTime: '3 ώρες',
-      completionRate: '95%',
-      phone: '+30 210 5678901',
-      email: 'eleni.ydraulikos@example.com'
-    },
-    {
-      id: '14',
-      name: 'Άννα Παπίδου',
-      profession: 'Ηλεκτρολόγος',
-      category: 'electrician',
-      city: 'thessaloniki',
-      rating: 4.7,
-      reviewCount: 143,
-      price: '€55-85',
-      distance: '2.8 km',
-      availability: 'Διαθέσιμος',
-      services: ['Επισκευή Ηλεκτρικών', 'Εγκατάσταση Φωτισμού', 'Συντήρηση'],
-      description: 'Εξειδικευμένη ηλεκτρολόγος με 18+ χρόνια εμπειρίας. Ειδικεύομαι σε οικιακές και εμπορικές ηλεκτρολογικές εγκαταστάσεις στη Θεσσαλονίκη.',
-      image: '👩‍🔧',
-      verified: true,
-      responseTime: '45 λεπτά',
-      completionRate: '98%',
-      phone: '+30 231 1234567',
-      email: 'anna.papidou@example.com',
-      address: 'Ιωνίας 71, 54453 Θεσσαλονίκη, Ελλάδα',
-      coordinates: {
-        latitude: 40.608796, // Exact coordinates for Ionias 71, Thessaloniki
-        longitude: 22.970381
-      }
-    },
-    {
-      id: '15',
-      name: 'Άρης Μάρκου',
-      profession: 'Μαραγκός',
-      category: 'painter',
-      city: 'athens',
-      rating: 4.9,
-      reviewCount: 201,
-      price: '€40-70',
-      distance: '1.5 km',
-      availability: 'Διαθέσιμος',
-      services: ['Βάψιμο Δωματίων', 'Εξωτερικά Χρώματα', 'Αντισηπτικά'],
-      description: 'Επαγγελματίας μάστορας με εμπειρία σε εσωτερικά και εξωτερικά χρώματα. Χρήση υψηλής ποιότητας υλικών και προσεκτική εργασία.',
-      image: '👨‍🎨',
-      verified: true,
-      responseTime: '1 ώρα',
-      completionRate: '100%',
-      phone: '+30 210 9876543',
-      email: 'aris.markou@example.com',
-      address: 'Μακροχωρίου 7, 11363 Αθήνα, Ελλάδα',
-      coordinates: {
-        latitude: 37.99811,
-        longitude: 23.74883
-      }
-    }
-  ];
-
   useEffect(() => {
     initializeTables();
     loadCategoriesAndCities();
@@ -431,14 +117,12 @@ export default function FindProfessionalsScreen() {
     
     try {
       // Load professionals from Firestore (common database)
-      let filtered = [...mockProfessionals];
+      let filtered: any[] = [];
       try {
         // Get all professionals from Firestore
         const firestoreProfessionals = await getProfessionals();
         console.log('✅ Loaded professionals from Firestore:', firestoreProfessionals.length);
-        
-        // Combine with mock data (for backward compatibility)
-        filtered = [...mockProfessionals, ...firestoreProfessionals];
+        filtered = firestoreProfessionals;
       } catch (error) {
         console.error('Error loading professionals from Firestore:', error);
         // Fallback to AsyncStorage if Firestore fails (for migration period)
@@ -447,7 +131,7 @@ export default function FindProfessionalsScreen() {
           if (customProfessionalsJson) {
             const customProfessionals = JSON.parse(customProfessionalsJson);
             console.log('⚠️ Fallback: Loaded from AsyncStorage:', customProfessionals.length);
-            filtered = [...mockProfessionals, ...customProfessionals];
+            filtered = customProfessionals;
           }
         } catch (storageError) {
           console.error('Error loading from AsyncStorage fallback:', storageError);
@@ -497,12 +181,19 @@ export default function FindProfessionalsScreen() {
       }
       
       // Get friend recommendations for current search
-      const mockFriendsList = ['user2', 'user3', '1', '3']; // Mock friends list (Μαρία, Γιάννης, Άννα, Λίζα)
+      // Load real friends from database instead of mock list
+      let friendsList: string[] = [];
+      try {
+        // TODO: Load friends from Firestore friendRelationships collection
+        // For now, use empty list - no mock data
+      } catch (error) {
+        console.error('Error loading friends list:', error);
+      }
       
       // Always get ALL friend recommendations first
       const allFriendRecs = recommendationService.getFriendsRecommendationsForUser(
         user?.id || 'user1',
-        mockFriendsList
+        friendsList
       );
       
       // Then filter them based on the current search results
@@ -562,7 +253,7 @@ export default function FindProfessionalsScreen() {
       setIsLoading(false);
     } catch (error) {
       console.error('Error loading professionals:', error);
-      setProfessionals(mockProfessionals); // Fallback to mock data
+      setProfessionals([]); // No fallback - empty array
       setIsLoading(false);
     }
   };

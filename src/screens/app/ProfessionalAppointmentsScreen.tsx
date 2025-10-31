@@ -14,24 +14,21 @@ export default function ProfessionalAppointmentsScreen() {
     { id: 'completed', title: 'Ολοκληρωμένα' }
   ];
 
-  const mockAppointments = [
-    {
-      id: '1',
-      user: 'Γιάννης Παπαδόπουλος',
-      userEmail: 'giannis@example.com',
-      userPhone: '+30 210 1234567',
-      day: 'Δευτέρα',
-      time: '10:00',
-      service: 'Συντήρηση',
-      repair: 'Αντικατάσταση πρίζας',
-      town: 'Αθήνα',
-      country: 'Ελλάδα',
-      duration: '2 ώρες',
-      price: '€80',
-      status: 'pending',
-      notes: 'Επείγον θέμα'
+  useEffect(() => {
+    loadAppointments();
+  }, []);
+
+  const loadAppointments = async () => {
+    try {
+      // TODO: Load appointments from Firestore for professional
+      // const appointmentsData = await getProfessionalAppointments(user?.id);
+      // setAppointments(appointmentsData);
+      setAppointments([]); // Empty for now - no mock data
+    } catch (error) {
+      console.error('Error loading appointments:', error);
+      setAppointments([]);
     }
-  ];
+  };
 
   const filteredAppointments = appointments.filter(apt => apt.status === activeTab);
 
