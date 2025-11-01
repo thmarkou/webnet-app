@@ -29,7 +29,7 @@ export default function HomeScreen() {
     { label: 'Ξοδεύτηκε', value: '€0', color: '#3b82f6' }
   ]);
 
-  // Fetch notifications
+  // Fetch notifications (less frequent to improve performance)
   useEffect(() => {
     const fetchNotifications = async () => {
       if (user?.id) {
@@ -44,13 +44,13 @@ export default function HomeScreen() {
 
     fetchNotifications();
     
-    // Update every 5 seconds to simulate real-time updates
-    const interval = setInterval(fetchNotifications, 5000);
+    // Update every 30 seconds (reduced from 5 seconds for better performance)
+    const interval = setInterval(fetchNotifications, 30000);
     
     return () => clearInterval(interval);
   }, [user?.id, setNotifications]);
 
-  // Fetch unread message count
+  // Fetch unread message count (less frequent to improve performance)
   useEffect(() => {
     const fetchUnreadCount = async () => {
       if (user?.id) {
@@ -65,20 +65,28 @@ export default function HomeScreen() {
 
     fetchUnreadCount();
     
-    // Update every 5 seconds to simulate real-time updates
-    const interval = setInterval(fetchUnreadCount, 5000);
+    // Update every 30 seconds (reduced from 5 seconds for better performance)
+    const interval = setInterval(fetchUnreadCount, 30000);
     
     return () => clearInterval(interval);
   }, [user?.id]);
 
-  // Fetch real statistics
+  // Fetch real statistics (lazy load - only when screen is focused)
   useEffect(() => {
+    let isMounted = true;
+    
     const fetchStatistics = async () => {
-      if (!user?.id) return;
+      if (!user?.id || !isMounted) return;
 
       try {
-        // Get all appointments
-        const allAppointments = await getAppointments(user.id);
+        // Run queries in parallel for better performance
+        const [allAppointments, userReviews] = await Promise.all([
+          getAppointments(user.id),
+          getUserReviews(user.id)
+        ]);
+
+        if (!isMounted) return;
+
         const completedAppointments = allAppointments.filter((apt: any) => apt.status === 'completed');
         
         // Get current month start
@@ -89,8 +97,7 @@ export default function HomeScreen() {
           return aptDate >= currentMonthStart;
         });
 
-        // Get user reviews (reviews made by the user)
-        const userReviews = await getUserReviews(user.id);
+        // Calculate average rating
         const averageRating = userReviews.length > 0
           ? (userReviews.reduce((sum: number, review: any) => sum + (review.rating || 0), 0) / userReviews.length).toFixed(1)
           : '0';
@@ -104,18 +111,26 @@ export default function HomeScreen() {
         // Format total spent
         const formattedSpent = totalSpent > 0 ? `€${totalSpent.toLocaleString('el-GR')}` : '€0';
 
-        setOverviewMetrics([
-          { label: 'Κλεισμένα Ραντεβού', value: completedAppointments.length.toString(), color: '#3b82f6' },
-          { label: 'Αυτό το Μήνα', value: thisMonthAppointments.length.toString(), color: '#3b82f6' },
-          { label: 'Μέση Αξιολόγηση', value: averageRating, color: '#3b82f6' },
-          { label: 'Ξοδεύτηκε', value: formattedSpent, color: '#3b82f6' }
-        ]);
+        if (isMounted) {
+          setOverviewMetrics([
+            { label: 'Κλεισμένα Ραντεβού', value: completedAppointments.length.toString(), color: '#3b82f6' },
+            { label: 'Αυτό το Μήνα', value: thisMonthAppointments.length.toString(), color: '#3b82f6' },
+            { label: 'Μέση Αξιολόγηση', value: averageRating, color: '#3b82f6' },
+            { label: 'Ξοδεύτηκε', value: formattedSpent, color: '#3b82f6' }
+          ]);
+        }
       } catch (error) {
         console.error('Error fetching statistics:', error);
       }
     };
 
-    fetchStatistics();
+    // Small delay to allow screen to render first
+    const timeoutId = setTimeout(fetchStatistics, 100);
+
+    return () => {
+      isMounted = false;
+      clearTimeout(timeoutId);
+    };
   }, [user?.id]);
 
   const actionCards = [

@@ -46,8 +46,8 @@ export default function FriendsScreen() {
 
     fetchUnreadCounts();
     
-    // Update every 5 seconds to simulate real-time updates
-    const interval = setInterval(fetchUnreadCounts, 5000);
+    // Update every 30 seconds (reduced from 5 seconds for better performance)
+    const interval = setInterval(fetchUnreadCounts, 30000);
     
     return () => clearInterval(interval);
   }, [user?.id]);
