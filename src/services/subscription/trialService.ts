@@ -1,4 +1,5 @@
 import { UserSubscription } from '../../types/subscription';
+import { SUBSCRIPTION_CONFIG } from '../../config/subscription';
 
 export interface TrialUser {
   userId: string;
@@ -7,7 +8,7 @@ export interface TrialUser {
   trialStartDate: Date;
   trialEndDate: Date;
   isExpired: boolean;
-  expirationNotified: boolean;
+  expirationNotified: number[]; // Array of days (e.g., [10, 5, 1]) that notifications have been sent
   daysRemaining: number;
 }
 
@@ -35,7 +36,7 @@ class TrialService {
       trialStartDate: now,
       trialEndDate,
       isExpired: false,
-      expirationNotified: false,
+      expirationNotified: [], // Array to track which notification days have been sent
       daysRemaining: 90,
     };
 
@@ -82,42 +83,52 @@ class TrialService {
         const notification: TrialNotification = {
           userId: trialUser.userId,
           type: 'trial_expired',
-          message: `Η δωρεάν δοκιμή σας έχει λήξει. Παρακαλώ επιλέξτε ένα πρόγραμμα συνδρομής για να συνεχίσετε.`,
+          message: `Η δωρεάν δοκιμή σας έχει λήξει. Παρακαλώ επιλέξτε το πρόγραμμα Premium (€9.99/μήνα) για να συνεχίσετε.`,
           createdAt: now,
         };
 
         newNotifications.push(notification);
         this.notifications.push(notification);
       }
-      // Check if trial is expiring soon (10 days, 5 days, 1 day)
-      else if (daysRemaining <= 10 && daysRemaining > 0 && !trialUser.expirationNotified) {
-        let notificationType: 'trial_expiring' | 'trial_reminder';
-        let message: string;
+      // Check if trial is expiring soon (notifications at 10, 5, 1 days before expiry)
+      else if (daysRemaining > 0 && daysRemaining <= 10) {
+        // Get notification days from config (default: [10, 5, 1])
+        const notificationDays = SUBSCRIPTION_CONFIG.NOTIFICATION_DAYS;
+        
+        // Check if current days remaining matches a notification day and hasn't been sent yet
+        if (notificationDays.includes(daysRemaining) && !trialUser.expirationNotified.includes(daysRemaining)) {
+          let notificationType: 'trial_expiring' | 'trial_reminder';
+          let message: string;
 
-        if (daysRemaining === 10) {
-          notificationType = 'trial_expiring';
-          message = `Η δωρεάν δοκιμή σας λήγει σε 10 ημέρες. Επιλέξτε το πρόγραμμα Premium (€9.99/μήνα) για να συνεχίσετε.`;
-        } else if (daysRemaining === 5) {
-          notificationType = 'trial_reminder';
-          message = `Η δωρεάν δοκιμή σας λήγει σε 5 ημέρες. Επιλέξτε το πρόγραμμα Premium (€9.99/μήνα) τώρα!`;
-        } else if (daysRemaining === 1) {
-          notificationType = 'trial_reminder';
-          message = `Η δωρεάν δοκιμή σας λήγει αύριο! Επιλέξτε το πρόγραμμα Premium (€9.99/μήνα) για να αποφύγετε την απώλεια πρόσβασης.`;
-        } else {
-          return; // Skip other days
+          if (daysRemaining === 10) {
+            notificationType = 'trial_expiring';
+            message = `Η δωρεάν δοκιμή σας λήγει σε 10 ημέρες. Επιλέξτε το πρόγραμμα Premium (€9.99/μήνα) για να συνεχίσετε.`;
+          } else if (daysRemaining === 5) {
+            notificationType = 'trial_reminder';
+            message = `Η δωρεάν δοκιμή σας λήγει σε 5 ημέρες. Επιλέξτε το πρόγραμμα Premium (€9.99/μήνα) τώρα!`;
+          } else if (daysRemaining === 1) {
+            notificationType = 'trial_reminder';
+            message = `Η δωρεάν δοκιμή σας λήγει αύριο! Επιλέξτε το πρόγραμμα Premium (€9.99/μήνα) για να αποφύγετε την απώλεια πρόσβασης.`;
+          } else {
+            // Generic message for other notification days
+            notificationType = 'trial_reminder';
+            message = `Η δωρεάν δοκιμή σας λήγει σε ${daysRemaining} ημέρες. Επιλέξτε το πρόγραμμα Premium (€9.99/μήνα) για να συνεχίσετε.`;
+          }
+
+          const notification: TrialNotification = {
+            userId: trialUser.userId,
+            type: notificationType,
+            message,
+            daysRemaining,
+            createdAt: now,
+          };
+
+          newNotifications.push(notification);
+          this.notifications.push(notification);
+          
+          // Mark this notification day as sent
+          trialUser.expirationNotified.push(daysRemaining);
         }
-
-        const notification: TrialNotification = {
-          userId: trialUser.userId,
-          type: notificationType,
-          message,
-          daysRemaining,
-          createdAt: now,
-        };
-
-        newNotifications.push(notification);
-        this.notifications.push(notification);
-        trialUser.expirationNotified = true;
       }
     });
 

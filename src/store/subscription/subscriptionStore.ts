@@ -63,7 +63,7 @@ export const useSubscriptionStore = create<SubscriptionState & SubscriptionActio
         {
           id: 'free',
           name: SUBSCRIPTION_CONFIG.PLANS.FREE.name,
-          description: 'Δωρεάν σχέδιο με βασικές λειτουργίες',
+          description: 'Δωρεάν σχέδιο για 3 μήνες (90 ημέρες)',
           price: SUBSCRIPTION_CONFIG.PLANS.FREE.price,
           currency: SUBSCRIPTION_CONFIG.CURRENCY,
           interval: 'monthly',

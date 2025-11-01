@@ -15,20 +15,22 @@ export const SUBSCRIPTION_CONFIG = {
   NOTIFICATION_DAYS: [10, 5, 1], // Days before expiry to send notifications
   
   // Subscription plans
+  // Note: Free and Premium have the SAME features - the only difference is duration
+  // Free: 3 months (90 days), Premium: Monthly subscription
   PLANS: {
     FREE: {
       id: 'free',
       name: 'Δωρεάν',
       price: 0,
-      duration: 90, // days
-      features: ['Βασικές λειτουργίες', 'Αναζήτηση επαγγελματιών', 'Κλείσιμο ραντεβού']
+      duration: 90, // days (3 months)
+      features: ['Όλες οι λειτουργίες', 'Αναζήτηση επαγγελματιών', 'Κλείσιμο ραντεβού', 'Στατιστικά', 'Απεριόριστα ραντεβού']
     },
     PREMIUM: {
       id: 'premium',
       name: 'Premium',
       price: 9.99,
-      duration: 30, // days
-      features: ['Όλες οι λειτουργίες', 'Προτεραιότητα', 'Απεριόριστα ραντεβού', 'Στατιστικά']
+      duration: 30, // days (monthly)
+      features: ['Όλες οι λειτουργίες', 'Αναζήτηση επαγγελματιών', 'Κλείσιμο ραντεβού', 'Στατιστικά', 'Απεριόριστα ραντεβού']
     }
   },
   
