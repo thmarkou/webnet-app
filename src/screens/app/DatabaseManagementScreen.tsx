@@ -29,7 +29,7 @@ export default function DatabaseManagementScreen() {
     reviews: 0,
   });
 
-  // Fetch database statistics
+  // Fetch database statistics (only for admin)
   useEffect(() => {
     const fetchStats = async () => {
       if (user?.role === 'admin') {
@@ -43,14 +43,17 @@ export default function DatabaseManagementScreen() {
         } finally {
           setStatsLoading(false);
         }
+      } else {
+        // Non-admin users don't see statistics
+        setStatsLoading(false);
       }
     };
 
     fetchStats();
   }, [user?.role]);
 
-  // Check if user is admin
-  if (user?.role !== 'admin') {
+  // Check if user is authenticated
+  if (!user) {
     return (
       <SafeAreaView style={styles.container}>
         <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
@@ -61,7 +64,6 @@ export default function DatabaseManagementScreen() {
           </TouchableOpacity>
           <View style={styles.headerContent}>
             <Text style={styles.title}>Διαχείριση Βάσης Δεδομένων</Text>
-            <Text style={styles.userName}>{user?.name || 'Χρήστη'}</Text>
           </View>
         </View>
 
@@ -69,7 +71,7 @@ export default function DatabaseManagementScreen() {
           <Text style={styles.accessDeniedIcon}>🚫</Text>
           <Text style={styles.accessDeniedTitle}>Πρόσβαση Απαγορευμένη</Text>
           <Text style={styles.accessDeniedText}>
-            Μόνο οι διαχειριστές έχουν πρόσβαση σε αυτή τη σελίδα.
+            Πρέπει να είστε συνδεδεμένοι για να έχετε πρόσβαση σε αυτή τη σελίδα.
           </Text>
           <TouchableOpacity 
             style={styles.backToHomeButton}
@@ -360,36 +362,38 @@ export default function DatabaseManagementScreen() {
           </Text>
         </View>
 
-        {/* Database Statistics */}
-        <View style={styles.statsSection}>
-          <Text style={styles.sectionTitle}>Στατιστικά Βάσης Δεδομένων</Text>
-          
-          {statsLoading ? (
-            <View style={styles.statsLoadingContainer}>
-              <ActivityIndicator size="small" color="#3b82f6" />
-              <Text style={styles.statsLoadingText}>Φόρτωση...</Text>
-            </View>
-          ) : (
-            <View style={styles.statsGrid}>
-              <View style={styles.statCard}>
-                <Text style={styles.statNumber}>{databaseStats.users}</Text>
-                <Text style={styles.statLabel}>Χρήστες</Text>
+        {/* Database Statistics - Only visible for admin */}
+        {user?.role === 'admin' && (
+          <View style={styles.statsSection}>
+            <Text style={styles.sectionTitle}>Στατιστικά Βάσης Δεδομένων</Text>
+            
+            {statsLoading ? (
+              <View style={styles.statsLoadingContainer}>
+                <ActivityIndicator size="small" color="#3b82f6" />
+                <Text style={styles.statsLoadingText}>Φόρτωση...</Text>
               </View>
-              <View style={styles.statCard}>
-                <Text style={styles.statNumber}>{databaseStats.professionals}</Text>
-                <Text style={styles.statLabel}>Επαγγελματίες</Text>
+            ) : (
+              <View style={styles.statsGrid}>
+                <View style={styles.statCard}>
+                  <Text style={styles.statNumber}>{databaseStats.users}</Text>
+                  <Text style={styles.statLabel}>Χρήστες</Text>
+                </View>
+                <View style={styles.statCard}>
+                  <Text style={styles.statNumber}>{databaseStats.professionals}</Text>
+                  <Text style={styles.statLabel}>Επαγγελματίες</Text>
+                </View>
+                <View style={styles.statCard}>
+                  <Text style={styles.statNumber}>{databaseStats.appointments}</Text>
+                  <Text style={styles.statLabel}>Ραντεβού</Text>
+                </View>
+                <View style={styles.statCard}>
+                  <Text style={styles.statNumber}>{databaseStats.reviews}</Text>
+                  <Text style={styles.statLabel}>Αξιολογήσεις</Text>
+                </View>
               </View>
-              <View style={styles.statCard}>
-                <Text style={styles.statNumber}>{databaseStats.appointments}</Text>
-                <Text style={styles.statLabel}>Ραντεβού</Text>
-              </View>
-              <View style={styles.statCard}>
-                <Text style={styles.statNumber}>{databaseStats.reviews}</Text>
-                <Text style={styles.statLabel}>Αξιολογήσεις</Text>
-              </View>
-            </View>
-          )}
-        </View>
+            )}
+          </View>
+        )}
 
         {/* Management Actions */}
         <View style={styles.actionsSection}>
