@@ -11,8 +11,10 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import * as DocumentPicker from 'expo-document-picker';
 import { useAuthStore } from '../../store/auth/authStore';
 import { getDatabaseStatistics } from '../../services/firebase/firestore';
+import { importProfessionalsFromExcel } from '../../services/import/excelImportService';
 
 export default function DatabaseManagementScreen() {
   const navigation = useNavigation();
@@ -134,20 +136,73 @@ export default function DatabaseManagementScreen() {
     );
   };
 
-  const handleImportData = () => {
+  const handleImportData = async () => {
     Alert.alert(
-      'Εισαγωγή Δεδομένων',
-      'Επιλέξτε ένα αρχείο JSON για να εισάγετε δεδομένα στην εφαρμογή.',
+      'Εισαγωγή Επαγγελματιών',
+      'Επιλέξτε Excel file (.xlsx) για μαζική εισαγωγή επαγγελματιών.\n\nΤο Excel πρέπει να έχει columns: Όνομα, Email, Τηλέφωνο, Επάγγελμα, Πόλη, Οδός, κλπ.',
       [
         { text: 'Ακύρωση', style: 'cancel' },
         { 
-          text: 'Επιλογή Αρχείου',
-          onPress: () => {
-            setIsLoading(true);
-            setTimeout(() => {
+          text: 'Επιλογή Excel File',
+          onPress: async () => {
+            try {
+              setIsLoading(true);
+              
+              // Pick Excel file
+              const result = await DocumentPicker.getDocumentAsync({
+                type: ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel'],
+                copyToCacheDirectory: true,
+              });
+              
+              if (result.canceled) {
+                setIsLoading(false);
+                return;
+              }
+              
+              const fileUri = result.assets[0].uri;
+              
+              // Import professionals
+              const importResult = await importProfessionalsFromExcel(
+                fileUri,
+                (current, total) => {
+                  console.log(`Importing ${current}/${total}...`);
+                }
+              );
+              
               setIsLoading(false);
-              Alert.alert('Επιτυχία', 'Τα δεδομένα εισήχθησαν επιτυχώς!');
-            }, 1500);
+              
+              // Show results
+              if (importResult.success) {
+                Alert.alert(
+                  '✅ Επιτυχία',
+                  `Εισήχθηκαν ${importResult.imported} επαγγελματίες επιτυχώς!`,
+                  [{ text: 'OK', onPress: () => {
+                    // Refresh statistics
+                    const fetchStats = async () => {
+                      try {
+                        const stats = await getDatabaseStatistics();
+                        setDatabaseStats(stats);
+                      } catch (error) {
+                        console.error('Error refreshing stats:', error);
+                      }
+                    };
+                    fetchStats();
+                  }}]
+                );
+              } else {
+                const errorMessage = importResult.errors.length > 0
+                  ? `Εισήχθηκαν ${importResult.imported} από ${importResult.imported + importResult.failed}.\n\nΣφάλματα:\n${importResult.errors.slice(0, 5).map(e => `Row ${e.row}: ${e.error}`).join('\n')}${importResult.errors.length > 5 ? '\n...' : ''}`
+                  : `Εισήχθηκαν ${importResult.imported} επαγγελματίες, απέτυχαν ${importResult.failed}`;
+                
+                Alert.alert('⚠️ Εισαγωγή Ολοκληρώθηκε', errorMessage);
+              }
+            } catch (error: any) {
+              setIsLoading(false);
+              Alert.alert(
+                'Σφάλμα',
+                error.message || 'Παρουσιάστηκε σφάλμα κατά την εισαγωγή. Παρακαλώ ελέγξτε ότι το Excel file είναι σωστό.'
+              );
+            }
           }
         }
       ]
@@ -194,8 +249,8 @@ export default function DatabaseManagementScreen() {
     },
     {
       id: 'import',
-      title: 'Εισαγωγή Δεδομένων',
-      description: 'Εισαγωγή δεδομένων από αρχείο JSON',
+      title: 'Εισαγωγή Επαγγελματιών',
+      description: 'Μαζική εισαγωγή επαγγελματιών από Excel file (.xlsx)',
       icon: '📥',
       color: '#8b5cf6',
       onPress: handleImportData,
