@@ -13,8 +13,9 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import * as DocumentPicker from 'expo-document-picker';
 import { useAuthStore } from '../../store/auth/authStore';
-import { getDatabaseStatistics } from '../../services/firebase/firestore';
+import { getDatabaseStatistics, getProfessionals } from '../../services/firebase/firestore';
 import { importProfessionalsFromExcel } from '../../services/import/excelImportService';
+import { exportProfessionalsToExcel, shareExcelFile } from '../../services/export/excelExportService';
 
 export default function DatabaseManagementScreen() {
   const navigation = useNavigation();
@@ -116,20 +117,47 @@ export default function DatabaseManagementScreen() {
     );
   };
 
-  const handleExportData = () => {
+  const handleExportData = async () => {
     Alert.alert(
-      'Εξαγωγή Δεδομένων',
-      'Τα δεδομένα θα εξαχθούν σε μορφή JSON.\n\nΘα εμφανιστεί ένα αρχείο με όλα τα δεδομένα της εφαρμογής.',
+      'Εξαγωγή Επαγγελματιών',
+      'Όλοι οι επαγγελματίες θα εξαχθούν σε Excel file (.xlsx).\n\nΘα μπορείτε να το μοιραστείτε ή να τον αποθηκεύσετε.',
       [
         { text: 'Ακύρωση', style: 'cancel' },
         { 
           text: 'Εξαγωγή',
-          onPress: () => {
-            setIsLoading(true);
-            setTimeout(() => {
+          onPress: async () => {
+            try {
+              setIsLoading(true);
+              
+              // Get all professionals from Firestore
+              const professionals = await getProfessionals();
+              
+              if (professionals.length === 0) {
+                setIsLoading(false);
+                Alert.alert('Προσοχή', 'Δεν βρέθηκαν επαγγελματίες για εξαγωγή.');
+                return;
+              }
+              
+              // Export to Excel
+              const fileUri = await exportProfessionalsToExcel(professionals);
+              
               setIsLoading(false);
-              Alert.alert('Επιτυχία', 'Τα δεδομένα εξήχθησαν επιτυχώς!');
-            }, 1500);
+              
+              // Share file
+              await shareExcelFile(fileUri);
+              
+              Alert.alert(
+                '✅ Επιτυχία',
+                `Εξήχθησαν ${professionals.length} επαγγελματίες σε Excel file!`,
+                [{ text: 'OK' }]
+              );
+            } catch (error: any) {
+              setIsLoading(false);
+              Alert.alert(
+                'Σφάλμα',
+                error.message || 'Παρουσιάστηκε σφάλμα κατά την εξαγωγή. Παρακαλώ δοκιμάστε ξανά.'
+              );
+            }
           }
         }
       ]
@@ -241,8 +269,8 @@ export default function DatabaseManagementScreen() {
     },
     {
       id: 'export',
-      title: 'Εξαγωγή Δεδομένων',
-      description: 'Εξαγωγή όλων των δεδομένων σε αρχείο JSON',
+      title: 'Εξαγωγή Επαγγελματιών',
+      description: 'Εξαγωγή όλων των επαγγελματιών σε Excel file (.xlsx)',
       icon: '📤',
       color: '#3b82f6',
       onPress: handleExportData,
