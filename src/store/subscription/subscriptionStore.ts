@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { SubscriptionPlan, UserSubscription, SubscriptionFeature, PaymentMethod, SubscriptionState } from '../../types/subscription';
 import { trialService, TrialUser, TrialNotification } from '../../services/subscription/trialService';
+import { SUBSCRIPTION_CONFIG } from '../../config/subscription';
 
 interface SubscriptionActions {
   // Subscription Plans
@@ -56,7 +57,34 @@ export const useSubscriptionStore = create<SubscriptionState & SubscriptionActio
       // TODO: Load subscription plans from Firestore
       // const plans = await getSubscriptionPlans();
       // set({ availablePlans: plans, isLoading: false });
-      set({ availablePlans: [], isLoading: false }); // Empty for now - no mock data
+      
+      // Default subscription plans (from config)
+      const defaultPlans: SubscriptionPlan[] = [
+        {
+          id: 'free',
+          name: SUBSCRIPTION_CONFIG.PLANS.FREE.name,
+          description: 'Δωρεάν σχέδιο με βασικές λειτουργίες',
+          price: SUBSCRIPTION_CONFIG.PLANS.FREE.price,
+          currency: SUBSCRIPTION_CONFIG.CURRENCY,
+          interval: 'monthly',
+          features: SUBSCRIPTION_CONFIG.PLANS.FREE.features,
+          icon: '🆓',
+          duration: SUBSCRIPTION_CONFIG.PLANS.FREE.duration
+        },
+        {
+          id: 'premium',
+          name: SUBSCRIPTION_CONFIG.PLANS.PREMIUM.name,
+          description: 'Premium συνδρομή με όλες τις λειτουργίες',
+          price: SUBSCRIPTION_CONFIG.PLANS.PREMIUM.price,
+          currency: SUBSCRIPTION_CONFIG.CURRENCY,
+          interval: 'monthly',
+          features: SUBSCRIPTION_CONFIG.PLANS.PREMIUM.features,
+          icon: '⭐',
+          isPopular: true
+        }
+      ];
+      
+      set({ availablePlans: defaultPlans, isLoading: false });
     } catch (error) {
       set({ 
         error: 'Σφάλμα κατά τη φόρτωση των συνδρομών', 
