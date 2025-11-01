@@ -314,7 +314,7 @@ export default function FriendsScreen() {
       {/* Content */}
       {activeTab === 'friends' && (
         <View style={styles.content}>
-          <Text style={styles.sectionTitle}>Φίλοι (3)</Text>
+          <Text style={styles.sectionTitle}>Φίλοι ({friends.length})</Text>
           <FlatList
             data={friends}
             renderItem={renderFriend}
