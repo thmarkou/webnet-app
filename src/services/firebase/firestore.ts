@@ -335,6 +335,28 @@ export const getReviews = async (professionalId: string) => {
   }
 };
 
+export const getUserReviews = async (userId: string) => {
+  try {
+    const q = query(
+      collection(db, COLLECTIONS.REVIEWS),
+      where('userId', '==', userId),
+      orderBy('createdAt', 'desc')
+    );
+    
+    const querySnapshot = await getDocs(q);
+    const reviews = [];
+    
+    querySnapshot.forEach((doc) => {
+      reviews.push({ id: doc.id, ...doc.data() });
+    });
+    
+    return reviews;
+  } catch (error) {
+    console.error('Error getting user reviews:', error);
+    throw error;
+  }
+};
+
 // Notification operations
 export const createNotification = async (notificationData: any) => {
   try {

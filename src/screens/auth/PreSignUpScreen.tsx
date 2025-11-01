@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, StatusBar } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, StatusBar, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
 const PreSignUpScreen = () => {
@@ -24,15 +24,12 @@ const PreSignUpScreen = () => {
       <View style={styles.content}>
         {/* Logo Section */}
         <View style={styles.logoContainer}>
-          <View style={styles.logoPlaceholder}>
-            <View style={styles.logoGrid}>
-              <View style={styles.gridDot} />
-              <View style={styles.gridDot} />
-              <View style={styles.gridDot} />
-              <View style={styles.gridDot} />
-            </View>
-          </View>
-          <Text style={styles.appName}>Webnet</Text>
+          <Image 
+            source={require('../../../assets/icon.png')}
+            style={styles.logo}
+            resizeMode="contain"
+          />
+          <Text style={styles.appName}>WebNet</Text>
           <Text style={styles.tagline}>Συνδεθείτε στο WebNet</Text>
         </View>
 
@@ -100,31 +97,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 60,
   },
-  logoPlaceholder: {
+  logo: {
     width: 80,
     height: 80,
-    borderRadius: 40,
-    backgroundColor: '#f8f9fa',
-    justifyContent: 'center',
-    alignItems: 'center',
     marginBottom: 20,
-    borderWidth: 1,
-    borderColor: '#e9ecef',
-  },
-  logoGrid: {
-    width: 32,
-    height: 32,
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  gridDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: '#6c757d',
-    margin: 2,
   },
   appName: {
     fontSize: 32,

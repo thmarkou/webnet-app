@@ -9,9 +9,11 @@ import {
   ScrollView,
   Alert,
 } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function DebugStorageScreen() {
+  const navigation = useNavigation();
   const [customProfessionals, setCustomProfessionals] = useState<any[]>([]);
   const [registeredUsers, setRegisteredUsers] = useState<any[]>([]);
 
@@ -69,6 +71,12 @@ export default function DebugStorageScreen() {
       <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
       
       <View style={styles.header}>
+        <TouchableOpacity 
+          onPress={() => navigation.canGoBack() ? navigation.goBack() : navigation.navigate('Profile')} 
+          style={styles.backButton}
+        >
+          <Text style={styles.backButtonText}>←</Text>
+        </TouchableOpacity>
         <Text style={styles.title}>Debug Storage</Text>
       </View>
 
@@ -120,14 +128,26 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
   },
   header: {
+    flexDirection: 'row',
+    alignItems: 'center',
     padding: 16,
     borderBottomWidth: 1,
     borderBottomColor: '#e0e0e0',
+  },
+  backButton: {
+    padding: 8,
+    marginRight: 8,
+  },
+  backButtonText: {
+    fontSize: 20,
+    color: '#007AFF',
+    fontWeight: '600',
   },
   title: {
     fontSize: 20,
     fontWeight: 'bold',
     color: '#333',
+    flex: 1,
   },
   content: {
     flex: 1,

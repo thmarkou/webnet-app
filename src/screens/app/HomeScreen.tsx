@@ -15,12 +15,19 @@ import { getUnreadMessageCount } from '../../services/messaging/mockMessaging';
 import { fetchUserNotifications } from '../../services/notifications/mockNotifications';
 import { isSubscriptionEnabled } from '../../config/subscription';
 import TrialNotification from '../../components/TrialNotification';
+import { getAppointments, getUserReviews } from '../../services/firebase/firestore';
 
 export default function HomeScreen() {
   const navigation = useNavigation();
   const { user, logout } = useAuthStore();
   const { unreadCount, setNotifications } = useNotificationStore();
   const [unreadMessageCount, setUnreadMessageCount] = useState(0);
+  const [overviewMetrics, setOverviewMetrics] = useState([
+    { label: 'Κλεισμένα Ραντεβού', value: '0', color: '#3b82f6' },
+    { label: 'Αυτό το Μήνα', value: '0', color: '#3b82f6' },
+    { label: 'Μέση Αξιολόγηση', value: '0', color: '#3b82f6' },
+    { label: 'Ξοδεύτηκε', value: '€0', color: '#3b82f6' }
+  ]);
 
   // Fetch notifications
   useEffect(() => {
@@ -64,6 +71,53 @@ export default function HomeScreen() {
     return () => clearInterval(interval);
   }, [user?.id]);
 
+  // Fetch real statistics
+  useEffect(() => {
+    const fetchStatistics = async () => {
+      if (!user?.id) return;
+
+      try {
+        // Get all appointments
+        const allAppointments = await getAppointments(user.id);
+        const completedAppointments = allAppointments.filter((apt: any) => apt.status === 'completed');
+        
+        // Get current month start
+        const now = new Date();
+        const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+        const thisMonthAppointments = completedAppointments.filter((apt: any) => {
+          const aptDate = apt.date?.toDate ? apt.date.toDate() : new Date(apt.date);
+          return aptDate >= currentMonthStart;
+        });
+
+        // Get user reviews (reviews made by the user)
+        const userReviews = await getUserReviews(user.id);
+        const averageRating = userReviews.length > 0
+          ? (userReviews.reduce((sum: number, review: any) => sum + (review.rating || 0), 0) / userReviews.length).toFixed(1)
+          : '0';
+
+        // Calculate total spent
+        const totalSpent = completedAppointments.reduce((sum: number, apt: any) => {
+          const price = apt.price || apt.servicePrice || 0;
+          return sum + (typeof price === 'number' ? price : parseFloat(price) || 0);
+        }, 0);
+
+        // Format total spent
+        const formattedSpent = totalSpent > 0 ? `€${totalSpent.toLocaleString('el-GR')}` : '€0';
+
+        setOverviewMetrics([
+          { label: 'Κλεισμένα Ραντεβού', value: completedAppointments.length.toString(), color: '#3b82f6' },
+          { label: 'Αυτό το Μήνα', value: thisMonthAppointments.length.toString(), color: '#3b82f6' },
+          { label: 'Μέση Αξιολόγηση', value: averageRating, color: '#3b82f6' },
+          { label: 'Ξοδεύτηκε', value: formattedSpent, color: '#3b82f6' }
+        ]);
+      } catch (error) {
+        console.error('Error fetching statistics:', error);
+      }
+    };
+
+    fetchStatistics();
+  }, [user?.id]);
+
   const actionCards = [
     {
       id: 'appointments',
@@ -102,12 +156,6 @@ export default function HomeScreen() {
     }
   ];
 
-  const overviewMetrics = [
-    { label: 'Κλεισμένα Ραντεβού', value: '12', color: '#3b82f6' },
-    { label: 'Αυτό το Μήνα', value: '8', color: '#3b82f6' },
-    { label: 'Μέση Αξιολόγηση', value: '4.8', color: '#3b82f6' },
-    { label: 'Ξοδεύτηκε', value: '€1,200', color: '#3b82f6' }
-  ];
 
   const handleLogout = () => {
     logout();
