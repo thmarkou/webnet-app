@@ -425,19 +425,19 @@ export default function DatabaseManagementScreen() {
         <View style={styles.infoSection}>
           <Text style={styles.infoTitle}>Πληροφορίες</Text>
           <Text style={styles.infoText}>
+            • <Text style={styles.infoBold}>Εισαγωγή Επαγγελματιών:</Text> Μαζική εισαγωγή επαγγελματιών από Excel file (.xlsx). Οι επαγγελματίες συνδέονται με τον χρήστη που τους εισάγει.
+          </Text>
+          <Text style={styles.infoText}>
+            • <Text style={styles.infoBold}>Διαχείριση Επαγγελματιών & Πόλεων:</Text> Προσθήκη, επεξεργασία και διαγραφή επαγγελμάτων (κατηγοριών) και πόλεων. Προσβάσιμο από όλους τους authenticated χρήστες.
+          </Text>
+          <Text style={styles.infoText}>
             • <Text style={styles.infoBold}>Αρχικοποίηση:</Text> Δημιουργεί δοκιμαστικά δεδομένα για την εφαρμογή
           </Text>
           <Text style={styles.infoText}>
-            • <Text style={styles.infoBold}>Εξαγωγή:</Text> Αποθηκεύει όλα τα δεδομένα σε αρχείο JSON
+            • <Text style={styles.infoBold}>Διαγραφή Δεδομένων:</Text> Διαγράφει όλα τα δεδομένα από τη βάση
           </Text>
           <Text style={styles.infoText}>
-            • <Text style={styles.infoBold}>Εισαγωγή:</Text> Φορτώνει δεδομένα από αρχείο JSON
-          </Text>
-          <Text style={styles.infoText}>
-            • <Text style={styles.infoBold}>Διαγραφή:</Text> Διαγράφει όλα τα δεδομένα από τη βάση
-          </Text>
-          <Text style={styles.infoText}>
-            • <Text style={styles.infoBold}>Επαναφορά:</Text> Επαναφέρει την εφαρμογή στην αρχική κατάσταση
+            • <Text style={styles.infoBold}>Επαναφορά Εφαρμογής:</Text> Επαναφέρει την εφαρμογή στην αρχική κατάσταση
           </Text>
         </View>
       </ScrollView>
