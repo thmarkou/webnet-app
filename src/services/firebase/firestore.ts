@@ -261,16 +261,24 @@ export const createAppointment = async (appointmentData: any) => {
 
 export const getAppointments = async (userId: string, status?: string) => {
   try {
-    let q = query(
-      collection(db, COLLECTIONS.APPOINTMENTS),
-      where('userId', '==', userId)
-    );
+    let q;
     
     if (status) {
-      q = query(q, where('status', '==', status));
+      // Composite query requires index: userId + status + createdAt
+      q = query(
+        collection(db, COLLECTIONS.APPOINTMENTS),
+        where('userId', '==', userId),
+        where('status', '==', status),
+        orderBy('createdAt', 'desc')
+      );
+    } else {
+      // Composite query requires index: userId + createdAt
+      q = query(
+        collection(db, COLLECTIONS.APPOINTMENTS),
+        where('userId', '==', userId),
+        orderBy('createdAt', 'desc')
+      );
     }
-    
-    q = query(q, orderBy('createdAt', 'desc'));
     
     const querySnapshot = await getDocs(q);
     const appointments = [];
@@ -280,8 +288,17 @@ export const getAppointments = async (userId: string, status?: string) => {
     });
     
     return appointments;
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error getting appointments:', error);
+    
+    // If index error, provide helpful message
+    if (error.code === 'failed-precondition') {
+      console.error('⚠️ Firebase Index Required!');
+      console.error('Please create the required index in Firebase Console or run:');
+      console.error('firebase deploy --only firestore:indexes');
+      console.error('Index details:', error.message);
+    }
+    
     throw error;
   }
 };

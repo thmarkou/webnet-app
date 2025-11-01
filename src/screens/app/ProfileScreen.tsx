@@ -12,6 +12,7 @@ import {
   Platform 
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import Constants from 'expo-constants';
 import { useAuthStore } from '../../store/auth/authStore';
 import AdminAuthModal from '../../components/AdminAuthModal';
 import { verifyAdminCode, isAdminAuthenticated, clearAdminAuth } from '../../services/auth/adminAuth';
@@ -21,6 +22,12 @@ export default function ProfileScreen() {
   const { user, logout } = useAuthStore();
   const [showAdminModal, setShowAdminModal] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  
+  // Get build number from app.json or native
+  const buildNumber = Constants.expoConfig?.ios?.buildNumber || 
+                      Constants.expoConfig?.android?.versionCode || 
+                      Constants.nativeBuildVersion || 
+                      '42';
   
   useEffect(() => {
     checkAdminStatus();
@@ -170,7 +177,7 @@ export default function ProfileScreen() {
             <Text style={styles.avatarText}>👤</Text>
           </View>
           <Text style={styles.userName}>{user?.name || 'John Doe'}</Text>
-          <Text style={styles.buildVersion}>Build: 40</Text>
+          <Text style={styles.buildVersion}>Build: {buildNumber}</Text>
           <Text style={styles.userEmail}>{user?.email || 'user@demo.com'}</Text>
           <View style={styles.roleBadge}>
             <Text style={styles.roleText}>
@@ -207,6 +214,22 @@ export default function ProfileScreen() {
               <Text style={styles.infoValue}>{user?.role || 'user'}</Text>
             </View>
           </View>
+        </View>
+
+        {/* Action Items */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Επιλογές</Text>
+          
+          {actionItems.map((item) => (
+            <TouchableOpacity
+              key={item.id}
+              style={styles.actionItem}
+              onPress={item.onPress}
+            >
+              <Text style={styles.actionIcon}>{item.icon}</Text>
+              <Text style={styles.actionText}>{item.title}</Text>
+            </TouchableOpacity>
+          ))}
         </View>
 
         {/* Management Options */}
