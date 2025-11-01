@@ -424,6 +424,16 @@ export default function DatabaseManagementScreen() {
         {/* Information Section */}
         <View style={styles.infoSection}>
           <Text style={styles.infoTitle}>Πληροφορίες</Text>
+          
+          {/* Admin-only information */}
+          {user?.role === 'admin' && (
+            <>
+              <Text style={styles.infoText}>
+                • <Text style={styles.infoBold}>Στατιστικά Βάσης Δεδομένων:</Text> Προβολή πραγματικών στατιστικών (Χρήστες, Επαγγελματίες, Ραντεβού, Αξιολογήσεις). Διαθέσιμο μόνο για διαχειριστές.
+              </Text>
+            </>
+          )}
+          
           <Text style={styles.infoText}>
             • <Text style={styles.infoBold}>Αρχικοποίηση Δεδομένων:</Text> Δημιουργεί δοκιμαστικά δεδομένα για την εφαρμογή
           </Text>
