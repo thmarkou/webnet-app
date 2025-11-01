@@ -43,7 +43,7 @@ export default function FindProfessionalsScreen() {
   useFocusEffect(
     React.useCallback(() => {
       filterProfessionals();
-    }, [searchQuery, selectedCategory, selectedCity, minRating, sortBy])
+    }, [searchQuery, selectedCategory, selectedCity, minRating, sortBy, user?.id])
   );
 
   const loadCategoriesAndCities = async () => {
