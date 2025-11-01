@@ -544,17 +544,11 @@ export const updateCategory = async (categoryId: string, updateData: { name?: st
 
 export const deleteCategory = async (categoryId: string) => {
   try {
-    // Check admin authentication before delete
-    const { requireAdminAuth } = await import('../auth/adminAuth');
-    await requireAdminAuth();
-    
+    // Allow any authenticated user to delete categories (no admin check)
     const docRef = doc(db, COLLECTIONS.CATEGORIES, categoryId);
     await deleteDoc(docRef);
     console.log('✅ Category deleted:', categoryId);
   } catch (error: any) {
-    if (error.message?.includes('ADMIN_REQUIRED')) {
-      throw new Error('ADMIN_REQUIRED: Αυτή η λειτουργία απαιτεί admin authentication');
-    }
     console.error('Error deleting category:', error);
     throw error;
   }
@@ -632,17 +626,11 @@ export const updateCity = async (cityId: string, updateData: { name?: string }) 
 
 export const deleteCity = async (cityId: string) => {
   try {
-    // Check admin authentication before delete
-    const { requireAdminAuth } = await import('../auth/adminAuth');
-    await requireAdminAuth();
-    
+    // Allow any authenticated user to delete cities (no admin check)
     const docRef = doc(db, COLLECTIONS.CITIES, cityId);
     await deleteDoc(docRef);
     console.log('✅ City deleted:', cityId);
   } catch (error: any) {
-    if (error.message?.includes('ADMIN_REQUIRED')) {
-      throw new Error('ADMIN_REQUIRED: Αυτή η λειτουργία απαιτεί admin authentication');
-    }
     console.error('Error deleting city:', error);
     throw error;
   }

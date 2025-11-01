@@ -46,8 +46,8 @@ export default function AdminManagementScreen() {
     region: ''
   });
 
-  // Check if user is admin
-  if (user?.role !== 'admin') {
+  // Check if user is authenticated
+  if (!user) {
     return (
       <SafeAreaView style={styles.container}>
         <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
@@ -57,8 +57,7 @@ export default function AdminManagementScreen() {
             <Text style={styles.backButtonText}>←</Text>
           </TouchableOpacity>
           <View style={styles.headerContent}>
-            <Text style={styles.title}>Διαχείριση Συστήματος</Text>
-            <Text style={styles.userName}>{user?.name || 'Χρήστη'}</Text>
+            <Text style={styles.title}>Διαχείριση Επαγγελματιών & Πόλεων</Text>
           </View>
         </View>
 
@@ -66,7 +65,7 @@ export default function AdminManagementScreen() {
           <Text style={styles.accessDeniedIcon}>🚫</Text>
           <Text style={styles.accessDeniedTitle}>Πρόσβαση Απαγορευμένη</Text>
           <Text style={styles.accessDeniedText}>
-            Μόνο οι διαχειριστές έχουν πρόσβαση σε αυτή τη σελίδα.
+            Πρέπει να είστε συνδεδεμένοι για να έχετε πρόσβαση σε αυτή τη σελίδα.
           </Text>
           <TouchableOpacity 
             style={styles.backToHomeButton}
@@ -306,7 +305,7 @@ export default function AdminManagementScreen() {
           <Text style={styles.backButtonText}>←</Text>
         </TouchableOpacity>
         <View style={styles.headerContent}>
-          <Text style={styles.title}>Διαχείριση Συστήματος</Text>
+          <Text style={styles.title}>Διαχείριση Επαγγελματιών & Πόλεων</Text>
           <Text style={styles.userName}>{user?.name || 'Χρήστη'}</Text>
         </View>
       </View>
