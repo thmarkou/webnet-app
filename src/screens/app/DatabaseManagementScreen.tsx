@@ -267,14 +267,15 @@ export default function DatabaseManagementScreen() {
       color: '#059669',
       onPress: handleInitializeData,
     },
-    {
-      id: 'export',
-      title: 'Εξαγωγή Επαγγελματιών',
-      description: 'Εξαγωγή όλων των επαγγελματιών σε Excel file (.xlsx)',
-      icon: '📤',
-      color: '#3b82f6',
-      onPress: handleExportData,
-    },
+    // Export functionality - hidden for now (can be re-enabled later)
+    // {
+    //   id: 'export',
+    //   title: 'Εξαγωγή Επαγγελματιών',
+    //   description: 'Εξαγωγή όλων των επαγγελματιών σε Excel file (.xlsx)',
+    //   icon: '📤',
+    //   color: '#3b82f6',
+    //   onPress: handleExportData,
+    // },
     {
       id: 'import',
       title: 'Εισαγωγή Επαγγελματιών',
