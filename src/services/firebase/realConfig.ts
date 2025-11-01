@@ -1,6 +1,7 @@
 import { initializeApp, getApps, FirebaseApp } from 'firebase/app';
 import { getFirestore, Firestore } from 'firebase/firestore';
-import { getAuth, Auth } from 'firebase/auth';
+import { initializeAuth, getReactNativePersistence, getAuth, Auth } from 'firebase/auth';
+import ReactNativeAsyncStorage from '@react-native-async-storage/async-storage';
 
 // Real Firebase configuration - Replace with your actual Firebase project config
 const firebaseConfig = {
@@ -47,10 +48,19 @@ export const db: Firestore = (() => {
 export const auth: Auth = (() => {
   if (!_auth) {
     try {
-      _auth = getAuth(app);
-    } catch (error) {
-      console.error('Auth initialization error:', error);
-      throw error;
+      // Use initializeAuth with AsyncStorage persistence for React Native
+      // This ensures auth state persists between app sessions
+      _auth = initializeAuth(app, {
+        persistence: getReactNativePersistence(ReactNativeAsyncStorage)
+      });
+    } catch (error: any) {
+      // If auth is already initialized, use getAuth instead
+      if (error.code === 'auth/already-initialized' || error.message?.includes('already initialized')) {
+        _auth = getAuth(app);
+      } else {
+        console.error('Auth initialization error:', error);
+        throw error;
+      }
     }
   }
   return _auth;
