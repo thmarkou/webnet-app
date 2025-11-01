@@ -100,8 +100,10 @@ export default function FindProfessionalsScreen() {
           text: '💬 Chat',
           onPress: () => {
             // Navigate to chat screen
-            // Navigate to chat (disabled for now)
-            Alert.alert('Chat', 'Η λειτουργία chat θα προστεθεί σύντομα');
+            navigation.navigate('Chat', { 
+              senderId: professional.id, 
+              professionalName: professional.name 
+            });
           }
         },
         {
