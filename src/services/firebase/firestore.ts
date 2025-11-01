@@ -573,6 +573,29 @@ export const getCities = async () => {
   }
 };
 
+// Database Statistics (for admin dashboard)
+export const getDatabaseStatistics = async () => {
+  try {
+    // Get counts from all collections
+    const [usersSnapshot, professionalsSnapshot, appointmentsSnapshot, reviewsSnapshot] = await Promise.all([
+      getDocs(collection(db, COLLECTIONS.USERS)),
+      getDocs(collection(db, COLLECTIONS.PROFESSIONALS)),
+      getDocs(collection(db, COLLECTIONS.APPOINTMENTS)),
+      getDocs(collection(db, COLLECTIONS.REVIEWS))
+    ]);
+
+    return {
+      users: usersSnapshot.size,
+      professionals: professionalsSnapshot.size,
+      appointments: appointmentsSnapshot.size,
+      reviews: reviewsSnapshot.size,
+    };
+  } catch (error) {
+    console.error('Error getting database statistics:', error);
+    throw error;
+  }
+};
+
 export const addCity = async (cityData: { name: string }) => {
   try {
     const docRef = await addDoc(collection(db, COLLECTIONS.CITIES), {

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -8,14 +8,43 @@ import {
   StatusBar,
   ScrollView,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useAuthStore } from '../../store/auth/authStore';
+import { getDatabaseStatistics } from '../../services/firebase/firestore';
 
 export default function DatabaseManagementScreen() {
   const navigation = useNavigation();
   const { user } = useAuthStore();
   const [isLoading, setIsLoading] = useState(false);
+  const [statsLoading, setStatsLoading] = useState(true);
+  const [databaseStats, setDatabaseStats] = useState({
+    users: 0,
+    professionals: 0,
+    appointments: 0,
+    reviews: 0,
+  });
+
+  // Fetch database statistics
+  useEffect(() => {
+    const fetchStats = async () => {
+      if (user?.role === 'admin') {
+        try {
+          setStatsLoading(true);
+          const stats = await getDatabaseStatistics();
+          setDatabaseStats(stats);
+        } catch (error) {
+          console.error('Error fetching database statistics:', error);
+          // Keep default values (0) on error
+        } finally {
+          setStatsLoading(false);
+        }
+      }
+    };
+
+    fetchStats();
+  }, [user?.role]);
 
   // Check if user is admin
   if (user?.role !== 'admin') {
@@ -259,24 +288,31 @@ export default function DatabaseManagementScreen() {
         <View style={styles.statsSection}>
           <Text style={styles.sectionTitle}>Στατιστικά Βάσης Δεδομένων</Text>
           
-          <View style={styles.statsGrid}>
-            <View style={styles.statCard}>
-              <Text style={styles.statNumber}>25</Text>
-              <Text style={styles.statLabel}>Χρήστες</Text>
+          {statsLoading ? (
+            <View style={styles.statsLoadingContainer}>
+              <ActivityIndicator size="small" color="#3b82f6" />
+              <Text style={styles.statsLoadingText}>Φόρτωση...</Text>
             </View>
-            <View style={styles.statCard}>
-              <Text style={styles.statNumber}>12</Text>
-              <Text style={styles.statLabel}>Επαγγελματίες</Text>
+          ) : (
+            <View style={styles.statsGrid}>
+              <View style={styles.statCard}>
+                <Text style={styles.statNumber}>{databaseStats.users}</Text>
+                <Text style={styles.statLabel}>Χρήστες</Text>
+              </View>
+              <View style={styles.statCard}>
+                <Text style={styles.statNumber}>{databaseStats.professionals}</Text>
+                <Text style={styles.statLabel}>Επαγγελματίες</Text>
+              </View>
+              <View style={styles.statCard}>
+                <Text style={styles.statNumber}>{databaseStats.appointments}</Text>
+                <Text style={styles.statLabel}>Ραντεβού</Text>
+              </View>
+              <View style={styles.statCard}>
+                <Text style={styles.statNumber}>{databaseStats.reviews}</Text>
+                <Text style={styles.statLabel}>Αξιολογήσεις</Text>
+              </View>
             </View>
-            <View style={styles.statCard}>
-              <Text style={styles.statNumber}>48</Text>
-              <Text style={styles.statLabel}>Ραντεβού</Text>
-            </View>
-            <View style={styles.statCard}>
-              <Text style={styles.statNumber}>35</Text>
-              <Text style={styles.statLabel}>Αξιολογήσεις</Text>
-            </View>
-          </View>
+          )}
         </View>
 
         {/* Management Actions */}
@@ -477,6 +513,17 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#6b7280',
     fontWeight: '500',
+  },
+  statsLoadingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 24,
+  },
+  statsLoadingText: {
+    marginLeft: 12,
+    fontSize: 14,
+    color: '#6b7280',
   },
   actionsSection: {
     marginBottom: 24,
