@@ -95,6 +95,11 @@ export const getProfessionals = async (filters?: any) => {
   try {
     let q = collection(db, COLLECTIONS.PROFESSIONALS);
     
+    // Filter by createdBy (user ID) - each user sees only their own professionals
+    if (filters?.createdBy) {
+      q = query(q, where('createdBy', '==', filters.createdBy));
+    }
+    
     if (filters?.category) {
       q = query(q, where('profession', '==', filters.category));
     }

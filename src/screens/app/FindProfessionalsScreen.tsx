@@ -117,14 +117,25 @@ export default function FindProfessionalsScreen() {
   const filterProfessionals = async () => {
     setIsLoading(true);
     
-    try {
-      // Load professionals from Firestore (common database)
-      let filtered: any[] = [];
       try {
-        // Get all professionals from Firestore
-        const firestoreProfessionals = await getProfessionals();
-        console.log('✅ Loaded professionals from Firestore:', firestoreProfessionals.length);
-        filtered = firestoreProfessionals;
+        // Load professionals from Firestore - only for current user
+        let filtered: any[] = [];
+        
+        // Only load professionals if user is logged in
+        if (!user?.id) {
+          console.log('⚠️ No user ID - cannot load professionals');
+          setProfessionals([]);
+          setIsLoading(false);
+          return;
+        }
+        
+        try {
+          // Get professionals created by current user only
+          const firestoreProfessionals = await getProfessionals({
+            createdBy: user.id // Filter by current user ID
+          });
+          console.log('✅ Loaded professionals from Firestore (user own):', firestoreProfessionals.length);
+          filtered = firestoreProfessionals;
       } catch (error) {
         console.error('Error loading professionals from Firestore:', error);
         // Fallback to AsyncStorage if Firestore fails (for migration period)
