@@ -258,8 +258,13 @@ export const importProfessionalsFromExcel = async (
         }
         
         // Prepare professional data for Firestore
+        const professionalName = professionalData.name || 
+          (professionalData.firstName ? 
+            `${professionalData.firstName} ${professionalData.lastName || ''}`.trim() : 
+            professionalData.email?.split('@')[0] || 'Επαγγελματίας');
+        
         const professionalDataToSave = {
-          name: professionalData.name || `${professionalData.firstName} ${professionalData.lastName || ''}`.trim(),
+          name: professionalName,
           profession: professionalData.profession,
           createdBy: user?.id || 'admin',
           category: professionalData.profession.toLowerCase().replace(/\s+/g, '_'),
