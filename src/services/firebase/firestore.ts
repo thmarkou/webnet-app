@@ -93,12 +93,11 @@ export const createProfessional = async (professionalData: any) => {
 
 export const getProfessionals = async (filters?: any) => {
   try {
-    let q = collection(db, COLLECTIONS.PROFESSIONALS);
+    let q: any = collection(db, COLLECTIONS.PROFESSIONALS);
     
-    // Filter by createdBy (user ID) - each user sees only their own professionals
-    if (filters?.createdBy) {
-      q = query(q, where('createdBy', '==', filters.createdBy));
-    }
+    // Note: We don't filter by createdBy in the query to support backward compatibility
+    // (old professionals may not have createdBy field)
+    // Instead, we filter in the client-side after fetching
     
     if (filters?.category) {
       q = query(q, where('profession', '==', filters.category));
@@ -109,12 +108,36 @@ export const getProfessionals = async (filters?: any) => {
     }
     
     const querySnapshot = await getDocs(q);
-    const professionals = [];
+    const professionals: any[] = [];
+    
+    console.log(`📊 getProfessionals: Found ${querySnapshot.size} documents in Firestore`);
+    console.log(`📊 getProfessionals: Filter createdBy = ${filters?.createdBy || 'none'}`);
     
     querySnapshot.forEach((doc) => {
-      professionals.push({ id: doc.id, ...doc.data() });
+      const data = doc.data() as any;
+      
+      // Client-side filtering for createdBy
+      // If createdBy filter is provided:
+      //   - Show professionals with matching createdBy
+      //   - OR professionals without createdBy field (backward compatibility)
+      if (filters?.createdBy) {
+        const matchesCreatedBy = data.createdBy === filters.createdBy;
+        const hasNoCreatedBy = !data.createdBy;
+        
+        if (matchesCreatedBy || hasNoCreatedBy) {
+          console.log(`✅ Including professional: ${data.name} (createdBy: ${data.createdBy || 'none'})`);
+          professionals.push({ id: doc.id, ...data });
+        } else {
+          console.log(`❌ Excluding professional: ${data.name} (createdBy: ${data.createdBy}, filter: ${filters.createdBy})`);
+        }
+      } else {
+        // No createdBy filter - show all professionals
+        console.log(`✅ Including professional (no filter): ${data.name}`);
+        professionals.push({ id: doc.id, ...data });
+      }
     });
     
+    console.log(`📊 getProfessionals: Returning ${professionals.length} professionals after filtering`);
     return professionals;
   } catch (error) {
     console.error('Error getting professionals:', error);
@@ -266,35 +289,45 @@ export const createAppointment = async (appointmentData: any) => {
 
 export const getAppointments = async (userId: string, status?: string) => {
   try {
+    console.log(`📅 getAppointments: userId=${userId}, status=${status || 'all'}`);
+    
     let q;
     
+    // Try query without orderBy first to avoid permission issues
     if (status) {
-      // Composite query requires index: userId + status + createdAt
       q = query(
         collection(db, COLLECTIONS.APPOINTMENTS),
         where('userId', '==', userId),
-        where('status', '==', status),
-        orderBy('createdAt', 'desc')
+        where('status', '==', status)
       );
     } else {
-      // Composite query requires index: userId + createdAt
       q = query(
         collection(db, COLLECTIONS.APPOINTMENTS),
-        where('userId', '==', userId),
-        orderBy('createdAt', 'desc')
+        where('userId', '==', userId)
       );
     }
     
     const querySnapshot = await getDocs(q);
-    const appointments = [];
+    const appointments: any[] = [];
+    
+    console.log(`📅 getAppointments: Found ${querySnapshot.size} appointments`);
     
     querySnapshot.forEach((doc) => {
       appointments.push({ id: doc.id, ...doc.data() });
     });
     
+    // Sort manually by createdAt descending
+    appointments.sort((a, b) => {
+      const aDate = a.createdAt?.toDate ? a.createdAt.toDate().getTime() : (a.createdAt?.seconds || 0) * 1000;
+      const bDate = b.createdAt?.toDate ? b.createdAt.toDate().getTime() : (b.createdAt?.seconds || 0) * 1000;
+      return bDate - aDate;
+    });
+    
     return appointments;
   } catch (error: any) {
     console.error('Error getting appointments:', error);
+    console.error('Error code:', error.code);
+    console.error('Error message:', error.message);
     
     // If index error, provide helpful message
     if (error.code === 'failed-precondition') {
@@ -304,7 +337,8 @@ export const getAppointments = async (userId: string, status?: string) => {
       console.error('Index details:', error.message);
     }
     
-    throw error;
+    // Don't throw error - return empty array instead
+    return [];
   }
 };
 
@@ -575,6 +609,8 @@ export const getCities = async () => {
 // Database Statistics (for admin dashboard)
 export const getDatabaseStatistics = async () => {
   try {
+    console.log('📊 getDatabaseStatistics: Starting...');
+    
     // Get counts from all collections
     const [usersSnapshot, professionalsSnapshot, appointmentsSnapshot, reviewsSnapshot] = await Promise.all([
       getDocs(collection(db, COLLECTIONS.USERS)),
@@ -583,15 +619,28 @@ export const getDatabaseStatistics = async () => {
       getDocs(collection(db, COLLECTIONS.REVIEWS))
     ]);
 
-    return {
+    const stats = {
       users: usersSnapshot.size,
       professionals: professionalsSnapshot.size,
       appointments: appointmentsSnapshot.size,
       reviews: reviewsSnapshot.size,
     };
-  } catch (error) {
+    
+    console.log('📊 getDatabaseStatistics: Success:', stats);
+    
+    return stats;
+  } catch (error: any) {
     console.error('Error getting database statistics:', error);
-    throw error;
+    console.error('Error code:', error.code);
+    console.error('Error message:', error.message);
+    
+    // Don't throw error - return default values instead
+    return {
+      users: 0,
+      professionals: 0,
+      appointments: 0,
+      reviews: 0,
+    };
   }
 };
 

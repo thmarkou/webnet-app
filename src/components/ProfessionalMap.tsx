@@ -18,11 +18,28 @@ interface ProfessionalMapProps {
 export default function ProfessionalMap({ professional }: ProfessionalMapProps) {
   const { name, profession, address, coordinates } = professional;
 
+  // Validate coordinates
+  const isValidCoordinates = coordinates && 
+    typeof coordinates.latitude === 'number' && 
+    typeof coordinates.longitude === 'number' &&
+    !isNaN(coordinates.latitude) && 
+    !isNaN(coordinates.longitude) &&
+    coordinates.latitude >= -90 && 
+    coordinates.latitude <= 90 &&
+    coordinates.longitude >= -180 && 
+    coordinates.longitude <= 180;
+
+  // Default coordinates (Athens) if invalid
+  const safeCoordinates = isValidCoordinates ? coordinates : {
+    latitude: 37.9755,
+    longitude: 23.7348,
+  };
+
   const handleGetDirections = () => {
     // Use coordinates for consistent behavior across all locations
     const url = Platform.OS === 'ios'
-      ? `http://maps.apple.com/?ll=${coordinates.latitude},${coordinates.longitude}&q=${coordinates.latitude},${coordinates.longitude}`
-      : `https://maps.google.com/maps?daddr=${coordinates.latitude},${coordinates.longitude}`;
+      ? `http://maps.apple.com/?ll=${safeCoordinates.latitude},${safeCoordinates.longitude}&q=${safeCoordinates.latitude},${safeCoordinates.longitude}`
+      : `https://maps.google.com/maps?daddr=${safeCoordinates.latitude},${safeCoordinates.longitude}`;
     
     Linking.canOpenURL(url)
       .then((supported) => {
@@ -33,6 +50,7 @@ export default function ProfessionalMap({ professional }: ProfessionalMapProps) 
         }
       })
       .catch((err) => {
+        console.error('Error opening maps:', err);
         Alert.alert('Σφάλμα', 'Παρουσιάστηκε σφάλμα κατά το άνοιγμα του Χαρτών');
       });
   };
@@ -43,30 +61,42 @@ export default function ProfessionalMap({ professional }: ProfessionalMapProps) 
         <Text style={styles.title}>📍 Τοποθεσία</Text>
       </View>
       
-      <Text style={styles.address}>{address}</Text>
+      <Text style={styles.address}>{address || 'Δεν έχει καθοριστεί διεύθυνση'}</Text>
       
       {/* Native Apple Maps on iOS */}
-      <View style={styles.mapContainer}>
-        <MapView
-          style={styles.map}
-          initialRegion={{
-            latitude: coordinates.latitude,
-            longitude: coordinates.longitude,
-            latitudeDelta: 0.01,
-            longitudeDelta: 0.01,
-          }}
-          showsUserLocation={true}
-          showsMyLocationButton={true}
-          showsCompass={true}
-          showsScale={true}
-        >
-          <Marker
-            coordinate={coordinates}
-            title={name}
-            description={`${profession} - ${address}`}
-          />
-        </MapView>
-      </View>
+      {isValidCoordinates ? (
+        <View style={styles.mapContainer}>
+          <MapView
+            style={styles.map}
+            initialRegion={{
+              latitude: safeCoordinates.latitude,
+              longitude: safeCoordinates.longitude,
+              latitudeDelta: 0.01,
+              longitudeDelta: 0.01,
+            }}
+            showsUserLocation={true}
+            showsMyLocationButton={true}
+            showsCompass={true}
+            showsScale={true}
+            onError={(error) => {
+              console.error('MapView error:', error);
+            }}
+          >
+            <Marker
+              coordinate={safeCoordinates}
+              title={name}
+              description={`${profession} - ${address}`}
+            />
+          </MapView>
+        </View>
+      ) : (
+        <View style={styles.mapContainer}>
+          <View style={styles.mapImageContainer}>
+            <Text style={styles.mapInstructionText}>📍</Text>
+            <Text style={styles.mapSubtext}>Δεν υπάρχουν διαθέσιμες συντεταγμένες</Text>
+          </View>
+        </View>
+      )}
     </View>
   );
 }

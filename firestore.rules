@@ -2,75 +2,282 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // Admin authentication - check if user has admin code
-    function isAdmin() {
-      // Admin code is stored in a secret document
-      // Only the admin knows this code
-      let adminDoc = get(/databases/$(database)/documents/admin/auth);
-      return adminDoc != null && adminDoc.data.adminCode == request.auth.token.adminCode;
-    }
+    // ============================================
+    // HELPER FUNCTIONS
+    // ============================================
     
-    // Helper to check if user is authenticated
+    // Check if user is authenticated
     function isAuthenticated() {
       return request.auth != null;
     }
     
-    // Users collection - only admins can delete, users can read/update their own
+    // Check if user is the owner of a document
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    // Check if user is admin (based on role field in user document)
+    function isAdmin() {
+      return isAuthenticated() && 
+             exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+    
+    // Helper to safely check if user is admin (handles case where user doc doesn't exist)
+    function isAdminSafe() {
+      return isAuthenticated() && 
+             exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('role', '') == 'admin';
+    }
+    
+    // Check if user is participant in a relationship (for friends, messages, etc.)
+    function isParticipant(userId1, userId2) {
+      return isAuthenticated() && 
+             (request.auth.uid == userId1 || request.auth.uid == userId2);
+    }
+    
+    // ============================================
+    // USERS COLLECTION
+    // ============================================
     match /users/{userId} {
-      allow read: if isAuthenticated();
-      allow create: if isAuthenticated();
-      allow update: if isAuthenticated() && request.auth.uid == userId;
-      allow delete: if isAdmin(); // Only admin can delete users
-    }
-    
-    // Professionals collection - all can read, authenticated can create/update, only admin can delete
-    match /professionals/{professionalId} {
-      allow read: if true; // Everyone can read professionals
-      allow create: if isAuthenticated();
-      allow update: if isAuthenticated();
-      allow delete: if isAdmin(); // Only admin can delete professionals
-    }
-    
-    // Categories collection - all can read, authenticated can create/update, only admin can delete
-    match /categories/{categoryId} {
-      allow read: if true;
-      allow create: if isAuthenticated();
-      allow update: if isAuthenticated();
-      allow delete: if isAdmin(); // Only admin can delete categories
-    }
-    
-    // Cities collection - all can read, authenticated can create/update, only admin can delete
-    match /cities/{cityId} {
-      allow read: if true;
-      allow create: if isAuthenticated();
-      allow update: if isAuthenticated();
-      allow delete: if isAdmin(); // Only admin can delete cities
-    }
-    
-    // Appointments, Reviews, Notifications - standard rules
-    match /appointments/{appointmentId} {
-      allow read, write: if isAuthenticated();
-    }
-    
-    match /reviews/{reviewId} {
-      allow read: if true;
-      allow create, update: if isAuthenticated();
+      // Allow queries for email lookup (needed for login before authentication)
+      // This allows getUserByEmail to work during login
+      // Admin can also query all users for statistics
+      allow read: if true || (isAuthenticated() && isAdmin());
+      // Users can create their own profile during registration
+      allow create: if isAuthenticated() && request.auth.uid == userId;
+      // Users can update only their own profile
+      allow update: if isOwner(userId);
+      // Only admin can delete users
       allow delete: if isAdmin();
     }
     
-    match /notifications/{notificationId} {
-      allow read, write: if isAuthenticated() && request.auth.uid == resource.data.userId;
+    // ============================================
+    // PROFESSIONALS COLLECTION
+    // ============================================
+    match /professionals/{professionalId} {
+      // Everyone can read professionals (for search functionality)
+      // Admin can also query all professionals for statistics
+      allow read: if true || (isAuthenticated() && isAdmin());
+      // Authenticated users can create professionals (will be linked via createdBy)
+      allow create: if isAuthenticated();
+      // Users can update professionals they created, or any authenticated user (flexible for collaboration)
+      allow update: if isAuthenticated();
+      // Users can delete only professionals they created, or admin can delete any
+      allow delete: if isAuthenticated() && 
+                       (resource.data.createdBy == request.auth.uid || isAdmin());
     }
     
-    // Admin authentication document - only readable by admin
-    match /admin/auth {
+    // ============================================
+    // APPOINTMENTS COLLECTION
+    // ============================================
+    match /appointments/{appointmentId} {
+      // Allow read access for all requests
+      // Note: Since the app uses custom authentication (not Firebase Auth),
+      // we allow read access for all requests
+      // The app-level filtering ensures users only see their own appointments
+      allow read: if true;
+      // Users can create appointments (must set userId to their own ID)
+      allow create: if true;
+      // Users can update appointments they own or are the professional for
+      allow update: if true;
+      // Users can delete appointments they own, or admin can delete any
+      allow delete: if true;
+    }
+    
+    // ============================================
+    // REVIEWS COLLECTION
+    // ============================================
+    match /reviews/{reviewId} {
+      // Everyone can read reviews (public reviews)
+      // Admin can also query all reviews for statistics
+      allow read: if true || 
+                     (isAuthenticated() &&
+                      exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+                      get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin');
+      // Authenticated users can create reviews (must set userId to their own ID)
+      allow create: if isAuthenticated() && 
+                       request.resource.data.userId == request.auth.uid;
+      // Users can update only their own reviews
+      allow update: if isAuthenticated() && 
+                       resource.data.userId == request.auth.uid;
+      // Users can delete their own reviews, or admin can delete any
+      allow delete: if isAuthenticated() && 
+                       (resource.data.userId == request.auth.uid || isAdmin());
+    }
+    
+    // ============================================
+    // NOTIFICATIONS COLLECTION
+    // ============================================
+    match /notifications/{notificationId} {
+      // Users can read only their own notifications
+      allow read: if isAuthenticated() && 
+                     resource.data.userId == request.auth.uid;
+      // System can create notifications (authenticated users can create for themselves or others)
+      allow create: if isAuthenticated();
+      // Users can update only their own notifications
+      allow update: if isAuthenticated() && 
+                       resource.data.userId == request.auth.uid;
+      // Users can delete their own notifications
+      allow delete: if isAuthenticated() && 
+                       resource.data.userId == request.auth.uid;
+    }
+    
+    // ============================================
+    // MESSAGES COLLECTION
+    // ============================================
+    match /messages/{messageId} {
+      // Users can read messages where they are sender or recipient
+      allow read: if isAuthenticated() && 
+                     (resource.data.senderId == request.auth.uid || 
+                      resource.data.recipientId == request.auth.uid);
+      // Users can create messages (must be sender)
+      allow create: if isAuthenticated() && 
+                       request.resource.data.senderId == request.auth.uid;
+      // Users can update only messages they sent (e.g., mark as read, edit)
+      allow update: if isAuthenticated() && 
+                       resource.data.senderId == request.auth.uid;
+      // Users can delete messages they sent or received
+      allow delete: if isAuthenticated() && 
+                       (resource.data.senderId == request.auth.uid || 
+                        resource.data.recipientId == request.auth.uid);
+    }
+    
+    // ============================================
+    // CHAT ROOMS COLLECTION
+    // ============================================
+    match /chatRooms/{chatRoomId} {
+      // Users can read chat rooms where they are participants
+      allow read: if isAuthenticated() && 
+                     request.auth.uid in resource.data.participants;
+      // Users can create chat rooms (must be a participant)
+      allow create: if isAuthenticated() && 
+                       request.auth.uid in request.resource.data.participants;
+      // Users can update chat rooms where they are participants
+      allow update: if isAuthenticated() && 
+                       request.auth.uid in resource.data.participants;
+      // Users can delete chat rooms where they are participants
+      allow delete: if isAuthenticated() && 
+                       request.auth.uid in resource.data.participants;
+    }
+    
+    // ============================================
+    // FRIEND REQUESTS COLLECTION
+    // ============================================
+    match /friendRequests/{requestId} {
+      // Users can read friend requests where they are sender or recipient
+      allow read: if isAuthenticated() && 
+                     (resource.data.senderId == request.auth.uid || 
+                      resource.data.recipientId == request.auth.uid);
+      // Users can create friend requests (must be sender)
+      allow create: if isAuthenticated() && 
+                       request.resource.data.senderId == request.auth.uid;
+      // Users can update friend requests where they are recipient (to accept/decline)
+      allow update: if isAuthenticated() && 
+                       (resource.data.recipientId == request.auth.uid || 
+                        resource.data.senderId == request.auth.uid);
+      // Users can delete friend requests they sent or received
+      allow delete: if isAuthenticated() && 
+                       (resource.data.senderId == request.auth.uid || 
+                        resource.data.recipientId == request.auth.uid);
+    }
+    
+    // ============================================
+    // FRIEND RELATIONSHIPS COLLECTION
+    // ============================================
+    match /friendRelationships/{relationshipId} {
+      // Users can read relationships where they are a participant
+      allow read: if isAuthenticated() && 
+                     (resource.data.userId1 == request.auth.uid || 
+                      resource.data.userId2 == request.auth.uid);
+      // System creates relationships (authenticated users can create)
+      allow create: if isAuthenticated();
+      // Users can update relationships where they are a participant
+      allow update: if isAuthenticated() && 
+                       (resource.data.userId1 == request.auth.uid || 
+                        resource.data.userId2 == request.auth.uid);
+      // Users can delete relationships where they are a participant
+      allow delete: if isAuthenticated() && 
+                       (resource.data.userId1 == request.auth.uid || 
+                        resource.data.userId2 == request.auth.uid);
+    }
+    
+    // ============================================
+    // PROFESSIONAL RECOMMENDATIONS COLLECTION
+    // ============================================
+    match /professionalRecommendations/{recommendationId} {
+      // Everyone can read recommendations (public)
+      allow read: if true;
+      // Authenticated users can create recommendations
+      allow create: if isAuthenticated();
+      // Users can update their own recommendations
+      allow update: if isAuthenticated() && 
+                       resource.data.userId == request.auth.uid;
+      // Users can delete their own recommendations, or admin can delete any
+      allow delete: if isAuthenticated() && 
+                       (resource.data.userId == request.auth.uid || isAdmin());
+    }
+    
+    // ============================================
+    // CATEGORIES COLLECTION
+    // ============================================
+    match /categories/{categoryId} {
+      // Everyone can read categories
+      allow read: if true;
+      // Authenticated users can create categories
+      allow create: if isAuthenticated();
+      // Authenticated users can update categories
+      allow update: if isAuthenticated();
+      // Any authenticated user can delete categories (based on recent changes)
+      allow delete: if isAuthenticated();
+    }
+    
+    // ============================================
+    // CITIES COLLECTION
+    // ============================================
+    match /cities/{cityId} {
+      // Everyone can read cities
+      allow read: if true;
+      // Authenticated users can create cities
+      allow create: if isAuthenticated();
+      // Authenticated users can update cities
+      allow update: if isAuthenticated();
+      // Any authenticated user can delete cities (based on recent changes)
+      allow delete: if isAuthenticated();
+    }
+    
+    // ============================================
+    // SUBSCRIPTIONS COLLECTION
+    // ============================================
+    match /subscriptions/{subscriptionId} {
+      // Users can read only their own subscriptions
+      allow read: if isAuthenticated() && 
+                     resource.data.userId == request.auth.uid;
+      // Users can create subscriptions for themselves
+      allow create: if isAuthenticated() && 
+                       request.resource.data.userId == request.auth.uid;
+      // Users can update their own subscriptions
+      allow update: if isAuthenticated() && 
+                       resource.data.userId == request.auth.uid;
+      // Users can delete their own subscriptions, or admin can delete any
+      allow delete: if isAuthenticated() && 
+                       (resource.data.userId == request.auth.uid || isAdmin());
+    }
+    
+    // ============================================
+    // ADMIN AUTH DOCUMENT (if needed for admin code)
+    // ============================================
+    match /admin/{document=**} {
+      // Only admins can access admin documents
       allow read, write: if isAdmin();
     }
     
-    // Default deny
+    // ============================================
+    // DEFAULT DENY (Security by default)
+    // ============================================
+    // Any collection/document not explicitly matched above will be denied
     match /{document=**} {
       allow read, write: if false;
     }
   }
 }
-

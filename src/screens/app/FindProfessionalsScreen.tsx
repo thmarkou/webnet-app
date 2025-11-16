@@ -130,11 +130,13 @@ export default function FindProfessionalsScreen() {
         }
         
         try {
-          // Get professionals created by current user only
-          const firestoreProfessionals = await getProfessionals({
-            createdBy: user.id // Filter by current user ID
-          });
-          console.log('✅ Loaded professionals from Firestore (user own):', firestoreProfessionals.length);
+          // Get professionals:
+          // - Admin users see all professionals
+          // - Regular users see only their own + professionals without createdBy (backward compatibility)
+          const firestoreProfessionals = await getProfessionals(
+            user.role === 'admin' ? undefined : { createdBy: user.id }
+          );
+          console.log(`✅ Loaded professionals from Firestore (${user.role === 'admin' ? 'all' : 'user own'}):`, firestoreProfessionals.length);
           filtered = firestoreProfessionals;
       } catch (error) {
         console.error('Error loading professionals from Firestore:', error);
